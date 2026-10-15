@@ -1,0 +1,16 @@
+{
+  "scope": "public archival copy only; original development and production environments unchanged",
+  "changes": {
+    "setuptools==69.5.1": "setuptools==83.0.0",
+    "pytest==7.4.4": "pytest==9.0.3",
+    "pluggy==1.0.0": "pluggy==1.5.0",
+    "wheel==0.43.0": "wheel==0.46.2",
+    "fonttools==4.51.0": "fonttools==4.60.2",
+    "pillow==10.3.0": "pillow==12.3.0",
+    "soupsieve==2.5": "soupsieve==2.9.0",
+    "lxml==5.2.1": "lxml==6.1.0",
+    "pyarrow==14.0.2": "pyarrow==23.0.1"
+  },
+  "status": "SECURITY_SCAN_PASS_REGRESSION_WITH_TARGETED_RECOVERY",
+  "regression_note": "Full offline run had one original contract-probe metadata failure; corrected probe and final targeted tests pass. Restricted inputs remain skipped."
+}

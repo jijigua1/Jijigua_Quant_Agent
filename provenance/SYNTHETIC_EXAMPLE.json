@@ -1,0 +1,355 @@
+{
+  "data_kind": "synthetic",
+  "real_api_calls": 0,
+  "real_test_evaluations": 0,
+  "demo_seconds": 21.047,
+  "core_code_sha256": "b23d1810fe710779c2df8990bf497140b94bdbd2b584acb68881e65b252dc6d6",
+  "independent_metric_check": {
+    "run": "synthetic example; path normalized",
+    "status": "PASSED",
+    "values_checked": 4228,
+    "heatmaps": 12,
+    "mismatches": [],
+    "n_mismatches": 0
+  },
+  "independent_factor_passed": true,
+  "independent_factor_checks": [
+    {
+      "name": "factor values vs PKL",
+      "cells": 58240,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 0.0,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "daily IC",
+      "cells": 1444,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 3.3306690738754696e-16,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "daily RankIC",
+      "cells": 1444,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 1.6653345369377348e-16,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "G0..G4 (G0 = highest)",
+      "cells": 7220,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 9.974659986866641e-17,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "G0-G4 vs G4..G0 reversed (diagnostic)",
+      "cells": 7220,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 5776,
+      "max_abs_diff": 0.07866721750045574,
+      "tolerance": 1e-09,
+      "passed": false
+    },
+    {
+      "name": "daily RankIC recomputed from the PKL values",
+      "cells": 1444,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 1.6653345369377348e-16,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "G0..G4 recomputed from the PKL values",
+      "cells": 7220,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 9.974659986866641e-17,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "train ic mean",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 1.3877787807814457e-17,
+      "tolerance": 1e-10,
+      "passed": true
+    },
+    {
+      "name": "train ic std",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 0.0,
+      "tolerance": 1e-10,
+      "passed": true
+    },
+    {
+      "name": "train ic ICIR",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 1.1102230246251565e-16,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "train ic win rate",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 0.0,
+      "tolerance": 1e-12,
+      "passed": true
+    },
+    {
+      "name": "train ic n_dates",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 0.0,
+      "tolerance": 0,
+      "passed": true
+    },
+    {
+      "name": "train ic HAC se (lags 6)",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 8.153200337090993e-17,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "train rank_ic mean",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 0.0,
+      "tolerance": 1e-10,
+      "passed": true
+    },
+    {
+      "name": "train rank_ic std",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 5.551115123125783e-17,
+      "tolerance": 1e-10,
+      "passed": true
+    },
+    {
+      "name": "train rank_ic ICIR",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 5.551115123125783e-17,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "train rank_ic win rate",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 0.0,
+      "tolerance": 1e-12,
+      "passed": true
+    },
+    {
+      "name": "train rank_ic n_dates",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 0.0,
+      "tolerance": 0,
+      "passed": true
+    },
+    {
+      "name": "train rank_ic HAC se (lags 6)",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 3.8163916471489756e-17,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "validation ic mean",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 1.3877787807814457e-17,
+      "tolerance": 1e-10,
+      "passed": true
+    },
+    {
+      "name": "validation ic std",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 2.7755575615628914e-17,
+      "tolerance": 1e-10,
+      "passed": true
+    },
+    {
+      "name": "validation ic ICIR",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 1.1102230246251565e-16,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "validation ic win rate",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 0.0,
+      "tolerance": 1e-12,
+      "passed": true
+    },
+    {
+      "name": "validation ic n_dates",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 0.0,
+      "tolerance": 0,
+      "passed": true
+    },
+    {
+      "name": "validation ic HAC se (lags 5)",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 8.673617379884035e-17,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "validation rank_ic mean",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 4.163336342344337e-17,
+      "tolerance": 1e-10,
+      "passed": true
+    },
+    {
+      "name": "validation rank_ic std",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 2.7755575615628914e-17,
+      "tolerance": 1e-10,
+      "passed": true
+    },
+    {
+      "name": "validation rank_ic ICIR",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 1.1102230246251565e-16,
+      "tolerance": 1e-09,
+      "passed": true
+    },
+    {
+      "name": "validation rank_ic win rate",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 0.0,
+      "tolerance": 1e-12,
+      "passed": true
+    },
+    {
+      "name": "validation rank_ic n_dates",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 0.0,
+      "tolerance": 0,
+      "passed": true
+    },
+    {
+      "name": "validation rank_ic HAC se (lags 5)",
+      "cells": 1,
+      "nan_pattern_mismatch": 0,
+      "over_tolerance": 0,
+      "max_abs_diff": 6.765421556309548e-17,
+      "tolerance": 1e-09,
+      "passed": true
+    }
+  ],
+  "original_html_sha256": "270a8c1d19f05e50894f3a19c1a0fed2f8ca3177eeb94886ca53bd83d956aa56",
+  "public_html_sha256": "ed2bd87f67f8e0e96d9e73abc6fbd09049c57f9a2fae89601526232ba9922d6f",
+  "html_changes": "OFL Noto font rerender, synthetic banner and normalization of local paths; numerical statistics unchanged",
+  "font_render": {
+    "seconds": 16.0,
+    "font_name": "Noto Sans SC",
+    "font_sha256": "763146584cf0710223441356b4395e279021b0806c196614377a7a0174ae074a",
+    "license_url": "https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/LICENSE",
+    "license_sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
+    "data_kind": "synthetic",
+    "network_calls_to_models": 0
+  },
+  "files": [
+    {
+      "path": "docs/examples/factor_metrics.csv",
+      "source_sha256": "852d84fbf9ee366022e4039ad24763ae84dfe7bf9a92a3265501dcd7b4f2c62d",
+      "public_sha256": "852d84fbf9ee366022e4039ad24763ae84dfe7bf9a92a3265501dcd7b4f2c62d",
+      "data_kind": "synthetic"
+    },
+    {
+      "path": "docs/examples/factor_stability.csv",
+      "source_sha256": "bfb90769dfb41a5a6be35c63da2e778e1782a6d70b8d7c007730ff1639397b2d",
+      "public_sha256": "bfb90769dfb41a5a6be35c63da2e778e1782a6d70b8d7c007730ff1639397b2d",
+      "data_kind": "synthetic"
+    },
+    {
+      "path": "docs/examples/evaluation_annual.csv",
+      "source_sha256": "cdc798212653f62497a661d2bb73ff7a3091f40b4945119ac831ad48b01f083f",
+      "public_sha256": "cdc798212653f62497a661d2bb73ff7a3091f40b4945119ac831ad48b01f083f",
+      "data_kind": "synthetic"
+    },
+    {
+      "path": "docs/examples/evaluation_monthly.csv",
+      "source_sha256": "5df858bceef22a14836696f5832b89e89bbf28ad0028ce9025c3aa6aa2ae7f6d",
+      "public_sha256": "5df858bceef22a14836696f5832b89e89bbf28ad0028ce9025c3aa6aa2ae7f6d",
+      "data_kind": "synthetic"
+    },
+    {
+      "path": "docs/examples/evaluation_daily.csv",
+      "source_sha256": "b8709ae027f35e2aa11692c0dd3b19ff6401539214954bdc0d9aa90d7238b2ae",
+      "public_sha256": "b8709ae027f35e2aa11692c0dd3b19ff6401539214954bdc0d9aa90d7238b2ae",
+      "data_kind": "synthetic"
+    },
+    {
+      "path": "docs/examples/report_tables.json",
+      "source_sha256": "a48b94cc35e9bfba076a097469d8243b2312e4eddc029031d0c3f50624992707",
+      "public_sha256": "a48b94cc35e9bfba076a097469d8243b2312e4eddc029031d0c3f50624992707",
+      "data_kind": "synthetic"
+    },
+    {
+      "path": "docs/examples/metric_system.json",
+      "source_sha256": "8060ead7cfba71af9cb9b35a857839a4711388d96fe1e07e7797512940c710a3",
+      "public_sha256": "8060ead7cfba71af9cb9b35a857839a4711388d96fe1e07e7797512940c710a3",
+      "data_kind": "synthetic"
+    }
+  ],
+  "pdf_exports": 14,
+  "svg_exports": 14
+}

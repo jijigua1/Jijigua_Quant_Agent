@@ -1,0 +1,58 @@
+{
+  "mock_research": {
+    "skill.toml": "caeeaa4833560a6bd94cfaeebbd7199117184d9c63fc8b9d5a2addc5e5e12276",
+    "SKILL.md": "610013f47ae29aeae57d37be35b9e4cc3e4a07fd23a152718354efdf7acddf7d",
+    "input.schema.json": "0aa5ab9ab6c88c2cbd6b56723bad266702a5f7d632d9f69cf9dff27614e0a60f",
+    "output.schema.json": "1e12f8375c350f237ab4bbf1b9fe2092d9a6911930b3b1231a102a272e838f55",
+    "example.json": "830358d35113018b7d03bf50fd40219fc1bd734afffc1ed6a3ce63a6ca6a761d"
+  },
+  "data_query": {
+    "skill.toml": "e5b8e6c6b14317b30871001763c323758f6c3d07acb26f413eaf53c0acae3fc9",
+    "SKILL.md": "9d26260f9d6e5986a37ad40ab6db0497d7e22281e5f6469e8a5d2346df92ce40",
+    "input.schema.json": "0aa5ab9ab6c88c2cbd6b56723bad266702a5f7d632d9f69cf9dff27614e0a60f",
+    "output.schema.json": "5b293c08795d742329d88299f96aaef95c95ade3784b80b405f601fbe794d501",
+    "example.json": "58e0b4fe03b0ad8bd5065a3472b76564516696521d0d5904139fcf7291eba56c"
+  },
+  "data_research": {
+    "example.json": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+    "input.schema.json": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+    "output.schema.json": "e32a1e697dd9cce874f702e26c3db6fcc54cc450251b71cd896f5ef83173a0ec",
+    "SKILL.md": "fff50cd413ee381f67a002fd6402c12ca722f6815984606d955f2dff2cf865a9",
+    "skill.toml": "d5412404dd325de83ec6011e5ae26ef28b275714127e31a7ad73b4c2cf0dc27e"
+  },
+  "factor_research": {
+    "example.json": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+    "input.schema.json": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+    "output.schema.json": "07ba66375d548375058e4366009f1d43a0ee3e610d3a2591de27c57432571ef2",
+    "SKILL.md": "3b98c797c27454d1679823da7675c2d3b68e19a0c8ed737a32b3c20d0c7e4adb",
+    "skill.toml": "f25bd393d63b116b5ff519bbf4987e9d87bd773aa50e7053ac00ad87eb721e6b"
+  },
+  "strategy_backtest": {
+    "example.json": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+    "input.schema.json": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+    "output.schema.json": "07ba66375d548375058e4366009f1d43a0ee3e610d3a2591de27c57432571ef2",
+    "SKILL.md": "ff707d4da283b199917c4d8d8b9b8e6a381c94f659d3017e25b87ef966b90541",
+    "skill.toml": "e94ee12ed5020734a21b33e05a4cffde1559330b4a8d8129a04c83e763bd7871"
+  },
+  "research_diagnostics": {
+    "example.json": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+    "input.schema.json": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+    "output.schema.json": "07ba66375d548375058e4366009f1d43a0ee3e610d3a2591de27c57432571ef2",
+    "SKILL.md": "c66ce7dc0a6d460885ee08295e66100d55cb109cc6fe45b151093b875fc558c3",
+    "skill.toml": "d6c3d94e64eb238fd4d38691c3515a0960f8068a76cd61d1a5468aa4c18ab466"
+  },
+  "research_reporting": {
+    "example.json": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+    "input.schema.json": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+    "output.schema.json": "07ba66375d548375058e4366009f1d43a0ee3e610d3a2591de27c57432571ef2",
+    "SKILL.md": "c9ceca2d0c2480f186a77a8dd219b4afdfca556f52fb8b20bf340cd311642088",
+    "skill.toml": "889561f4b8512c39144ea97dd20cc21c5d4bf1c0a4343e2abeb6e0f83b57638e"
+  },
+  "paper_research": {
+    "skill.toml": "4321c0decf90acbd97f886bcbeece2906b1d79615b7558d2e7246d3b529c2fd1",
+    "SKILL.md": "4d0cd054f2c6becbb47ef55133b8c075e007745c9836a0d68612609640a5f74e",
+    "input.schema.json": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+    "output.schema.json": "e32a1e697dd9cce874f702e26c3db6fcc54cc450251b71cd896f5ef83173a0ec",
+    "example.json": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753"
+  }
+}

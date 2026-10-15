@@ -1,0 +1,1361 @@
+[
+  {
+    "path": "src/paper_agent/__init__.py",
+    "description": "paper_agent: DeepSeek-driven paper-to-factor research workflow built on paper_research v0.3.",
+    "exports": []
+  },
+  {
+    "path": "src/paper_agent/algorithm.py",
+    "description": "Implementation route: DSL first; otherwise a DeepSeek-designed Python candidate, checked and repaired without running it.",
+    "exports": [
+      "route",
+      "design",
+      "_pair_fixture",
+      "pair_tests",
+      "design_pair"
+    ]
+  },
+  {
+    "path": "src/paper_agent/evidence.py",
+    "description": "Bounded evidence index over an ingested paper (paper_research document + v0.3 spec).",
+    "exports": [
+      "_tokens",
+      "_norm",
+      "PaperEvidence"
+    ]
+  },
+  {
+    "path": "src/paper_agent/instruments.py",
+    "description": "Which financial instrument a paper actually studies, read deterministically from the whole document.",
+    "exports": [
+      "_sentence",
+      "scan",
+      "classify",
+      "model_classes_all"
+    ]
+  },
+  {
+    "path": "src/paper_agent/ledger.py",
+    "description": "Task directory, hash-chained event ledger, artifacts with fingerprints, budgets and resumable state.",
+    "exports": [
+      "canonical",
+      "sha256_text",
+      "sha256_obj",
+      "BudgetExceeded",
+      "TaskLedger"
+    ]
+  },
+  {
+    "path": "src/paper_agent/model.py",
+    "description": "Model access. Live calls go through the Research Agent's own DeepSeek adapter (no proxy, no redirect, response cap,",
+    "exports": [
+      "ModelFailure",
+      "InvalidStructuredOutput",
+      "_strict_issue",
+      "_first_mismatch",
+      "_bracket_repair",
+      "_premature_close",
+      "_syntax_hint",
+      "_validate",
+      "ScriptedClient",
+      "DeepSeekClient",
+      "_extract_json",
+      "ask_json"
+    ]
+  },
+  {
+    "path": "src/paper_agent/planner.py",
+    "description": "Paper -> research plan.",
+    "exports": [
+      "PlanError",
+      "_freq",
+      "_augment_spec",
+      "_derive_window",
+      "_rhs",
+      "_periods",
+      "_return_derivation",
+      "_assets",
+      "_algorithm_plan",
+      "plan",
+      "_result",
+      "_timeline",
+      "decision_question",
+      "decision_text"
+    ]
+  },
+  {
+    "path": "src/paper_agent/reconcile.py",
+    "description": "AI reading x deterministic program analysis: free parameters, conflict sources and the reader's bounded investigation.",
+    "exports": [
+      "_canon",
+      "_pattern",
+      "_fold",
+      "substitute",
+      "symbolic_counts",
+      "bind_parameters",
+      "unreadable_formula",
+      "field_map",
+      "_panels",
+      "formulas_agree",
+      "classify",
+      "annotate",
+      "_page_text",
+      "save_page_image",
+      "run_request",
+      "accept_claim"
+    ]
+  },
+  {
+    "path": "src/paper_agent/registry.py",
+    "description": "Human approval of an exact candidate, post-approval known-truth tests, and the trusted implementation registry.",
+    "exports": [
+      "RegistryError",
+      "approval_phrase",
+      "_frame",
+      "_close",
+      "TrustedRegistry"
+    ]
+  },
+  {
+    "path": "src/paper_agent/semantics.py",
+    "description": "Paper semantics vs the research definition: deterministic, independent of the model that wrote the definition.",
+    "exports": [
+      "plain",
+      "_num",
+      "_unit",
+      "cues",
+      "_quotes",
+      "_sym_text",
+      "usage",
+      "_numbers_in",
+      "_accepted_constants",
+      "check_factor",
+      "check_symbols",
+      "definition_passages",
+      "example_path",
+      "expected_return",
+      "check_return_derivations",
+      "timeline"
+    ]
+  },
+  {
+    "path": "src/paper_agent/study_bridge.py",
+    "description": "Run a factor through the Research Agent's own study pipeline (patched v0.7.0 copy).",
+    "exports": [
+      "ImplementationMismatch",
+      "ir_latex",
+      "make_backend",
+      "_Store",
+      "task_context",
+      "run_study",
+      "attach_provenance"
+    ]
+  },
+  {
+    "path": "src/paper_agent/trusted_ir.py",
+    "description": "Reviewed, vectorised executor for the closed Factor IR grammar (human-written; not model output).",
+    "exports": [
+      "_depends_on",
+      "_check_window_body",
+      "_full",
+      "_ema",
+      "_prod",
+      "evaluate"
+    ]
+  },
+  {
+    "path": "src/paper_agent/understanding.py",
+    "description": "DeepSeek paper understanding with local verification.",
+    "exports": [
+      "_queries",
+      "understand",
+      "reverify",
+      "_second_readings",
+      "_investigate",
+      "_cites",
+      "_label",
+      "_window_periods",
+      "_strip_lhs",
+      "_normalized",
+      "_degenerate",
+      "verify"
+    ]
+  },
+  {
+    "path": "src/paper_research/__init__.py",
+    "description": "paper_research: local-first academic paper / research report understanding.",
+    "exports": []
+  },
+  {
+    "path": "src/paper_research/candidate.py",
+    "description": "Candidate implementations for factors the DSL cannot express: generate, specify, analyse, preserve.",
+    "exports": [
+      "_gen",
+      "contract_from_task",
+      "generate_source",
+      "_frame_json",
+      "_fixture",
+      "test_specification",
+      "_issue",
+      "_int",
+      "_assign_counts",
+      "_loop_ranges",
+      "_span",
+      "_panel_key",
+      "_composed_reach",
+      "analyze_source",
+      "_sha",
+      "build_candidate",
+      "write_candidate_bundle",
+      "verify_candidate_bundle",
+      "promote_candidate"
+    ]
+  },
+  {
+    "path": "src/paper_research/common.py",
+    "description": "Shared text utilities: blocks, sentences, language, structure cues, injection scanning.",
+    "exports": [
+      "make_block",
+      "clean",
+      "language",
+      "garble_score",
+      "sentences",
+      "heading_match",
+      "caption_match",
+      "injection_hits"
+    ]
+  },
+  {
+    "path": "src/paper_research/document.py",
+    "description": "ingest_document: path control, format dispatch, and the versioned document structure.",
+    "exports": [
+      "_check_path",
+      "_decode",
+      "_split_references",
+      "_formulas",
+      "_metadata",
+      "ingest_document"
+    ]
+  },
+  {
+    "path": "src/paper_research/dsl.py",
+    "description": "Mapping factor IR onto the main Agent's controlled 19-operator expression DSL (no Python execution).",
+    "exports": [
+      "_Builder",
+      "compile_ir",
+      "_dedupe",
+      "_prune",
+      "_depth",
+      "interpret"
+    ]
+  },
+  {
+    "path": "src/paper_research/errors.py",
+    "description": "Error codes for paper_research. Every failure carries a stable code and a message.",
+    "exports": [
+      "PaperError"
+    ]
+  },
+  {
+    "path": "src/paper_research/extract.py",
+    "description": "extract_research_spec: rule-based, evidence-grounded research specification (no LLM).",
+    "exports": [
+      "_metric_norm",
+      "_parse_splits",
+      "_parse_results",
+      "_table_results",
+      "_excluded",
+      "_loc",
+      "_sentence_index",
+      "_item",
+      "_num",
+      "_parse_window",
+      "extract_research_spec"
+    ]
+  },
+  {
+    "path": "src/paper_research/factor_ir.py",
+    "description": "Factor intermediate representation (IR): a restricted, deterministic parser for factor formulas written",
+    "exports": [
+      "IRError",
+      "tokenize",
+      "Parser",
+      "parse_bounds",
+      "parse_time_index",
+      "ema_alpha",
+      "ema_window",
+      "make_ema",
+      "ema_weights",
+      "_bind_window_var",
+      "parse_formula",
+      "walk",
+      "fields_used",
+      "history",
+      "warmup",
+      "render",
+      "semantics_of",
+      "tolerant_sign",
+      "sign_scale",
+      "evaluate"
+    ]
+  },
+  {
+    "path": "src/paper_research/fixtures.py",
+    "description": "Synthetic test documents (all content invented for testing; not real papers or citations).",
+    "exports": [
+      "_Writer",
+      "factor_paper_pdf",
+      "chinese_report_pdf",
+      "scanned_pdf",
+      "encrypted_pdf",
+      "factor_html",
+      "bilingual_markdown",
+      "factor_docx"
+    ]
+  },
+  {
+    "path": "src/paper_research/fixtures_factor.py",
+    "description": "Representative factor documents with known ground truth (synthetic test documents).",
+    "exports": [
+      "week52_markdown",
+      "amihud_html",
+      "reversal_markdown_zh"
+    ]
+  },
+  {
+    "path": "src/paper_research/formulas.py",
+    "description": "Formula detection, readable representation, variable definitions and suspicion checks.",
+    "exports": [
+      "math_ratio",
+      "is_formula_line",
+      "readable",
+      "symbols",
+      "suspicion",
+      "definitions",
+      "build_formula"
+    ]
+  },
+  {
+    "path": "src/paper_research/ingest_pdf.py",
+    "description": "PDF ingestion with PyMuPDF: text layer only, no OCR, no JavaScript, no embedded files.",
+    "exports": [
+      "_lines",
+      "_inside",
+      "ingest_pdf",
+      "_link_tables"
+    ]
+  },
+  {
+    "path": "src/paper_research/ingest_text.py",
+    "description": "HTML, Markdown and DOCX ingestion. Scripts, macros and embedded objects are never executed.",
+    "exports": [
+      "_Builder",
+      "ingest_markdown",
+      "ingest_html",
+      "ingest_docx"
+    ]
+  },
+  {
+    "path": "src/paper_research/layout_math.py",
+    "description": "Inline mathematics recovered from PDF page layout (PyMuPDF spans and vector drawings).",
+    "exports": [
+      "glyph_substitution",
+      "_origin_y",
+      "_base",
+      "script_text",
+      "_latex_side",
+      "fraction_rules",
+      "_nonspace",
+      "reconstruct",
+      "_row_contains",
+      "_attach",
+      "_stacked_fragments"
+    ]
+  },
+  {
+    "path": "src/paper_research/numbers.py",
+    "description": "Signed numbers as typeset in papers: ASCII hyphen, Unicode minus (U+2212) and en-dash (U+2013) used as minus,",
+    "exports": [
+      "parse_number",
+      "find_numbers"
+    ]
+  },
+  {
+    "path": "src/paper_research/skill_tools.py",
+    "description": "The paper_research skill as tools for the existing qrtk_skills runtime (kept separate from",
+    "exports": [
+      "DocumentRef",
+      "_wrap",
+      "paper_ingest",
+      "paper_extract_spec",
+      "paper_validate_spec",
+      "paper_export_spec",
+      "register_paper_tools",
+      "create_paper_runtime"
+    ]
+  },
+  {
+    "path": "src/paper_research/spec.py",
+    "description": "Versioned schemas, validation (structure + provenance), JSON/Markdown export and reload.",
+    "exports": [
+      "_evidence",
+      "validate_research_spec",
+      "validate_document",
+      "_where",
+      "_md_cell",
+      "spec_markdown",
+      "export_research_spec",
+      "load_research_spec"
+    ]
+  },
+  {
+    "path": "src/paper_research/tables_text.py",
+    "description": "Tables without ruled cells (typical journal layout) recovered from text-line geometry.",
+    "exports": [
+      "_cells",
+      "_numeric",
+      "rotate",
+      "table_region",
+      "reconstruct_table"
+    ]
+  },
+  {
+    "path": "src/paper_research/task.py",
+    "description": "Paper -> research task: an executable research specification built from an evidence-grounded spec.",
+    "exports": [
+      "interpret_definition",
+      "_window_in_periods",
+      "_derive_window",
+      "_cross_time_prices",
+      "_common_lag",
+      "_shift",
+      "_ev",
+      "_paper",
+      "_select_factor",
+      "_substitute",
+      "paper_frequency",
+      "_scale_time",
+      "build_research_task",
+      "_derivation_options",
+      "_admission",
+      "_task_hash",
+      "_evidence",
+      "_years",
+      "validate_research_task",
+      "to_qrtk_research_spec",
+      "_at",
+      "task_markdown",
+      "export_research_task"
+    ]
+  },
+  {
+    "path": "src/qrtk/__init__.py",
+    "description": "qrtk: independent quantitative research toolkit.",
+    "exports": []
+  },
+  {
+    "path": "src/qrtk/backtest.py",
+    "description": "Small, transparent daily cash-equity reference ledger (for cross-checking real engines).",
+    "exports": [
+      "_finite_rate",
+      "CostModel",
+      "MarketRules",
+      "BacktestResult",
+      "_flag",
+      "_check_price_panel",
+      "_validate_orders",
+      "run_backtest",
+      "run_backtest_with_execution"
+    ]
+  },
+  {
+    "path": "src/qrtk/contract.py",
+    "description": "Market data contract: declared units, timestamps, sessions and availability.",
+    "exports": [
+      "ContractError",
+      "_td",
+      "SessionConfig",
+      "MinuteBarContract",
+      "DailyBarContract",
+      "_issue_frame",
+      "normalize_minute_bars",
+      "normalize_daily_bars",
+      "to_panel"
+    ]
+  },
+  {
+    "path": "src/qrtk/diagnostics.py",
+    "description": "Factor research diagnostics on top of factor_eval, with frozen research specifications.",
+    "exports": [
+      "factor_distribution",
+      "coverage_stability",
+      "monotonicity",
+      "period_summary",
+      "multi_horizon",
+      "ResearchSpec",
+      "evaluate_splits"
+    ]
+  },
+  {
+    "path": "src/qrtk/execution.py",
+    "description": "Execution-price rules: a daily signal from the close of T traded on session T+1.",
+    "exports": [
+      "ExecutionRule",
+      "window_vwap_rule",
+      "ExecutionPrices",
+      "build_execution_prices"
+    ]
+  },
+  {
+    "path": "src/qrtk/factor_eval.py",
+    "description": "Daily cross-sectional factor evaluation on wide panels (index = trading dates, columns = codes).",
+    "exports": [
+      "_check_panel",
+      "forward_returns",
+      "label_exit_dates",
+      "valid_mask",
+      "cross_sectional_corr",
+      "ic_summary",
+      "assign_groups",
+      "group_returns",
+      "cumulative_returns",
+      "coverage",
+      "group_turnover",
+      "rank_autocorr",
+      "choose_direction",
+      "evaluate_factor"
+    ]
+  },
+  {
+    "path": "src/qrtk/metrics.py",
+    "description": "Independent reconciliation and performance metrics for a BacktestResult.",
+    "exports": [
+      "reconcile",
+      "performance_metrics"
+    ]
+  },
+  {
+    "path": "src/qrtk/minute.py",
+    "description": "Minute bars -> daily bars and fixed intraday-window features.",
+    "exports": [
+      "_suspended_lookup",
+      "_trade_summary",
+      "_require_units",
+      "aggregate_daily",
+      "window_bars",
+      "window_stats"
+    ]
+  },
+  {
+    "path": "src/qrtk_skills/__init__.py",
+    "description": "Quant research skills v0.1: manifests + local mock-tool runtime around qrtk.",
+    "exports": [
+      "create_runtime"
+    ]
+  },
+  {
+    "path": "src/qrtk_skills/report.py",
+    "description": "report.render: Markdown research report + PNG charts built only from stored artifacts.",
+    "exports": [
+      "f4",
+      "pct",
+      "_table",
+      "_save",
+      "report_render"
+    ]
+  },
+  {
+    "path": "src/qrtk_skills/runtime.py",
+    "description": "Local Skill Runtime: manifests, a mock tool protocol, and the checks around every call.",
+    "exports": [
+      "SkillError",
+      "validate",
+      "SkillManifest",
+      "load_skills",
+      "manifest_index",
+      "ToolSpec",
+      "ToolRegistry",
+      "_fingerprint",
+      "DataCatalog",
+      "ArtifactStore",
+      "ToolContext",
+      "SkillRuntime"
+    ]
+  },
+  {
+    "path": "src/qrtk_skills/tools.py",
+    "description": "Tool implementations behind the five skills. All computation is delegated to qrtk.",
+    "exports": [
+      "j",
+      "_panel",
+      "_spec",
+      "data_profile_panel",
+      "data_minute_quality",
+      "_evaluate_full",
+      "factor_evaluate",
+      "factor_decay",
+      "factor_profile",
+      "strategy_signal_to_orders",
+      "_qrtk_reference_engine",
+      "register_engine",
+      "strategy_backtest",
+      "diag_lookahead_check",
+      "diag_sensitivity",
+      "diag_evidence_review",
+      "build_registry"
+    ]
+  },
+  {
+    "path": "src/research_agent/__init__.py",
+    "description": "Research core. No server, legacy agent or model SDK is imported here.",
+    "exports": []
+  },
+  {
+    "path": "src/research_agent/__main__.py",
+    "description": "无模块docstring；下列入口由AST清单确认。",
+    "exports": []
+  },
+  {
+    "path": "src/research_agent/acceptance.py",
+    "description": "Approved Skill validators. A Skill cannot supply executable validator code.",
+    "exports": [
+      "EvidenceRequired",
+      "_mock_research",
+      "_data_query",
+      "_quant_research",
+      "accept_result"
+    ]
+  },
+  {
+    "path": "src/research_agent/app.py",
+    "description": "Composition root. Config chooses providers; research code knows only Protocol.",
+    "exports": [
+      "load_policy",
+      "load_provider_config",
+      "make_provider",
+      "build",
+      "build_chat"
+    ]
+  },
+  {
+    "path": "src/research_agent/artifacts.py",
+    "description": "Task-scoped artifacts. Roots come from operator configuration, never model arguments.",
+    "exports": [
+      "check_directory",
+      "ResearchArtifacts"
+    ]
+  },
+  {
+    "path": "src/research_agent/cli.py",
+    "description": "Local offline CLI. No deployment, shell executor, arbitrary plugin or Key flags.",
+    "exports": [
+      "parser",
+      "main"
+    ]
+  },
+  {
+    "path": "src/research_agent/contracts.py",
+    "description": "Bounded JSON contracts. Validation never fetches remote schema references.",
+    "exports": [
+      "ContractError",
+      "canonical",
+      "fingerprint",
+      "parse_json",
+      "validate",
+      "object_schema"
+    ]
+  },
+  {
+    "path": "src/research_agent/conversation.py",
+    "description": "Model-directed conversation. Research executes only through the existing workflow.",
+    "exports": [
+      "clip",
+      "Conversation"
+    ]
+  },
+  {
+    "path": "src/research_agent/data.py",
+    "description": "Bounded read-only CSV/Parquet access through an operator-approved manifest.",
+    "exports": [
+      "ResourceCatalog"
+    ]
+  },
+  {
+    "path": "src/research_agent/definition_gate.py",
+    "description": "Research-definition consent gate. Code, not model text, decides whether a changed definition may run.",
+    "exports": [
+      "ValidationPassed",
+      "DefinitionDecisionRequired",
+      "CodeApprovalRequired",
+      "code_approval_text",
+      "code_consent",
+      "user_consent",
+      "definitional_arguments",
+      "describe_call",
+      "proposal",
+      "proposal_text",
+      "held_call",
+      "authorized"
+    ]
+  },
+  {
+    "path": "src/research_agent/economic_rationale.py",
+    "description": "Economic rationale: an ex-ante, evidence-checked mechanism analysis, then a deterministic comparison with results.",
+    "exports": [
+      "_text",
+      "_deployment_limits",
+      "generate",
+      "_passage_id",
+      "unavailable",
+      "check",
+      "compare",
+      "verdict_text"
+    ]
+  },
+  {
+    "path": "src/research_agent/evidence.py",
+    "description": "Small views of validated results; originals remain in the immutable evidence ledger.",
+    "exports": [
+      "parameters",
+      "report_summary",
+      "summary"
+    ]
+  },
+  {
+    "path": "src/research_agent/factor_evaluation.py",
+    "description": "Professional descriptive evaluation from the same reviewed daily qrtk results.",
+    "exports": [
+      "inference",
+      "describe",
+      "_period",
+      "verdict",
+      "calculate"
+    ]
+  },
+  {
+    "path": "src/research_agent/factor_export.py",
+    "description": "Fixed protocol-4 factor exports. Unknown/external pickle is never loaded.",
+    "exports": [
+      "ExportFailed",
+      "panel",
+      "_atomic",
+      "server_panel",
+      "_serialize",
+      "verify",
+      "export"
+    ]
+  },
+  {
+    "path": "src/research_agent/factor_expression.py",
+    "description": "Causal, bounded expression DAGs. No source code, eval, paths or callbacks.",
+    "exports": [
+      "inspect",
+      "compute"
+    ]
+  },
+  {
+    "path": "src/research_agent/factor_math.py",
+    "description": "LaTeX from validated executed definitions; offline Matplotlib mathtext SVG.",
+    "exports": [
+      "formula",
+      "render"
+    ]
+  },
+  {
+    "path": "src/research_agent/historical_evaluation.py",
+    "description": "Reuse qrtk numerical primitives once; summarize fixed, split-purged evidence.",
+    "exports": [
+      "summarize",
+      "evaluate",
+      "reproduction"
+    ]
+  },
+  {
+    "path": "src/research_agent/independent_evaluator.py",
+    "description": "Separate evaluator protocol. Never registered as a normal data reader.",
+    "exports": [
+      "freeze",
+      "IndependentEvaluator"
+    ]
+  },
+  {
+    "path": "src/research_agent/interactive_report.py",
+    "description": "Offline Plotly.js presentation of saved deterministic evaluation CSVs.",
+    "exports": [
+      "timeline",
+      "partition_layout",
+      "test_label",
+      "stage_rows",
+      "noncompounding",
+      "heatmap_data",
+      "render_sections"
+    ]
+  },
+  {
+    "path": "src/research_agent/invalidations.py",
+    "description": "Append-only register of studies whose research DEFINITION was later found wrong (e.g. a look-back read as a lag).",
+    "exports": [
+      "InvalidationError",
+      "path",
+      "records",
+      "lookup",
+      "register"
+    ]
+  },
+  {
+    "path": "src/research_agent/llm.py",
+    "description": "Provider-neutral messages, requests, results, capabilities and credentials.",
+    "exports": [
+      "Role",
+      "ToolCall",
+      "ToolResult",
+      "Message",
+      "ToolDefinition",
+      "Capabilities",
+      "ProviderConfig",
+      "Usage",
+      "ModelRequest",
+      "ModelResponse",
+      "StreamEvent",
+      "ModelError",
+      "Provider",
+      "Redactor",
+      "SecretStore",
+      "EnvironmentSecrets",
+      "MemorySecrets",
+      "message_dict",
+      "message_from_dict",
+      "check_request",
+      "check_response"
+    ]
+  },
+  {
+    "path": "src/research_agent/metric_system.py",
+    "description": "Stage 3 (2026-10-15): the complete factor metric system, computed from the saved daily rows only.",
+    "exports": [
+      "_finite",
+      "_monotonic",
+      "hac_reason",
+      "_describe",
+      "daily_table",
+      "period",
+      "compute",
+      "heat_metrics",
+      "_fmt",
+      "heat_grid",
+      "scale",
+      "_label",
+      "tables"
+    ]
+  },
+  {
+    "path": "src/research_agent/paper_library.py",
+    "description": "Single-user paper library inside the operator-configured research workspace.",
+    "exports": [
+      "PaperError",
+      "_now",
+      "_digest",
+      "safe_name",
+      "pdf_metadata",
+      "PaperLibrary"
+    ]
+  },
+  {
+    "path": "src/research_agent/paper_tools.py",
+    "description": "Paper research pipeline as reviewed Tools inside the existing QuantBackend.",
+    "exports": [
+      "_unit_unstated",
+      "RuntimeClient",
+      "understanding_failure",
+      "user_parameters",
+      "named_factor",
+      "tool_failure_text",
+      "blocked_text",
+      "_bundle_candidate",
+      "candidates_text",
+      "reconciliation_record",
+      "paper_definition_record",
+      "_slug",
+      "PaperPipeline"
+    ]
+  },
+  {
+    "path": "src/research_agent/providers/__init__.py",
+    "description": "Vendor wire formats are confined to adapters in this package.",
+    "exports": []
+  },
+  {
+    "path": "src/research_agent/providers/deepseek.py",
+    "description": "DeepSeek adapter; live transport is disabled unless a trusted caller enables it.",
+    "exports": [
+      "Transport",
+      "_NoRedirect",
+      "HTTPTransport",
+      "DeepSeekAdapter"
+    ]
+  },
+  {
+    "path": "src/research_agent/providers/mock.py",
+    "description": "Deterministic fixture provider, not a language model or market researcher.",
+    "exports": [
+      "MockProvider"
+    ]
+  },
+  {
+    "path": "src/research_agent/published_release.py",
+    "description": "Independent, exploratory daily-data release prototype. No raw PKL deserialization.",
+    "exports": [
+      "ReleaseError",
+      "_digest",
+      "_json_bytes",
+      "capture_source",
+      "inspect_source",
+      "Panel",
+      "panel_from_reader",
+      "mask_prelisting",
+      "exclude_identity_conflicts",
+      "validate_panel",
+      "_root",
+      "_release_path",
+      "publish",
+      "read",
+      "daily_inference"
+    ]
+  },
+  {
+    "path": "src/research_agent/quant.py",
+    "description": "Reviewed qrtk handlers inside the existing Agent, with bounded registered data.",
+    "exports": [
+      "trusted_ir_sha256",
+      "QuantBackend"
+    ]
+  },
+  {
+    "path": "src/research_agent/quant_factors.py",
+    "description": "Two reviewed causal builders. No model-generated expression or executable code.",
+    "exports": [
+      "build_factor"
+    ]
+  },
+  {
+    "path": "src/research_agent/report_consistency.py",
+    "description": "Deterministic report consistency checks over the files a report was rendered from. No model, no recomputation of",
+    "exports": [
+      "_close",
+      "check"
+    ]
+  },
+  {
+    "path": "src/research_agent/report_explain.py",
+    "description": "Group-return (G0–G4) figure, statistics and wording derived from the evaluation code, plus chart explanations.",
+    "exports": [
+      "_hac",
+      "group_stats",
+      "group_labels",
+      "group_figure",
+      "_pp",
+      "_ci_text",
+      "group_analysis",
+      "group_section",
+      "methodology_html",
+      "limitation_cn",
+      "limits_html",
+      "reconciliation_html",
+      "paper_definition_section"
+    ]
+  },
+  {
+    "path": "src/research_agent/report_test_figures.py",
+    "description": "Static report figures for a ROLLING_EXPOSED_TEST revision.",
+    "exports": [
+      "render"
+    ]
+  },
+  {
+    "path": "src/research_agent/report_versions.py",
+    "description": "Operator-only authenticated Test merge. Never a model Tool or data reader.",
+    "exports": [
+      "append_test_report",
+      "test_daily",
+      "append_rolling_report",
+      "write_latest_pointer",
+      "pending_receipts",
+      "report_access",
+      "report_access_text",
+      "latest_report",
+      "render_published_revision",
+      "append_invalidation_report"
+    ]
+  },
+  {
+    "path": "src/research_agent/research_metrics.py",
+    "description": "Descriptive diagnostics over reviewed qrtk formulas; no test-period output.",
+    "exports": [
+      "hac_mean",
+      "calculate"
+    ]
+  },
+  {
+    "path": "src/research_agent/research_report.py",
+    "description": "Evidence-first financial reports over reviewed numerical artifacts.",
+    "exports": [
+      "number",
+      "_clause",
+      "_after",
+      "avg_count",
+      "_merged_notes",
+      "economic_section",
+      "render"
+    ]
+  },
+  {
+    "path": "src/research_agent/rolling_client.py",
+    "description": "Agent side of ROLLING_EXPOSED_TEST. Holds no 2026 file, path, FD or key; only an inherited socket to the broker.",
+    "exports": [
+      "RollingClient",
+      "registered_receipt"
+    ]
+  },
+  {
+    "path": "src/research_agent/runtime.py",
+    "description": "Shared audited model calls for conversations and research workflows.",
+    "exports": [
+      "ModelRuntime"
+    ]
+  },
+  {
+    "path": "src/research_agent/security.py",
+    "description": "Independent program authorization. A model plan is never a grant.",
+    "exports": [
+      "Denied",
+      "InvalidParameters",
+      "BudgetExhausted",
+      "require_non_root",
+      "Budget",
+      "Policy",
+      "Authorization",
+      "authorize",
+      "valid_task_id"
+    ]
+  },
+  {
+    "path": "src/research_agent/server_plot.py",
+    "description": "Reviewed font selection and final GeorgeResearch notebook plot helpers; no engine I/O.",
+    "exports": [
+      "annotate_group_returns",
+      "configure_chinese_font"
+    ]
+  },
+  {
+    "path": "src/research_agent/significance.py",
+    "description": "Program-computed significance statements (RankIC HAC 95% intervals) and a check of model summaries against them.",
+    "exports": [
+      "judgements",
+      "line",
+      "contradictions"
+    ]
+  },
+  {
+    "path": "src/research_agent/skills.py",
+    "description": "Discover small metadata first; load only content pinned by a trusted manifest.",
+    "exports": [
+      "Skill",
+      "SkillRegistry"
+    ]
+  },
+  {
+    "path": "src/research_agent/store.py",
+    "description": "SQLite checkpoints, experiments and authorization events in an explicit workspace.",
+    "exports": [
+      "StateConflict",
+      "LedgerError",
+      "TaskState",
+      "TaskStore"
+    ]
+  },
+  {
+    "path": "src/research_agent/terminal.py",
+    "description": "Readable foreground chat; diagnostics remain separate from natural replies.",
+    "exports": [
+      "safe_text",
+      "stamp",
+      "wrapped",
+      "ProgressDisplay",
+      "editing",
+      "chat_loop"
+    ]
+  },
+  {
+    "path": "src/research_agent/test_access.py",
+    "description": "What the user may and may not get about 2026, stated by the program from the trusted broker configuration.",
+    "exports": [
+      "describe"
+    ]
+  },
+  {
+    "path": "src/research_agent/tools.py",
+    "description": "Only audited, deterministic in-memory Mock Tools. No file or code executor.",
+    "exports": [
+      "ToolSpec",
+      "ToolRegistry",
+      "query_mock_data",
+      "compute_mock_factor",
+      "mock_registry",
+      "code_fingerprint"
+    ]
+  },
+  {
+    "path": "src/research_agent/workflow.py",
+    "description": "Bounded research loop over independently authorized, registered tools.",
+    "exports": [
+      "Workflow"
+    ]
+  },
+  {
+    "path": "src/rolling_test/__init__.py",
+    "description": "ROLLING_EXPOSED_TEST: continuously exposed, automatically refreshed 2026 evaluation.",
+    "exports": [
+      "code_weights"
+    ]
+  },
+  {
+    "path": "src/rolling_test/broker.py",
+    "description": "Root broker for ROLLING_EXPOSED_TEST, living only for one CLI session (parent of the dropped Agent process).",
+    "exports": [
+      "_canonical",
+      "Refused",
+      "Broker",
+      "serve"
+    ]
+  },
+  {
+    "path": "src/rolling_test/broker_main.py",
+    "description": "Entry of the root broker process for one CLI session (exec'd by the launcher). Never imports Agent code.",
+    "exports": [
+      "main"
+    ]
+  },
+  {
+    "path": "src/rolling_test/evaluator.py",
+    "description": "Rolling 2026 evaluator. Runs as quanteval (real) or in-process (synthetic engineering tests).",
+    "exports": [
+      "EvaluationDenied",
+      "_canonical",
+      "sign",
+      "verify",
+      "_check",
+      "Ledger",
+      "_monotonic",
+      "evaluate",
+      "main"
+    ]
+  },
+  {
+    "path": "src/rolling_test/factors.py",
+    "description": "Frozen definitions read from a completed study, and their trusted re-computation inside the evaluator.",
+    "exports": [
+      "fingerprint",
+      "frozen_from_study",
+      "compute"
+    ]
+  },
+  {
+    "path": "src/rolling_test/protocol.py",
+    "description": "Length-prefixed JSON messages between the Agent (quantagent) and the root broker. Bounded, no objects/pickles.",
+    "exports": [
+      "ProtocolError",
+      "send",
+      "_exact",
+      "receive",
+      "check_request"
+    ]
+  },
+  {
+    "path": "src/rolling_test/publish.py",
+    "description": "Root-orchestrated rolling snapshot publication (Linux). Never an Agent Tool.",
+    "exports": [
+      "source_spec",
+      "load_index",
+      "_write_index",
+      "current",
+      "publish"
+    ]
+  },
+  {
+    "path": "src/rolling_test/snapshot.py",
+    "description": "Deterministic rolling 2026 snapshots of the six approved daily_update fields.",
+    "exports": [
+      "SnapshotError",
+      "digest",
+      "checked_file",
+      "version_id",
+      "select_rows",
+      "write_panel",
+      "read_snapshot",
+      "synthetic_snapshot"
+    ]
+  },
+  {
+    "path": "src/rolling_test/vendor/linux_publisher.py",
+    "description": "Trusted Linux entry point: root pins six read-only FDs; quantpub alone decodes and writes.",
+    "exports": [
+      "_listing_candidate",
+      "_inside_synthetic",
+      "_pinned_fds",
+      "_child",
+      "publish_once"
+    ]
+  },
+  {
+    "path": "src/rolling_test/vendor/private_release.py",
+    "description": "Private Test snapshot adapter. Not registered with the research Agent.",
+    "exports": [
+      "digest",
+      "checked_file",
+      "publish_panel",
+      "private_reader"
+    ]
+  },
+  {
+    "path": "src/rolling_test/vendor/qra_data/__init__.py",
+    "description": "无模块docstring；下列入口由AST清单确认。",
+    "exports": []
+  },
+  {
+    "path": "src/rolling_test/vendor/qra_data/adapter.py",
+    "description": "Controlled, read-only daily data adapter over existing wide-table pickles (no copy, no unpickling).",
+    "exports": [
+      "Refused",
+      "Budget",
+      "ReadResult",
+      "default_opener",
+      "ControlledReader",
+      "provenance_json"
+    ]
+  },
+  {
+    "path": "src/rolling_test/vendor/qra_data/contracts.py",
+    "description": "Versioned data contracts, field dictionaries and certification levels for Phase 3-A.",
+    "exports": [
+      "Level",
+      "Field",
+      "ResourceContract",
+      "field_dictionary",
+      "dumps"
+    ]
+  },
+  {
+    "path": "src/rolling_test/vendor/qra_data/splits.py",
+    "description": "Phase 3-A research-facing split prototype; no holdout evaluation endpoint exists yet.",
+    "exports": [
+      "manifest_digest",
+      "_date_ok",
+      "SplitReader"
+    ]
+  },
+  {
+    "path": "src/rolling_test/vendor/qra_data/static_pickle.py",
+    "description": "Static, non-executing pickle decoder for pandas/numpy wide tables.",
+    "exports": [
+      "UnsafePickle",
+      "Ref",
+      "Node",
+      "_Mark",
+      "_pread",
+      "Blob",
+      "symbolic_load",
+      "_hashable",
+      "_pairs_to_dict",
+      "_append",
+      "_setitems",
+      "_is",
+      "to_dtype",
+      "_payload",
+      "to_array",
+      "_plain",
+      "iter_nodes",
+      "_buffer",
+      "arrow_strings",
+      "_index_values",
+      "decode_frame",
+      "frame_from_node",
+      "_placement",
+      "frame_matrix"
+    ]
+  },
+  {
+    "path": "src/rolling_test/vendor/qra_data/synthetic.py",
+    "description": "Small synthetic A-share panel with deliberately planted defects (synthetic only, never market evidence).",
+    "exports": [
+      "exchange_days",
+      "clean",
+      "_preclose",
+      "_copy",
+      "corporate_action",
+      "qfq_leak",
+      "suspension",
+      "delisting",
+      "listing",
+      "ohlc_violation",
+      "unit_error",
+      "frozen_status",
+      "availability",
+      "maturity",
+      "calendar_defects",
+      "cross_source",
+      "survivorship",
+      "history_rewrite",
+      "duplicate_rows"
+    ]
+  },
+  {
+    "path": "src/rolling_test/vendor/qra_data/validators.py",
+    "description": "Deterministic data-contract validators over date x code panels. Pure numpy; no I/O, no execution of data.",
+    "exports": [
+      "Finding",
+      "Panel",
+      "_cells",
+      "_finding",
+      "check_axes",
+      "check_long_keys",
+      "check_ohlc",
+      "check_volume_amount",
+      "check_calendar",
+      "check_coverage",
+      "check_listing_bounds",
+      "check_suspension",
+      "check_limits",
+      "check_survivorship",
+      "check_frozen_tail",
+      "check_adjustment",
+      "compare_snapshots",
+      "check_availability",
+      "check_field_semantics",
+      "check_label_maturity",
+      "check_cross_source",
+      "check_budget",
+      "summarize"
+    ]
+  },
+  {
+    "path": "src/rolling_test/vendor/release.py",
+    "description": "Independent, exploratory daily-data release prototype. No raw PKL deserialization.",
+    "exports": [
+      "ReleaseError",
+      "_digest",
+      "_json_bytes",
+      "capture_source",
+      "inspect_source",
+      "Panel",
+      "panel_from_reader",
+      "mask_prelisting",
+      "exclude_identity_conflicts",
+      "validate_panel",
+      "_root",
+      "_release_path",
+      "publish",
+      "read",
+      "daily_inference"
+    ]
+  }
+]

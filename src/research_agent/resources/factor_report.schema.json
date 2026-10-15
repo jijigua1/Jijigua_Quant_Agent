@@ -1,0 +1,435 @@
+{
+  "title": "Factor Report v2 / Train Validation Test / no ordinary Test data resource",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evaluation_version",
+    "definition_sha256",
+    "data_fingerprint",
+    "partitions",
+    "test",
+    "annual",
+    "monthly_rows",
+    "quality",
+    "verdict",
+    "files",
+    "definitions",
+    "elapsed_seconds",
+    "evaluation_fingerprint",
+    "study_id",
+    "report_revision"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "factor-report/2"
+    },
+    "evaluation_version": {
+      "type": "string"
+    },
+    "definition_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "data_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "evaluation_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "partitions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "train",
+        "valid"
+      ],
+      "properties": {
+        "train": {
+          "type": "object"
+        },
+        "valid": {
+          "type": "object"
+        }
+      }
+    },
+    "test": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "access",
+        "evaluation_type",
+        "exposure"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "NOT_RUN",
+            "COMPLETED",
+            "FAILED",
+            "NOT_EVALUATED"
+          ]
+        },
+        "access": {
+          "enum": [
+            "SEALED",
+            "CONTROLLED_EVALUATOR"
+          ]
+        },
+        "evaluation_type": {
+          "enum": [
+            null,
+            "synthetic_engineering",
+            "retrospective_2026",
+            "candidate_first_controlled_test",
+            "prospective_blind",
+            "ROLLING_EXPOSED_TEST"
+          ]
+        },
+        "exposure": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "metrics": {
+          "type": "object"
+        },
+        "annual": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "monthly": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "start": {
+          "type": "string",
+          "pattern": "^2026-\\d{2}-\\d{2}$"
+        },
+        "end": {
+          "type": "string",
+          "pattern": "^2026-\\d{2}-\\d{2}$"
+        },
+        "daily": {
+          "type": "array",
+          "maxItems": 300,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "date",
+              "ic",
+              "rank_ic",
+              "coverage"
+            ],
+            "properties": {
+              "date": {
+                "type": "string",
+                "pattern": "^2026-\\d{2}-\\d{2}$"
+              },
+              "ic": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "rank_ic": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "coverage": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "matured": {
+                "type": "boolean"
+              },
+              "n_pairs": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "long_short_gross": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "G0": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "G1": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "G2": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "G3": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "G4": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "reason": {
+          "enum": [
+            "NOT_AUTHORIZED",
+            "EVALUATOR_UNAVAILABLE",
+            "NO_TEST_DATA",
+            "NO_MATURE_LABELS",
+            "HISTORY_MISMATCH",
+            "FAILED",
+            "UNSUPPORTED_STUDY",
+            "PENDING"
+          ]
+        },
+        "detail": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "maturity": {
+          "type": "object"
+        },
+        "snapshot": {
+          "type": "object"
+        },
+        "group_columns": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "string",
+            "pattern": "^G[0-4]$"
+          }
+        },
+        "group_definition": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "receipt_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "receipt_evaluation_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "daily_rows": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "daily_source": {
+          "const": "data/test_receipt.json"
+        }
+      }
+    },
+    "annual": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object"
+      }
+    },
+    "monthly_rows": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 240
+    },
+    "quality": {
+      "type": "object"
+    },
+    "verdict": {
+      "type": "object",
+      "required": [
+        "status",
+        "evidence",
+        "tradable"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "PROMISING_EXPLORATORY",
+            "NEEDS_MORE_EVIDENCE",
+            "UNSTABLE",
+            "REJECTED",
+            "BLOCKED_BY_DATA"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tradable": {
+          "const": false
+        }
+      }
+    },
+    "files": {
+      "type": "object"
+    },
+    "definitions": {
+      "type": "object"
+    },
+    "elapsed_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "study_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}:[0-9a-f]{16}$"
+    },
+    "report_revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "test": {
+            "properties": {
+              "status": {
+                "const": "NOT_RUN"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "test": {
+            "properties": {
+              "access": {
+                "const": "SEALED"
+              },
+              "evaluation_type": {
+                "const": null
+              },
+              "exposure": {
+                "const": null
+              }
+            },
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "metrics"
+                  ]
+                },
+                {
+                  "required": [
+                    "annual"
+                  ]
+                },
+                {
+                  "required": [
+                    "monthly"
+                  ]
+                },
+                {
+                  "required": [
+                    "daily"
+                  ]
+                },
+                {
+                  "required": [
+                    "start"
+                  ]
+                },
+                {
+                  "required": [
+                    "end"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "test": {
+            "properties": {
+              "status": {
+                "const": "COMPLETED"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "test": {
+            "required": [
+              "metrics",
+              "annual",
+              "monthly",
+              "start",
+              "end"
+            ],
+            "properties": {
+              "access": {
+                "const": "CONTROLLED_EVALUATOR"
+              },
+              "evaluation_type": {
+                "type": "string"
+              },
+              "exposure": {
+                "type": "object"
+              }
+            },
+            "anyOf": [
+              {
+                "required": [
+                  "daily"
+                ]
+              },
+              {
+                "required": [
+                  "daily_rows",
+                  "daily_source"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

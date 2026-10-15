@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools==83.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wty-research-agent"
+version = "0.8.2"
+description = "Model independent research core with controlled development API and read-only data tools"
+requires-python = ">=3.11"
+dependencies = ["jsonschema==4.19.2"]
+
+[project.optional-dependencies]
+test = ["pytest==9.0.3"]
+parquet = ["numpy==1.26.4", "pyarrow==23.0.1"]
+research = ["numpy==1.26.4", "pandas==2.3.3", "matplotlib==3.8.4"]
+paper = ["PyMuPDF==1.24.14", "beautifulsoup4==4.12.3", "python-docx==1.2.0"]
+
+[project.scripts]
+qra = "research_agent.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+research_agent = ["resources/*.toml", "resources/*.json", "resources/skills/*/*.md", "resources/skills/*/*.toml", "resources/skills/*/*.json", "resources/visuals/*.js", "resources/visuals/*.txt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

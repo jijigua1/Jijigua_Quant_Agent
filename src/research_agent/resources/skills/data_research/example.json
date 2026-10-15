@@ -1,0 +1,13 @@
+{
+  "input": {
+    "goal": "查询已批准研究样本"
+  },
+  "output": {
+    "mode": "synthetic",
+    "summary": "固定工具验收示例，非真实市场结果。",
+    "analysis_scope": "data_quality",
+    "resource_ids": [
+      "synthetic:panel"
+    ]
+  }
+}

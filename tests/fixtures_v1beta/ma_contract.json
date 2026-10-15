@@ -1,0 +1,68 @@
+{
+  "entrypoint": "compute(panels) -> DataFrame",
+  "inputs": [
+    {
+      "basis": "host_choice",
+      "dtype": "float64",
+      "field": "close",
+      "shape": "dates x securities",
+      "symbol": "C",
+      "unit": "currency/share"
+    }
+  ],
+  "ir": {
+    "args": [
+      {
+        "args": [
+          {
+            "args": [
+              {
+                "lag": {
+                  "base": 0,
+                  "time_index": null,
+                  "var": "k"
+                },
+                "op": "field",
+                "symbol": "C"
+              },
+              {
+                "lag": {
+                  "base": 5,
+                  "time_index": null,
+                  "var": "k"
+                },
+                "op": "field",
+                "symbol": "C"
+              }
+            ],
+            "op": "div"
+          },
+          {
+            "op": "const",
+            "value": 1.0
+          }
+        ],
+        "op": "sub"
+      }
+    ],
+    "end": 264,
+    "op": "ts_mean",
+    "start": 5,
+    "var": "k"
+  },
+  "output": {
+    "dtype": "float64",
+    "missing": "NaN until every lag in the window is observed; NaN propagates; inf -> NaN",
+    "name": "m",
+    "shape": "same index/columns as inputs"
+  },
+  "panel_frequency": "daily rows (host conversion of the paper's periods)",
+  "rows_per_period": 5,
+  "time_alignment": "row t uses rows t-max_lag..t only; no negative lags, no centered windows, no backward fill",
+  "warmup": {
+    "max_lag": 269,
+    "min_lag": 0,
+    "observations_required": 270,
+    "uses_future": false
+  }
+}

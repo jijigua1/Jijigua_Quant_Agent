@@ -1,0 +1,23 @@
+import numpy as np
+import pandas as pd
+
+
+def compute(panels):
+    close = panels["close"]
+
+    ks = range(5, 265)
+    n_k = 260.0
+
+    total = None
+    for k in ks:
+        num = close.shift(k)
+        den = close.shift(k + 5).replace(0, np.nan)
+        term = num / den - 1.0
+        if total is None:
+            total = term
+        else:
+            total = total + term
+
+    out = total / n_k
+    out = out.replace([np.inf, -np.inf], np.nan)
+    return out

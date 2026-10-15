@@ -1,0 +1,3 @@
+#!/bin/sh
+# Trusted operator bootstrap; installation requires explicit administrator approval.
+exec /usr/bin/python3 -I /opt/jijigua-quant-agent/research_agent/deploy/launcher.py "$@"

@@ -1,0 +1,128 @@
+# 文档与测试关联覆盖矩阵
+
+本表覆盖全部109个源码模块。技术说明按真实包职责关联；测试列由AST中显式import生成，只证明存在引用，不是运行覆盖率或全分支正确性。间接或动态调用未匹配时明确说明，不伪造“100%测试覆盖”。实际执行状态查TEST_RESULTS。
+
+| 源码模块 | 技术说明 | 显式引用该模块的测试（最多5项） |
+|---|---|---|
+| [src/paper_agent/__init__.py](../../src/paper_agent/__init__.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py), [test_v1beta_stage2_versions.py](../../tests/test_v1beta_stage2_versions.py) |
+| [src/paper_agent/algorithm.py](../../src/paper_agent/algorithm.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_agent/evidence.py](../../src/paper_agent/evidence.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_v1beta_live_h_fixes.py](../../tests/test_v1beta_live_h_fixes.py), [test_v1beta_planner.py](../../tests/test_v1beta_planner.py), [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py), [test_v1beta_semantics.py](../../tests/test_v1beta_semantics.py) |
+| [src/paper_agent/instruments.py](../../src/paper_agent/instruments.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py), [test_v1beta_semantics.py](../../tests/test_v1beta_semantics.py) |
+| [src/paper_agent/ledger.py](../../src/paper_agent/ledger.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_v1beta_papers.py](../../tests/test_v1beta_papers.py), [test_v1beta_planner.py](../../tests/test_v1beta_planner.py), [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py), [test_v1beta_semantics.py](../../tests/test_v1beta_semantics.py), [test_v1beta_stage1_live_fixes.py](../../tests/test_v1beta_stage1_live_fixes.py) |
+| [src/paper_agent/model.py](../../src/paper_agent/model.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_v1beta_planner.py](../../tests/test_v1beta_planner.py), [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py), [test_v1beta_semantics.py](../../tests/test_v1beta_semantics.py), [test_v1beta_stage1_live_fixes.py](../../tests/test_v1beta_stage1_live_fixes.py) |
+| [src/paper_agent/planner.py](../../src/paper_agent/planner.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_v1beta_live_h_fixes.py](../../tests/test_v1beta_live_h_fixes.py), [test_v1beta_papers.py](../../tests/test_v1beta_papers.py), [test_v1beta_planner.py](../../tests/test_v1beta_planner.py), [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py), [test_v1beta_semantics.py](../../tests/test_v1beta_semantics.py) |
+| [src/paper_agent/reconcile.py](../../src/paper_agent/reconcile.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py) |
+| [src/paper_agent/registry.py](../../src/paper_agent/registry.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_v1beta_papers.py](../../tests/test_v1beta_papers.py) |
+| [src/paper_agent/semantics.py](../../src/paper_agent/semantics.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py), [test_v1beta_semantics.py](../../tests/test_v1beta_semantics.py) |
+| [src/paper_agent/study_bridge.py](../../src/paper_agent/study_bridge.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_v1beta_trusted_route.py](../../tests/test_v1beta_trusted_route.py) |
+| [src/paper_agent/trusted_ir.py](../../src/paper_agent/trusted_ir.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_public_synthetic_paper.py](../../tests/test_public_synthetic_paper.py), [test_v1beta_operators.py](../../tests/test_v1beta_operators.py), [test_v1beta_semantics.py](../../tests/test_v1beta_semantics.py) |
+| [src/paper_agent/understanding.py](../../src/paper_agent/understanding.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_v1beta_live_h_fixes.py](../../tests/test_v1beta_live_h_fixes.py), [test_v1beta_planner.py](../../tests/test_v1beta_planner.py), [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py), [test_v1beta_semantics.py](../../tests/test_v1beta_semantics.py), [test_v1beta_stage1_live_fixes.py](../../tests/test_v1beta_stage1_live_fixes.py) |
+| [src/paper_research/__init__.py](../../src/paper_research/__init__.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/candidate.py](../../src/paper_research/candidate.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_v1beta_static_review.py](../../tests/test_v1beta_static_review.py) |
+| [src/paper_research/common.py](../../src/paper_research/common.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/document.py](../../src/paper_research/document.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/dsl.py](../../src/paper_research/dsl.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/errors.py](../../src/paper_research/errors.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/extract.py](../../src/paper_research/extract.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/factor_ir.py](../../src/paper_research/factor_ir.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_public_synthetic_paper.py](../../tests/test_public_synthetic_paper.py), [test_v1beta_operators.py](../../tests/test_v1beta_operators.py), [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py), [test_v1beta_semantics.py](../../tests/test_v1beta_semantics.py), [test_v1beta_stage1_live_fixes.py](../../tests/test_v1beta_stage1_live_fixes.py) |
+| [src/paper_research/fixtures.py](../../src/paper_research/fixtures.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/fixtures_factor.py](../../src/paper_research/fixtures_factor.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/formulas.py](../../src/paper_research/formulas.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/ingest_pdf.py](../../src/paper_research/ingest_pdf.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/ingest_text.py](../../src/paper_research/ingest_text.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/layout_math.py](../../src/paper_research/layout_math.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/numbers.py](../../src/paper_research/numbers.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/skill_tools.py](../../src/paper_research/skill_tools.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/spec.py](../../src/paper_research/spec.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/tables_text.py](../../src/paper_research/tables_text.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/paper_research/task.py](../../src/paper_research/task.py) | [PAPER_RELIABILITY.md](../architecture/PAPER_RELIABILITY.md) | [test_v1beta_stage1_live_fixes.py](../../tests/test_v1beta_stage1_live_fixes.py) |
+| [src/qrtk/__init__.py](../../src/qrtk/__init__.py) | [MATHEMATICS.md](../architecture/MATHEMATICS.md) | [test_pyx_qualification.py](../../tests/test_pyx_qualification.py), [test_quant_integration.py](../../tests/test_quant_integration.py), [test_backtest.py](../../tests/toolkit/test_backtest.py), [test_backtest_v02.py](../../tests/toolkit/test_backtest_v02.py), [test_diagnostics.py](../../tests/toolkit/test_diagnostics.py) |
+| [src/qrtk/backtest.py](../../src/qrtk/backtest.py) | [MATHEMATICS.md](../architecture/MATHEMATICS.md) | 未找到显式import；间接路径或未验证 |
+| [src/qrtk/contract.py](../../src/qrtk/contract.py) | [MATHEMATICS.md](../architecture/MATHEMATICS.md) | 未找到显式import；间接路径或未验证 |
+| [src/qrtk/diagnostics.py](../../src/qrtk/diagnostics.py) | [MATHEMATICS.md](../architecture/MATHEMATICS.md) | 未找到显式import；间接路径或未验证 |
+| [src/qrtk/execution.py](../../src/qrtk/execution.py) | [MATHEMATICS.md](../architecture/MATHEMATICS.md) | 未找到显式import；间接路径或未验证 |
+| [src/qrtk/factor_eval.py](../../src/qrtk/factor_eval.py) | [MATHEMATICS.md](../architecture/MATHEMATICS.md) | 未找到显式import；间接路径或未验证 |
+| [src/qrtk/metrics.py](../../src/qrtk/metrics.py) | [MATHEMATICS.md](../architecture/MATHEMATICS.md) | 未找到显式import；间接路径或未验证 |
+| [src/qrtk/minute.py](../../src/qrtk/minute.py) | [MATHEMATICS.md](../architecture/MATHEMATICS.md) | 未找到显式import；间接路径或未验证 |
+| [src/qrtk_skills/__init__.py](../../src/qrtk_skills/__init__.py) | [SKILLS_AND_CONFIG.md](../architecture/SKILLS_AND_CONFIG.md) | [test_quant_integration.py](../../tests/test_quant_integration.py) |
+| [src/qrtk_skills/report.py](../../src/qrtk_skills/report.py) | [SKILLS_AND_CONFIG.md](../architecture/SKILLS_AND_CONFIG.md) | 未找到显式import；间接路径或未验证 |
+| [src/qrtk_skills/runtime.py](../../src/qrtk_skills/runtime.py) | [SKILLS_AND_CONFIG.md](../architecture/SKILLS_AND_CONFIG.md) | 未找到显式import；间接路径或未验证 |
+| [src/qrtk_skills/tools.py](../../src/qrtk_skills/tools.py) | [SKILLS_AND_CONFIG.md](../architecture/SKILLS_AND_CONFIG.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/__init__.py](../../src/research_agent/__init__.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_phase2c.py](../../tests/test_phase2c.py), [test_v1beta_algorithm_route.py](../../tests/test_v1beta_algorithm_route.py), [test_v1beta_papers.py](../../tests/test_v1beta_papers.py), [test_v1beta_rolling.py](../../tests/test_v1beta_rolling.py), [test_v1beta_significance.py](../../tests/test_v1beta_significance.py) |
+| [src/research_agent/__main__.py](../../src/research_agent/__main__.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/acceptance.py](../../src/research_agent/acceptance.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py) |
+| [src/research_agent/app.py](../../src/research_agent/app.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_conversation.py](../../tests/test_conversation.py), [test_definition_gate.py](../../tests/test_definition_gate.py), [test_definition_resolution.py](../../tests/test_definition_resolution.py), [test_development_data.py](../../tests/test_development_data.py), [test_phase2b.py](../../tests/test_phase2b.py) |
+| [src/research_agent/artifacts.py](../../src/research_agent/artifacts.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_phase2c_supplement.py](../../tests/test_phase2c_supplement.py) |
+| [src/research_agent/cli.py](../../src/research_agent/cli.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_cli.py](../../tests/test_cli.py), [test_provider_contract.py](../../tests/test_provider_contract.py), [test_v1beta_papers.py](../../tests/test_v1beta_papers.py), [test_workflow.py](../../tests/test_workflow.py) |
+| [src/research_agent/contracts.py](../../src/research_agent/contracts.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_conversation.py](../../tests/test_conversation.py), [test_definition_gate.py](../../tests/test_definition_gate.py), [test_definition_resolution.py](../../tests/test_definition_resolution.py), [test_development_data.py](../../tests/test_development_data.py), [test_factor_expression.py](../../tests/test_factor_expression.py) |
+| [src/research_agent/conversation.py](../../src/research_agent/conversation.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_v1beta_planner.py](../../tests/test_v1beta_planner.py), [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py), [test_v1beta_stage2_access.py](../../tests/test_v1beta_stage2_access.py) |
+| [src/research_agent/data.py](../../src/research_agent/data.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_development_data.py](../../tests/test_development_data.py), [test_phase2b.py](../../tests/test_phase2b.py), [test_phase2c.py](../../tests/test_phase2c.py), [test_phase2c_supplement.py](../../tests/test_phase2c_supplement.py), [test_quant_integration.py](../../tests/test_quant_integration.py) |
+| [src/research_agent/definition_gate.py](../../src/research_agent/definition_gate.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_definition_gate.py](../../tests/test_definition_gate.py), [test_definition_resolution.py](../../tests/test_definition_resolution.py), [test_quant_integration.py](../../tests/test_quant_integration.py) |
+| [src/research_agent/economic_rationale.py](../../src/research_agent/economic_rationale.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_v1beta_economics.py](../../tests/test_v1beta_economics.py) |
+| [src/research_agent/evidence.py](../../src/research_agent/evidence.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/factor_evaluation.py](../../src/research_agent/factor_evaluation.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/factor_export.py](../../src/research_agent/factor_export.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_phase2c.py](../../tests/test_phase2c.py) |
+| [src/research_agent/factor_expression.py](../../src/research_agent/factor_expression.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_factor_expression.py](../../tests/test_factor_expression.py), [test_phase2b.py](../../tests/test_phase2b.py), [test_phase2c.py](../../tests/test_phase2c.py), [test_phase2c_supplement.py](../../tests/test_phase2c_supplement.py) |
+| [src/research_agent/factor_math.py](../../src/research_agent/factor_math.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_phase2c_supplement.py](../../tests/test_phase2c_supplement.py) |
+| [src/research_agent/historical_evaluation.py](../../src/research_agent/historical_evaluation.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/independent_evaluator.py](../../src/research_agent/independent_evaluator.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/interactive_report.py](../../src/research_agent/interactive_report.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/invalidations.py](../../src/research_agent/invalidations.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_v1beta_trusted_route.py](../../tests/test_v1beta_trusted_route.py) |
+| [src/research_agent/llm.py](../../src/research_agent/llm.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_conversation.py](../../tests/test_conversation.py), [test_definition_gate.py](../../tests/test_definition_gate.py), [test_definition_resolution.py](../../tests/test_definition_resolution.py), [test_development_data.py](../../tests/test_development_data.py), [test_phase2b.py](../../tests/test_phase2b.py) |
+| [src/research_agent/metric_system.py](../../src/research_agent/metric_system.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_v1beta_stage3_metrics.py](../../tests/test_v1beta_stage3_metrics.py) |
+| [src/research_agent/paper_library.py](../../src/research_agent/paper_library.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_v1beta_algorithm_route.py](../../tests/test_v1beta_algorithm_route.py), [test_v1beta_live_h_fixes.py](../../tests/test_v1beta_live_h_fixes.py), [test_v1beta_papers.py](../../tests/test_v1beta_papers.py), [test_v1beta_planner.py](../../tests/test_v1beta_planner.py), [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py) |
+| [src/research_agent/paper_tools.py](../../src/research_agent/paper_tools.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_v1beta_live_h_fixes.py](../../tests/test_v1beta_live_h_fixes.py), [test_v1beta_papers.py](../../tests/test_v1beta_papers.py), [test_v1beta_planner.py](../../tests/test_v1beta_planner.py), [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py) |
+| [src/research_agent/providers/__init__.py](../../src/research_agent/providers/__init__.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/providers/deepseek.py](../../src/research_agent/providers/deepseek.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_conversation.py](../../tests/test_conversation.py), [test_provider_contract.py](../../tests/test_provider_contract.py), [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py) |
+| [src/research_agent/providers/mock.py](../../src/research_agent/providers/mock.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_conversation.py](../../tests/test_conversation.py), [test_definition_gate.py](../../tests/test_definition_gate.py), [test_definition_resolution.py](../../tests/test_definition_resolution.py), [test_development_data.py](../../tests/test_development_data.py), [test_quant_integration.py](../../tests/test_quant_integration.py) |
+| [src/research_agent/published_release.py](../../src/research_agent/published_release.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/quant.py](../../src/research_agent/quant.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_phase2c.py](../../tests/test_phase2c.py), [test_phase2c_supplement.py](../../tests/test_phase2c_supplement.py), [test_quant_integration.py](../../tests/test_quant_integration.py), [test_v1beta_economics.py](../../tests/test_v1beta_economics.py), [test_v1beta_papers.py](../../tests/test_v1beta_papers.py) |
+| [src/research_agent/quant_factors.py](../../src/research_agent/quant_factors.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_quant_integration.py](../../tests/test_quant_integration.py) |
+| [src/research_agent/report_consistency.py](../../src/research_agent/report_consistency.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/report_explain.py](../../src/research_agent/report_explain.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_v1beta_reconcile.py](../../tests/test_v1beta_reconcile.py), [test_v1beta_report_text.py](../../tests/test_v1beta_report_text.py) |
+| [src/research_agent/report_test_figures.py](../../src/research_agent/report_test_figures.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/report_versions.py](../../src/research_agent/report_versions.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_v1beta_rolling.py](../../tests/test_v1beta_rolling.py), [test_v1beta_stage2_access.py](../../tests/test_v1beta_stage2_access.py), [test_v1beta_trusted_route.py](../../tests/test_v1beta_trusted_route.py) |
+| [src/research_agent/research_metrics.py](../../src/research_agent/research_metrics.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_phase2c.py](../../tests/test_phase2c.py) |
+| [src/research_agent/research_report.py](../../src/research_agent/research_report.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_v1beta_report_text.py](../../tests/test_v1beta_report_text.py) |
+| [src/research_agent/rolling_client.py](../../src/research_agent/rolling_client.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/runtime.py](../../src/research_agent/runtime.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/security.py](../../src/research_agent/security.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_conversation.py](../../tests/test_conversation.py), [test_development_data.py](../../tests/test_development_data.py), [test_phase2b.py](../../tests/test_phase2b.py), [test_phase2c.py](../../tests/test_phase2c.py), [test_phase2c_supplement.py](../../tests/test_phase2c_supplement.py) |
+| [src/research_agent/server_plot.py](../../src/research_agent/server_plot.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/significance.py](../../src/research_agent/significance.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/research_agent/skills.py](../../src/research_agent/skills.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_conversation.py](../../tests/test_conversation.py), [test_security_skills.py](../../tests/test_security_skills.py) |
+| [src/research_agent/store.py](../../src/research_agent/store.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_conversation.py](../../tests/test_conversation.py), [test_phase2c.py](../../tests/test_phase2c.py), [test_security_skills.py](../../tests/test_security_skills.py), [test_workflow.py](../../tests/test_workflow.py) |
+| [src/research_agent/terminal.py](../../src/research_agent/terminal.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_conversation.py](../../tests/test_conversation.py), [test_phase2c_supplement.py](../../tests/test_phase2c_supplement.py) |
+| [src/research_agent/test_access.py](../../src/research_agent/test_access.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_v1beta_stage2_access.py](../../tests/test_v1beta_stage2_access.py) |
+| [src/research_agent/tools.py](../../src/research_agent/tools.py) | [SYSTEM.md](../architecture/SYSTEM.md) | [test_conversation.py](../../tests/test_conversation.py), [test_provider_contract.py](../../tests/test_provider_contract.py), [test_security_skills.py](../../tests/test_security_skills.py), [test_workflow.py](../../tests/test_workflow.py) |
+| [src/research_agent/workflow.py](../../src/research_agent/workflow.py) | [SYSTEM.md](../architecture/SYSTEM.md) | 未找到显式import；间接路径或未验证 |
+| [src/rolling_test/__init__.py](../../src/rolling_test/__init__.py) | [SECURITY.md](../architecture/SECURITY.md) | [test_v1beta_stage2_versions.py](../../tests/test_v1beta_stage2_versions.py) |
+| [src/rolling_test/broker.py](../../src/rolling_test/broker.py) | [SECURITY.md](../architecture/SECURITY.md) | [test_v1beta_stage2_versions.py](../../tests/test_v1beta_stage2_versions.py) |
+| [src/rolling_test/broker_main.py](../../src/rolling_test/broker_main.py) | [SECURITY.md](../architecture/SECURITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/rolling_test/evaluator.py](../../src/rolling_test/evaluator.py) | [SECURITY.md](../architecture/SECURITY.md) | [test_v1beta_rolling.py](../../tests/test_v1beta_rolling.py) |
+| [src/rolling_test/factors.py](../../src/rolling_test/factors.py) | [SECURITY.md](../architecture/SECURITY.md) | [test_v1beta_rolling.py](../../tests/test_v1beta_rolling.py), [test_v1beta_stage2_versions.py](../../tests/test_v1beta_stage2_versions.py) |
+| [src/rolling_test/protocol.py](../../src/rolling_test/protocol.py) | [SECURITY.md](../architecture/SECURITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/rolling_test/publish.py](../../src/rolling_test/publish.py) | [SECURITY.md](../architecture/SECURITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/rolling_test/snapshot.py](../../src/rolling_test/snapshot.py) | [SECURITY.md](../architecture/SECURITY.md) | [test_v1beta_rolling.py](../../tests/test_v1beta_rolling.py) |
+| [src/rolling_test/vendor/linux_publisher.py](../../src/rolling_test/vendor/linux_publisher.py) | [SECURITY.md](../architecture/SECURITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/rolling_test/vendor/private_release.py](../../src/rolling_test/vendor/private_release.py) | [SECURITY.md](../architecture/SECURITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/rolling_test/vendor/qra_data/__init__.py](../../src/rolling_test/vendor/qra_data/__init__.py) | [SECURITY.md](../architecture/SECURITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/rolling_test/vendor/qra_data/adapter.py](../../src/rolling_test/vendor/qra_data/adapter.py) | [SECURITY.md](../architecture/SECURITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/rolling_test/vendor/qra_data/contracts.py](../../src/rolling_test/vendor/qra_data/contracts.py) | [SECURITY.md](../architecture/SECURITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/rolling_test/vendor/qra_data/splits.py](../../src/rolling_test/vendor/qra_data/splits.py) | [SECURITY.md](../architecture/SECURITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/rolling_test/vendor/qra_data/static_pickle.py](../../src/rolling_test/vendor/qra_data/static_pickle.py) | [SECURITY.md](../architecture/SECURITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/rolling_test/vendor/qra_data/synthetic.py](../../src/rolling_test/vendor/qra_data/synthetic.py) | [SECURITY.md](../architecture/SECURITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/rolling_test/vendor/qra_data/validators.py](../../src/rolling_test/vendor/qra_data/validators.py) | [SECURITY.md](../architecture/SECURITY.md) | 未找到显式import；间接路径或未验证 |
+| [src/rolling_test/vendor/release.py](../../src/rolling_test/vendor/release.py) | [SECURITY.md](../architecture/SECURITY.md) | 未找到显式import；间接路径或未验证 |
+
+## 资产层覆盖
+
+| 层次 | 对应文档 | 可核验产物 |
+|---|---|---|
+| 对话/Tool/Schema/授权 | SYSTEM、SECURITY、SKILLS_AND_CONFIG | tests与源指纹 |
+| 论文、引文、参数、资产 | PAPER_RELIABILITY、Incident001–014 | 合成测试与历史真实证据分开 |
+| 可信DSL/IR/候选 | MATHEMATICS、DEVELOPMENT | 参考/向量化/未来扰动测试 |
+| 数据发布/分区/独立Test | DATA_REPORTS、SECURITY | 合成权限与历史生产审计 |
+| 指标、HAC、组收益、报告 | MATHEMATICS、DATA_REPORTS | numcheck、CSV/表格/热力图 |
+| Win/mac客户端 | WINDOWS、MACOS | 原创PDF运输测试；Mac真机未验证 |
+| 部署、回滚、版本 | LINUX_DEPLOYMENT、SNAPSHOT_STATUS | 历史清单及安全模板 |
+| 开源权利/凭据/历史 | LICENSE_REVIEW、EXCLUSIONS、SAFE_SYNC | 扫描、Git历史门禁、来源清单 |

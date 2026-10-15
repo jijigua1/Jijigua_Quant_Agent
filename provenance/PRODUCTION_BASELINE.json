@@ -1,0 +1,856 @@
+{
+  "checked_at": "2026-10-14T23:41:07.598003+08:00",
+  "description": "Historical read-only production evidence; not refreshed by this archival task",
+  "production_manifest_sha256": "342a78a95041803a8c00169495dbd6b8a87ca87fe6bc7fab4a5aaa924ccb4d9d",
+  "candidate4_manifest_sha256": "f3b8205954e99fb27458d5d8bf8510ad2d70d7c49e25385c998d98744046ca8b",
+  "p1_file_count": 169,
+  "candidate4_manifest_file_count": 171,
+  "candidate4_frozen_subset_count": 16,
+  "files": {
+    "deploy/configure_v1.py": {
+      "expected": "44909e858653ea8e73d200ecd69df5fe6d07a0f038b7f9cb62d91920aea56362",
+      "actual": "44909e858653ea8e73d200ecd69df5fe6d07a0f038b7f9cb62d91920aea56362",
+      "match": true
+    },
+    "deploy/enable_production_v1.sh": {
+      "expected": "1b98239b2ee2f02e0bbf8840985c193faa5e3682df5de9db8cbf74a7d10d3404",
+      "actual": "1b98239b2ee2f02e0bbf8840985c193faa5e3682df5de9db8cbf74a7d10d3404",
+      "match": true
+    },
+    "deploy/install_v1.sh": {
+      "expected": "ad3c7b91eb58aa31b2a5a1a53914dd5507d409f8419b5e384a3676520caa894b",
+      "actual": "ad3c7b91eb58aa31b2a5a1a53914dd5507d409f8419b5e384a3676520caa894b",
+      "match": true
+    },
+    "deploy/launcher.py": {
+      "expected": "15985ebfa8aa4ea14161d4b6aeeec668d0a91366d490a907f5e9780b21c5b960",
+      "actual": "15985ebfa8aa4ea14161d4b6aeeec668d0a91366d490a907f5e9780b21c5b960",
+      "match": true
+    },
+    "deploy/launcher_v1.py": {
+      "expected": "05b5e7c97b95c6128bf139e9f734d2969236122e687ce315d593605f47e3e5c3",
+      "actual": "05b5e7c97b95c6128bf139e9f734d2969236122e687ce315d593605f47e3e5c3",
+      "match": true
+    },
+    "deploy/quant-agent": {
+      "expected": "b3655e36fd676677a46745a8d95a4d2034857b6206a78dceadaaa518cf6ec009",
+      "actual": "b3655e36fd676677a46745a8d95a4d2034857b6206a78dceadaaa518cf6ec009",
+      "match": true
+    },
+    "deploy/regression_v1.py": {
+      "expected": "0d92bdcb0d68e406a69779aa6782fb5c1531d4b73cf80c1f143bb008c4e3ca0c",
+      "actual": "0d92bdcb0d68e406a69779aa6782fb5c1531d4b73cf80c1f143bb008c4e3ca0c",
+      "match": true
+    },
+    "deploy/rollback_production_v1.sh": {
+      "expected": "add0cf9a4367428cd2b9ef6def130013badf45ec6b8676cd8cb85172daa5a24e",
+      "actual": "add0cf9a4367428cd2b9ef6def130013badf45ec6b8676cd8cb85172daa5a24e",
+      "match": true
+    },
+    "deploy/run_v1.py": {
+      "expected": "57a02b29256eb8b380f1741afc43fd8fd7b78bc5122c5185462d4deb3dcd49c5",
+      "actual": "57a02b29256eb8b380f1741afc43fd8fd7b78bc5122c5185462d4deb3dcd49c5",
+      "match": true
+    },
+    "deploy/selftest_agent.py": {
+      "expected": "9dbf69d7f1f8206a3e801f4416ff3fed3e61635a237690ea6a895d9c7789e91b",
+      "actual": "9dbf69d7f1f8206a3e801f4416ff3fed3e61635a237690ea6a895d9c7789e91b",
+      "match": true
+    },
+    "deploy/selftest_rolling.py": {
+      "expected": "ad6190527b0776cb2f4987c94614551e720680db686615bab5d0e91284ae30a3",
+      "actual": "ad6190527b0776cb2f4987c94614551e720680db686615bab5d0e91284ae30a3",
+      "match": true
+    },
+    "src/paper_agent/__init__.py": {
+      "expected": "ae9d09d4847eb11b5c356a1e8e9adf74e686186e8e2b697bf5ae94f1adbfb985",
+      "actual": "ae9d09d4847eb11b5c356a1e8e9adf74e686186e8e2b697bf5ae94f1adbfb985",
+      "match": true
+    },
+    "src/paper_agent/algorithm.py": {
+      "expected": "c382e9c46b92843d4bcc19dc9faff6b7db47d45c6e16ec2e68e4662706187e84",
+      "actual": "c382e9c46b92843d4bcc19dc9faff6b7db47d45c6e16ec2e68e4662706187e84",
+      "match": true
+    },
+    "src/paper_agent/evidence.py": {
+      "expected": "9a5d8c99a672b9d27d177de67ae7f97f29338b1412043f6352b2e0a225b176b8",
+      "actual": "9a5d8c99a672b9d27d177de67ae7f97f29338b1412043f6352b2e0a225b176b8",
+      "match": true
+    },
+    "src/paper_agent/ledger.py": {
+      "expected": "4d109a390d944dfba575a7a5711fda773ddb516ff89287f1470fc71eee6c8ac8",
+      "actual": "4d109a390d944dfba575a7a5711fda773ddb516ff89287f1470fc71eee6c8ac8",
+      "match": true
+    },
+    "src/paper_agent/model.py": {
+      "expected": "9550b1ef99787b14db41b1c489fd52c4115f5fbc1b74399370fd929585b2e15c",
+      "actual": "9550b1ef99787b14db41b1c489fd52c4115f5fbc1b74399370fd929585b2e15c",
+      "match": true
+    },
+    "src/paper_agent/planner.py": {
+      "expected": "09a41e53bb07521cf6990ddbdcd1a2babb23a96b847760929508973844b7d0ab",
+      "actual": "09a41e53bb07521cf6990ddbdcd1a2babb23a96b847760929508973844b7d0ab",
+      "match": true
+    },
+    "src/paper_agent/registry.py": {
+      "expected": "1dde058080e1682b75039c0d235ae12c07d9374b3e2adfe2e1c9b84afc0c0cdb",
+      "actual": "1dde058080e1682b75039c0d235ae12c07d9374b3e2adfe2e1c9b84afc0c0cdb",
+      "match": true
+    },
+    "src/paper_agent/study_bridge.py": {
+      "expected": "985fc67e91d7ee60bf7c4d375f20aea9d644f006e6316d27034a1f36de41526c",
+      "actual": "985fc67e91d7ee60bf7c4d375f20aea9d644f006e6316d27034a1f36de41526c",
+      "match": true
+    },
+    "src/paper_agent/trusted_ir.py": {
+      "expected": "2ed5bc7d0fb423caf90741245941da415ea88c112d660ed5bbb73ba3bcc99c83",
+      "actual": "2ed5bc7d0fb423caf90741245941da415ea88c112d660ed5bbb73ba3bcc99c83",
+      "match": true
+    },
+    "src/paper_agent/understanding.py": {
+      "expected": "52f296ee8d1ff5efa73e07545d16f9b5a51daea34c57d9bb43cada8ba014273a",
+      "actual": "52f296ee8d1ff5efa73e07545d16f9b5a51daea34c57d9bb43cada8ba014273a",
+      "match": true
+    },
+    "src/paper_research/INTEGRATION_CONTRACT.md": {
+      "expected": "0d81ce5a62dc4c0892038ecd149d6fca8c4cda0ee77a3e21c032cd21d80edee8",
+      "actual": "0d81ce5a62dc4c0892038ecd149d6fca8c4cda0ee77a3e21c032cd21d80edee8",
+      "match": true
+    },
+    "src/paper_research/PHASE3D_V02_REPORT.md": {
+      "expected": "32fd644e7c1e4bdfcfd6d6644fd203765add5dfeea438e097eaf07859331ea43",
+      "actual": "32fd644e7c1e4bdfcfd6d6644fd203765add5dfeea438e097eaf07859331ea43",
+      "match": true
+    },
+    "src/paper_research/PHASE3D_V03_REPORT.md": {
+      "expected": "969f900914419853985b96b4d59396c8a9860823cf7b2a194ece50e5fbf2e30d",
+      "actual": "969f900914419853985b96b4d59396c8a9860823cf7b2a194ece50e5fbf2e30d",
+      "match": true
+    },
+    "src/paper_research/README.md": {
+      "expected": "d6b4e6249d47b7c4c85c18c9c651c83c11cad7cc8a68310b5e1e53a6e377a2b4",
+      "actual": "d6b4e6249d47b7c4c85c18c9c651c83c11cad7cc8a68310b5e1e53a6e377a2b4",
+      "match": true
+    },
+    "src/paper_research/SCHEMA.md": {
+      "expected": "880d214060d0387046971cda2a28f4e60754162e009279c64ad9a2f58212c4c9",
+      "actual": "880d214060d0387046971cda2a28f4e60754162e009279c64ad9a2f58212c4c9",
+      "match": true
+    },
+    "src/paper_research/__init__.py": {
+      "expected": "f08efbbdacc13eaafb5640900c2e30838200210fa754a71372e3513fefea489b",
+      "actual": "f08efbbdacc13eaafb5640900c2e30838200210fa754a71372e3513fefea489b",
+      "match": true
+    },
+    "src/paper_research/candidate.py": {
+      "expected": "959073a5b44bb82c3b6db565138e42ff8a0e7406af10455d1abfdc5b465cf28d",
+      "actual": "959073a5b44bb82c3b6db565138e42ff8a0e7406af10455d1abfdc5b465cf28d",
+      "match": true
+    },
+    "src/paper_research/common.py": {
+      "expected": "36b46291ba622e9638d886d384f41d6a29b996d243954c6d91c47b60b2bb01f4",
+      "actual": "36b46291ba622e9638d886d384f41d6a29b996d243954c6d91c47b60b2bb01f4",
+      "match": true
+    },
+    "src/paper_research/document.py": {
+      "expected": "303f84f79b143e99e31972c4a1c25c29b740628e85569194e6e7455a0fe6e27a",
+      "actual": "303f84f79b143e99e31972c4a1c25c29b740628e85569194e6e7455a0fe6e27a",
+      "match": true
+    },
+    "src/paper_research/dsl.py": {
+      "expected": "90c2664494fdddc1483107a85e81921454c5f9f395896d952ab87f4477a40a95",
+      "actual": "90c2664494fdddc1483107a85e81921454c5f9f395896d952ab87f4477a40a95",
+      "match": true
+    },
+    "src/paper_research/errors.py": {
+      "expected": "bc610cafdc7d4e31cb9fcc37cf9de10c80d41fe349e7ea296bd5c322146a4efb",
+      "actual": "bc610cafdc7d4e31cb9fcc37cf9de10c80d41fe349e7ea296bd5c322146a4efb",
+      "match": true
+    },
+    "src/paper_research/extract.py": {
+      "expected": "cb6501ab2fa02d858ef55e1c389a3f8109447e5ca4d5f763bd6db8f867542d17",
+      "actual": "cb6501ab2fa02d858ef55e1c389a3f8109447e5ca4d5f763bd6db8f867542d17",
+      "match": true
+    },
+    "src/paper_research/factor_ir.py": {
+      "expected": "09c65d23bbc72fcc57e1eef62a83b4ec1c1b4aaa8f9aac5ba86f5c491e749216",
+      "actual": "09c65d23bbc72fcc57e1eef62a83b4ec1c1b4aaa8f9aac5ba86f5c491e749216",
+      "match": true
+    },
+    "src/paper_research/fixtures.py": {
+      "expected": "b3c098a7e46c63642eafb3c1c5523309f22e8a53fc9d900fd59967983d9f05fa",
+      "actual": "b3c098a7e46c63642eafb3c1c5523309f22e8a53fc9d900fd59967983d9f05fa",
+      "match": true
+    },
+    "src/paper_research/fixtures_factor.py": {
+      "expected": "719f6a5ed8a27761a5c262f3ec63213e6f2efa46e70d56a9c9b6ce628f608293",
+      "actual": "719f6a5ed8a27761a5c262f3ec63213e6f2efa46e70d56a9c9b6ce628f608293",
+      "match": true
+    },
+    "src/paper_research/formulas.py": {
+      "expected": "0e43a6ef541c98a39a7c9db598356d57a0f4ce9fb043e9e530407fce22c61d45",
+      "actual": "0e43a6ef541c98a39a7c9db598356d57a0f4ce9fb043e9e530407fce22c61d45",
+      "match": true
+    },
+    "src/paper_research/ingest_pdf.py": {
+      "expected": "150806c57771641aabfe629984b795b84d725f29e0555dabc6305ecc791a9fa7",
+      "actual": "150806c57771641aabfe629984b795b84d725f29e0555dabc6305ecc791a9fa7",
+      "match": true
+    },
+    "src/paper_research/ingest_text.py": {
+      "expected": "155028b0b3c5054e3e95c235cee92bde55b819caaf6ef87df74b0fcb9d207d12",
+      "actual": "155028b0b3c5054e3e95c235cee92bde55b819caaf6ef87df74b0fcb9d207d12",
+      "match": true
+    },
+    "src/paper_research/layout_math.py": {
+      "expected": "a6f1acc0c43481fade76de167baeae5ed9bbd5e1af705e73864f7d363c2007df",
+      "actual": "a6f1acc0c43481fade76de167baeae5ed9bbd5e1af705e73864f7d363c2007df",
+      "match": true
+    },
+    "src/paper_research/numbers.py": {
+      "expected": "85dc9396407c7f23539c0d59dea4c15411d5e46cc281105223c9c19160704438",
+      "actual": "85dc9396407c7f23539c0d59dea4c15411d5e46cc281105223c9c19160704438",
+      "match": true
+    },
+    "src/paper_research/skill/paper_research/SKILL.md": {
+      "expected": "7fc409e954a1d0425d305ea86436a2511e9e5b7c9aa57b7f4e92867e9d701861",
+      "actual": "7fc409e954a1d0425d305ea86436a2511e9e5b7c9aa57b7f4e92867e9d701861",
+      "match": true
+    },
+    "src/paper_research/skill/paper_research/schemas.json": {
+      "expected": "65c69eb54002df0c5c938673a718f2e000a87df43bbbbe6ddd26eba8f5c8e3c6",
+      "actual": "65c69eb54002df0c5c938673a718f2e000a87df43bbbbe6ddd26eba8f5c8e3c6",
+      "match": true
+    },
+    "src/paper_research/skill/paper_research/skill.toml": {
+      "expected": "8610cf8b07439924f4e91954b056777ca94bf3d57488d4a99d0316db665255e1",
+      "actual": "8610cf8b07439924f4e91954b056777ca94bf3d57488d4a99d0316db665255e1",
+      "match": true
+    },
+    "src/paper_research/skill_tools.py": {
+      "expected": "282b9b0ad4224e2f3c137b3385137438d50081ac7257013b01fc3222bd0f04d8",
+      "actual": "282b9b0ad4224e2f3c137b3385137438d50081ac7257013b01fc3222bd0f04d8",
+      "match": true
+    },
+    "src/paper_research/spec.py": {
+      "expected": "a7691b6e2a3d3bc6b336758ab390c458da9484e7991f1bb21985a2e547d7f514",
+      "actual": "a7691b6e2a3d3bc6b336758ab390c458da9484e7991f1bb21985a2e547d7f514",
+      "match": true
+    },
+    "src/paper_research/tables_text.py": {
+      "expected": "d2ca339b146b9372d79abf2fd02cba91ff8d10b2b592d194504832bd19507b92",
+      "actual": "d2ca339b146b9372d79abf2fd02cba91ff8d10b2b592d194504832bd19507b92",
+      "match": true
+    },
+    "src/paper_research/task.py": {
+      "expected": "4c5866edbc540d7660020fd519e5aab2420381f40fcfaf1586f79b9c65099d2e",
+      "actual": "4c5866edbc540d7660020fd519e5aab2420381f40fcfaf1586f79b9c65099d2e",
+      "match": true
+    },
+    "src/qrtk/__init__.py": {
+      "expected": "9d65eb287296a3086992d574e3fab77d8a59608e752fcc1853913c63c573bc0c",
+      "actual": "9d65eb287296a3086992d574e3fab77d8a59608e752fcc1853913c63c573bc0c",
+      "match": true
+    },
+    "src/qrtk/backtest.py": {
+      "expected": "78089f8eb70ca7710599cb1bce68d7de88e85574ad214f07cbe542865a97f374",
+      "actual": "78089f8eb70ca7710599cb1bce68d7de88e85574ad214f07cbe542865a97f374",
+      "match": true
+    },
+    "src/qrtk/contract.py": {
+      "expected": "b7c049cf86d916e2bd82a1bb4d9464d41cfc33bfdab9c89298ecf3a739d48b81",
+      "actual": "b7c049cf86d916e2bd82a1bb4d9464d41cfc33bfdab9c89298ecf3a739d48b81",
+      "match": true
+    },
+    "src/qrtk/diagnostics.py": {
+      "expected": "c11e8a75e8e1433af502a0aa87e0547bb7d77d9cd44b4fc940b474e80cf34d30",
+      "actual": "c11e8a75e8e1433af502a0aa87e0547bb7d77d9cd44b4fc940b474e80cf34d30",
+      "match": true
+    },
+    "src/qrtk/execution.py": {
+      "expected": "23012c445dceb5aca42ee87db1a27a0031459e58d35bc11e23498bbf2d8b0bea",
+      "actual": "23012c445dceb5aca42ee87db1a27a0031459e58d35bc11e23498bbf2d8b0bea",
+      "match": true
+    },
+    "src/qrtk/factor_eval.py": {
+      "expected": "d5f6fa4668c1678cd80ba58edef798bec35d2331ee87a815f517761ebdb3cc7f",
+      "actual": "d5f6fa4668c1678cd80ba58edef798bec35d2331ee87a815f517761ebdb3cc7f",
+      "match": true
+    },
+    "src/qrtk/metrics.py": {
+      "expected": "16450d53c88aa72f5042a69a06de50edbf85cff9b875ab6b2349f128fbb333d3",
+      "actual": "16450d53c88aa72f5042a69a06de50edbf85cff9b875ab6b2349f128fbb333d3",
+      "match": true
+    },
+    "src/qrtk/minute.py": {
+      "expected": "317fa48064c5653928cd4a0da0209b15c360d33ea5e1469d496e808cb9889f54",
+      "actual": "317fa48064c5653928cd4a0da0209b15c360d33ea5e1469d496e808cb9889f54",
+      "match": true
+    },
+    "src/qrtk_skills/__init__.py": {
+      "expected": "c711920c762c2e0c9c5bd86af6beb836fad6dbe00fe9b9c22b4718aa7ed8c0a4",
+      "actual": "c711920c762c2e0c9c5bd86af6beb836fad6dbe00fe9b9c22b4718aa7ed8c0a4",
+      "match": true
+    },
+    "src/qrtk_skills/report.py": {
+      "expected": "783d3db1f22607cc899303d08c7f0528bce0788f56251814cf57910242c849df",
+      "actual": "783d3db1f22607cc899303d08c7f0528bce0788f56251814cf57910242c849df",
+      "match": true
+    },
+    "src/qrtk_skills/runtime.py": {
+      "expected": "11c38771455a9a21e55b10c1605ec8460a34d0ec9250835984ca78c8eab7280e",
+      "actual": "11c38771455a9a21e55b10c1605ec8460a34d0ec9250835984ca78c8eab7280e",
+      "match": true
+    },
+    "src/qrtk_skills/tools.py": {
+      "expected": "121c593139db59cf5e1213da6e174761f20dc105c71b7a89810d60e788966ed1",
+      "actual": "121c593139db59cf5e1213da6e174761f20dc105c71b7a89810d60e788966ed1",
+      "match": true
+    },
+    "src/research_agent/__init__.py": {
+      "expected": "c22c6a90a72feac65dcd44a75f9ad13788ff07c3df1a1f48b7e81aa85411f5dc",
+      "actual": "c22c6a90a72feac65dcd44a75f9ad13788ff07c3df1a1f48b7e81aa85411f5dc",
+      "match": true
+    },
+    "src/research_agent/__main__.py": {
+      "expected": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "actual": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "match": true
+    },
+    "src/research_agent/acceptance.py": {
+      "expected": "e3f74887260b50a1085d88d09ea5e3011524dc3945a1e02458d1f38ced6d4204",
+      "actual": "e3f74887260b50a1085d88d09ea5e3011524dc3945a1e02458d1f38ced6d4204",
+      "match": true
+    },
+    "src/research_agent/app.py": {
+      "expected": "2df33b095d8a455a8868d493c9b74e29e8b4724692ed5ccf4d30f97641471d80",
+      "actual": "2df33b095d8a455a8868d493c9b74e29e8b4724692ed5ccf4d30f97641471d80",
+      "match": true
+    },
+    "src/research_agent/artifacts.py": {
+      "expected": "b73ba8b41487cf43bde111b996774b67dc7125839019991b8833d47c8862678a",
+      "actual": "b73ba8b41487cf43bde111b996774b67dc7125839019991b8833d47c8862678a",
+      "match": true
+    },
+    "src/research_agent/cli.py": {
+      "expected": "7f67b1e5e7f334dda5c0c42dd41497689133b7d7036eeda5515f4b4d2c0b9031",
+      "actual": "7f67b1e5e7f334dda5c0c42dd41497689133b7d7036eeda5515f4b4d2c0b9031",
+      "match": true
+    },
+    "src/research_agent/contracts.py": {
+      "expected": "1e482f4b7be0b85635e73ecf70cd019e38503951fc44a1c162f31a921e53e1e7",
+      "actual": "1e482f4b7be0b85635e73ecf70cd019e38503951fc44a1c162f31a921e53e1e7",
+      "match": true
+    },
+    "src/research_agent/conversation.py": {
+      "expected": "dec39b09850e62cd4e11d6cb2af595f577644456382fd86983200acd510dd3bd",
+      "actual": "dec39b09850e62cd4e11d6cb2af595f577644456382fd86983200acd510dd3bd",
+      "match": true
+    },
+    "src/research_agent/data.py": {
+      "expected": "a4c44d7ae5ec28051e47627b019ed4e30b306b44bd5102e6cb8981fe61b1c2f2",
+      "actual": "a4c44d7ae5ec28051e47627b019ed4e30b306b44bd5102e6cb8981fe61b1c2f2",
+      "match": true
+    },
+    "src/research_agent/definition_gate.py": {
+      "expected": "0544e769cf1205b9d5d9673840a57d35db155ef2e62fbc6df63e7a3728b5db95",
+      "actual": "0544e769cf1205b9d5d9673840a57d35db155ef2e62fbc6df63e7a3728b5db95",
+      "match": true
+    },
+    "src/research_agent/economic_rationale.py": {
+      "expected": "a9986fb4a77a0943ab101b7ac0e2bd371d70e6038e5464f501d0e4a919e01ae1",
+      "actual": "a9986fb4a77a0943ab101b7ac0e2bd371d70e6038e5464f501d0e4a919e01ae1",
+      "match": true
+    },
+    "src/research_agent/evidence.py": {
+      "expected": "ac2b2a057cf95f703298989e43d4f29470c657d5cd9ecc2948bdc93cfae71e68",
+      "actual": "ac2b2a057cf95f703298989e43d4f29470c657d5cd9ecc2948bdc93cfae71e68",
+      "match": true
+    },
+    "src/research_agent/factor_evaluation.py": {
+      "expected": "128da8fd046061d996c298e82f1bd29ef94070204ba96b6aaebbc71c6b522748",
+      "actual": "128da8fd046061d996c298e82f1bd29ef94070204ba96b6aaebbc71c6b522748",
+      "match": true
+    },
+    "src/research_agent/factor_export.py": {
+      "expected": "02a952e6eb63942b05040897736cdda60731923b876840f5576c29a214f9817d",
+      "actual": "02a952e6eb63942b05040897736cdda60731923b876840f5576c29a214f9817d",
+      "match": true
+    },
+    "src/research_agent/factor_expression.py": {
+      "expected": "0de45f3ca4b7d1dea7d4e786243e9773f8374953ffff457ba1c986a795f45675",
+      "actual": "0de45f3ca4b7d1dea7d4e786243e9773f8374953ffff457ba1c986a795f45675",
+      "match": true
+    },
+    "src/research_agent/factor_math.py": {
+      "expected": "7de2d090b42f5b956377e33ec538afb5ca76591f8e87f185e978027a4de92b34",
+      "actual": "7de2d090b42f5b956377e33ec538afb5ca76591f8e87f185e978027a4de92b34",
+      "match": true
+    },
+    "src/research_agent/historical_evaluation.py": {
+      "expected": "14fed9d51955990cee6d5b91af684a4ca5d53c7aa07e39a8d1f4b652cfc855b2",
+      "actual": "14fed9d51955990cee6d5b91af684a4ca5d53c7aa07e39a8d1f4b652cfc855b2",
+      "match": true
+    },
+    "src/research_agent/independent_evaluator.py": {
+      "expected": "690b808241838384f35197953a2b1e35512ca3e535ce25456722194c2eb83563",
+      "actual": "690b808241838384f35197953a2b1e35512ca3e535ce25456722194c2eb83563",
+      "match": true
+    },
+    "src/research_agent/interactive_report.py": {
+      "expected": "e481fb8c77ddae0c849b045397782ed2f9c64b783a29f70378da25f6021d90e2",
+      "actual": "e481fb8c77ddae0c849b045397782ed2f9c64b783a29f70378da25f6021d90e2",
+      "match": true
+    },
+    "src/research_agent/llm.py": {
+      "expected": "d1cbc262a0e6e2490ba1bc0d7507ece860be598816b246640f6005a1498807db",
+      "actual": "d1cbc262a0e6e2490ba1bc0d7507ece860be598816b246640f6005a1498807db",
+      "match": true
+    },
+    "src/research_agent/paper_library.py": {
+      "expected": "3ab51065698912c32c0d4fe4ac8076e6f0fbcd5b6c62438729d27d09a16125af",
+      "actual": "3ab51065698912c32c0d4fe4ac8076e6f0fbcd5b6c62438729d27d09a16125af",
+      "match": true
+    },
+    "src/research_agent/paper_tools.py": {
+      "expected": "b200b5f692afc36e9e9fbfbc3c6660a11c9db5592f1adbd1ae182703f2375d8e",
+      "actual": "b200b5f692afc36e9e9fbfbc3c6660a11c9db5592f1adbd1ae182703f2375d8e",
+      "match": true
+    },
+    "src/research_agent/providers/__init__.py": {
+      "expected": "a5843f3a79f9226bdab4c07d156b05c95d52135e8754045203db508d4a342a70",
+      "actual": "a5843f3a79f9226bdab4c07d156b05c95d52135e8754045203db508d4a342a70",
+      "match": true
+    },
+    "src/research_agent/providers/deepseek.py": {
+      "expected": "24131066cf95f3a68e0e8eb33ec87037dc084cc99d9bb8043158f3d69936069f",
+      "actual": "24131066cf95f3a68e0e8eb33ec87037dc084cc99d9bb8043158f3d69936069f",
+      "match": true
+    },
+    "src/research_agent/providers/mock.py": {
+      "expected": "9241ff5670b7a4618423351069a5bef52e41d8601ee70e445b9e0acde9a7104e",
+      "actual": "9241ff5670b7a4618423351069a5bef52e41d8601ee70e445b9e0acde9a7104e",
+      "match": true
+    },
+    "src/research_agent/published_release.py": {
+      "expected": "ea3702bba89fcef3b9c6a5420d38a52fd6b70d36b191dae7ec02f3c71bdcdb26",
+      "actual": "ea3702bba89fcef3b9c6a5420d38a52fd6b70d36b191dae7ec02f3c71bdcdb26",
+      "match": true
+    },
+    "src/research_agent/quant.py": {
+      "expected": "c242caefbeb3ba430eaaa4a7ecc72ecd1f877ce954ce6e1c92671b7210d63d89",
+      "actual": "c242caefbeb3ba430eaaa4a7ecc72ecd1f877ce954ce6e1c92671b7210d63d89",
+      "match": true
+    },
+    "src/research_agent/quant_factors.py": {
+      "expected": "752ed2ffbbcdabf65ece271a0290116ab406824919a8baa0c360d5f0541319fb",
+      "actual": "752ed2ffbbcdabf65ece271a0290116ab406824919a8baa0c360d5f0541319fb",
+      "match": true
+    },
+    "src/research_agent/report_consistency.py": {
+      "expected": "b2d708d8014cfeb7f4fe4239ca26875507d6114a914672f5247e5555fe0a9e5a",
+      "actual": "b2d708d8014cfeb7f4fe4239ca26875507d6114a914672f5247e5555fe0a9e5a",
+      "match": true
+    },
+    "src/research_agent/report_test_figures.py": {
+      "expected": "676ae3a7b8a724ab97187db1081df5fb562e2e649d60f1dda8983b341d7cca7c",
+      "actual": "676ae3a7b8a724ab97187db1081df5fb562e2e649d60f1dda8983b341d7cca7c",
+      "match": true
+    },
+    "src/research_agent/report_versions.py": {
+      "expected": "4e9b4ff0652cd1f292bc726472add97f989b3c6683f4e4c25db63a3677534d46",
+      "actual": "4e9b4ff0652cd1f292bc726472add97f989b3c6683f4e4c25db63a3677534d46",
+      "match": true
+    },
+    "src/research_agent/research_metrics.py": {
+      "expected": "550099c935a46b6a27ae6753b3e37f8271e58cbd068eea154db805744514198c",
+      "actual": "550099c935a46b6a27ae6753b3e37f8271e58cbd068eea154db805744514198c",
+      "match": true
+    },
+    "src/research_agent/research_report.py": {
+      "expected": "5143fe03200153c721f0134f50237184daea8f2ae29e90278948118696eee5a4",
+      "actual": "5143fe03200153c721f0134f50237184daea8f2ae29e90278948118696eee5a4",
+      "match": true
+    },
+    "src/research_agent/resources/agent.toml": {
+      "expected": "f19e871124148c2c67af8817f33912792c734312e79ac5b5d62f375e67186072",
+      "actual": "f19e871124148c2c67af8817f33912792c734312e79ac5b5d62f375e67186072",
+      "match": true
+    },
+    "src/research_agent/resources/approved_skills.json": {
+      "expected": "460a7e1cafd0c134d6f7494b6c2b7d253996ad52ba98c17f605b0f842553def9",
+      "actual": "460a7e1cafd0c134d6f7494b6c2b7d253996ad52ba98c17f605b0f842553def9",
+      "match": true
+    },
+    "src/research_agent/resources/factor_format.json": {
+      "expected": "debdf8a0ba206b4876ade45936921f961d4ca434f8656e0b32543918b3dc5848",
+      "actual": "debdf8a0ba206b4876ade45936921f961d4ca434f8656e0b32543918b3dc5848",
+      "match": true
+    },
+    "src/research_agent/resources/factor_report.schema.json": {
+      "expected": "649f5e6eff87af23140928fe89ffd3ed31829d1ddeaef977bbf432633a0d37d1",
+      "actual": "649f5e6eff87af23140928fe89ffd3ed31829d1ddeaef977bbf432633a0d37d1",
+      "match": true
+    },
+    "src/research_agent/resources/policy.toml": {
+      "expected": "74f395400da953ee08ba378f374b84f2dc13b914d05a826f9f03b04090ff103f",
+      "actual": "74f395400da953ee08ba378f374b84f2dc13b914d05a826f9f03b04090ff103f",
+      "match": true
+    },
+    "src/research_agent/resources/quant_source.json": {
+      "expected": "32cd6b6056eecdf3e690142b743a2d84a90c4318e3a2dfdfeab3180a5d700d26",
+      "actual": "32cd6b6056eecdf3e690142b743a2d84a90c4318e3a2dfdfeab3180a5d700d26",
+      "match": true
+    },
+    "src/research_agent/resources/skills/data_query/SKILL.md": {
+      "expected": "9d26260f9d6e5986a37ad40ab6db0497d7e22281e5f6469e8a5d2346df92ce40",
+      "actual": "9d26260f9d6e5986a37ad40ab6db0497d7e22281e5f6469e8a5d2346df92ce40",
+      "match": true
+    },
+    "src/research_agent/resources/skills/data_query/example.json": {
+      "expected": "58e0b4fe03b0ad8bd5065a3472b76564516696521d0d5904139fcf7291eba56c",
+      "actual": "58e0b4fe03b0ad8bd5065a3472b76564516696521d0d5904139fcf7291eba56c",
+      "match": true
+    },
+    "src/research_agent/resources/skills/data_query/input.schema.json": {
+      "expected": "0aa5ab9ab6c88c2cbd6b56723bad266702a5f7d632d9f69cf9dff27614e0a60f",
+      "actual": "0aa5ab9ab6c88c2cbd6b56723bad266702a5f7d632d9f69cf9dff27614e0a60f",
+      "match": true
+    },
+    "src/research_agent/resources/skills/data_query/output.schema.json": {
+      "expected": "5b293c08795d742329d88299f96aaef95c95ade3784b80b405f601fbe794d501",
+      "actual": "5b293c08795d742329d88299f96aaef95c95ade3784b80b405f601fbe794d501",
+      "match": true
+    },
+    "src/research_agent/resources/skills/data_query/skill.toml": {
+      "expected": "e5b8e6c6b14317b30871001763c323758f6c3d07acb26f413eaf53c0acae3fc9",
+      "actual": "e5b8e6c6b14317b30871001763c323758f6c3d07acb26f413eaf53c0acae3fc9",
+      "match": true
+    },
+    "src/research_agent/resources/skills/data_research/SKILL.md": {
+      "expected": "fff50cd413ee381f67a002fd6402c12ca722f6815984606d955f2dff2cf865a9",
+      "actual": "fff50cd413ee381f67a002fd6402c12ca722f6815984606d955f2dff2cf865a9",
+      "match": true
+    },
+    "src/research_agent/resources/skills/data_research/example.json": {
+      "expected": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+      "actual": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+      "match": true
+    },
+    "src/research_agent/resources/skills/data_research/input.schema.json": {
+      "expected": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+      "actual": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+      "match": true
+    },
+    "src/research_agent/resources/skills/data_research/output.schema.json": {
+      "expected": "e32a1e697dd9cce874f702e26c3db6fcc54cc450251b71cd896f5ef83173a0ec",
+      "actual": "e32a1e697dd9cce874f702e26c3db6fcc54cc450251b71cd896f5ef83173a0ec",
+      "match": true
+    },
+    "src/research_agent/resources/skills/data_research/skill.toml": {
+      "expected": "d5412404dd325de83ec6011e5ae26ef28b275714127e31a7ad73b4c2cf0dc27e",
+      "actual": "d5412404dd325de83ec6011e5ae26ef28b275714127e31a7ad73b4c2cf0dc27e",
+      "match": true
+    },
+    "src/research_agent/resources/skills/factor_research/SKILL.md": {
+      "expected": "3b98c797c27454d1679823da7675c2d3b68e19a0c8ed737a32b3c20d0c7e4adb",
+      "actual": "3b98c797c27454d1679823da7675c2d3b68e19a0c8ed737a32b3c20d0c7e4adb",
+      "match": true
+    },
+    "src/research_agent/resources/skills/factor_research/example.json": {
+      "expected": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+      "actual": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+      "match": true
+    },
+    "src/research_agent/resources/skills/factor_research/input.schema.json": {
+      "expected": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+      "actual": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+      "match": true
+    },
+    "src/research_agent/resources/skills/factor_research/output.schema.json": {
+      "expected": "07ba66375d548375058e4366009f1d43a0ee3e610d3a2591de27c57432571ef2",
+      "actual": "07ba66375d548375058e4366009f1d43a0ee3e610d3a2591de27c57432571ef2",
+      "match": true
+    },
+    "src/research_agent/resources/skills/factor_research/skill.toml": {
+      "expected": "f25bd393d63b116b5ff519bbf4987e9d87bd773aa50e7053ac00ad87eb721e6b",
+      "actual": "f25bd393d63b116b5ff519bbf4987e9d87bd773aa50e7053ac00ad87eb721e6b",
+      "match": true
+    },
+    "src/research_agent/resources/skills/mock_research/SKILL.md": {
+      "expected": "610013f47ae29aeae57d37be35b9e4cc3e4a07fd23a152718354efdf7acddf7d",
+      "actual": "610013f47ae29aeae57d37be35b9e4cc3e4a07fd23a152718354efdf7acddf7d",
+      "match": true
+    },
+    "src/research_agent/resources/skills/mock_research/example.json": {
+      "expected": "830358d35113018b7d03bf50fd40219fc1bd734afffc1ed6a3ce63a6ca6a761d",
+      "actual": "830358d35113018b7d03bf50fd40219fc1bd734afffc1ed6a3ce63a6ca6a761d",
+      "match": true
+    },
+    "src/research_agent/resources/skills/mock_research/input.schema.json": {
+      "expected": "0aa5ab9ab6c88c2cbd6b56723bad266702a5f7d632d9f69cf9dff27614e0a60f",
+      "actual": "0aa5ab9ab6c88c2cbd6b56723bad266702a5f7d632d9f69cf9dff27614e0a60f",
+      "match": true
+    },
+    "src/research_agent/resources/skills/mock_research/output.schema.json": {
+      "expected": "1e12f8375c350f237ab4bbf1b9fe2092d9a6911930b3b1231a102a272e838f55",
+      "actual": "1e12f8375c350f237ab4bbf1b9fe2092d9a6911930b3b1231a102a272e838f55",
+      "match": true
+    },
+    "src/research_agent/resources/skills/mock_research/skill.toml": {
+      "expected": "caeeaa4833560a6bd94cfaeebbd7199117184d9c63fc8b9d5a2addc5e5e12276",
+      "actual": "caeeaa4833560a6bd94cfaeebbd7199117184d9c63fc8b9d5a2addc5e5e12276",
+      "match": true
+    },
+    "src/research_agent/resources/skills/paper_research/SKILL.md": {
+      "expected": "4d0cd054f2c6becbb47ef55133b8c075e007745c9836a0d68612609640a5f74e",
+      "actual": "4d0cd054f2c6becbb47ef55133b8c075e007745c9836a0d68612609640a5f74e",
+      "match": true
+    },
+    "src/research_agent/resources/skills/paper_research/example.json": {
+      "expected": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+      "actual": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+      "match": true
+    },
+    "src/research_agent/resources/skills/paper_research/input.schema.json": {
+      "expected": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+      "actual": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+      "match": true
+    },
+    "src/research_agent/resources/skills/paper_research/output.schema.json": {
+      "expected": "e32a1e697dd9cce874f702e26c3db6fcc54cc450251b71cd896f5ef83173a0ec",
+      "actual": "e32a1e697dd9cce874f702e26c3db6fcc54cc450251b71cd896f5ef83173a0ec",
+      "match": true
+    },
+    "src/research_agent/resources/skills/paper_research/skill.toml": {
+      "expected": "4321c0decf90acbd97f886bcbeece2906b1d79615b7558d2e7246d3b529c2fd1",
+      "actual": "4321c0decf90acbd97f886bcbeece2906b1d79615b7558d2e7246d3b529c2fd1",
+      "match": true
+    },
+    "src/research_agent/resources/skills/research_diagnostics/SKILL.md": {
+      "expected": "c66ce7dc0a6d460885ee08295e66100d55cb109cc6fe45b151093b875fc558c3",
+      "actual": "c66ce7dc0a6d460885ee08295e66100d55cb109cc6fe45b151093b875fc558c3",
+      "match": true
+    },
+    "src/research_agent/resources/skills/research_diagnostics/example.json": {
+      "expected": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+      "actual": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+      "match": true
+    },
+    "src/research_agent/resources/skills/research_diagnostics/input.schema.json": {
+      "expected": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+      "actual": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+      "match": true
+    },
+    "src/research_agent/resources/skills/research_diagnostics/output.schema.json": {
+      "expected": "07ba66375d548375058e4366009f1d43a0ee3e610d3a2591de27c57432571ef2",
+      "actual": "07ba66375d548375058e4366009f1d43a0ee3e610d3a2591de27c57432571ef2",
+      "match": true
+    },
+    "src/research_agent/resources/skills/research_diagnostics/skill.toml": {
+      "expected": "d6c3d94e64eb238fd4d38691c3515a0960f8068a76cd61d1a5468aa4c18ab466",
+      "actual": "d6c3d94e64eb238fd4d38691c3515a0960f8068a76cd61d1a5468aa4c18ab466",
+      "match": true
+    },
+    "src/research_agent/resources/skills/research_reporting/SKILL.md": {
+      "expected": "c9ceca2d0c2480f186a77a8dd219b4afdfca556f52fb8b20bf340cd311642088",
+      "actual": "c9ceca2d0c2480f186a77a8dd219b4afdfca556f52fb8b20bf340cd311642088",
+      "match": true
+    },
+    "src/research_agent/resources/skills/research_reporting/example.json": {
+      "expected": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+      "actual": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+      "match": true
+    },
+    "src/research_agent/resources/skills/research_reporting/input.schema.json": {
+      "expected": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+      "actual": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+      "match": true
+    },
+    "src/research_agent/resources/skills/research_reporting/output.schema.json": {
+      "expected": "07ba66375d548375058e4366009f1d43a0ee3e610d3a2591de27c57432571ef2",
+      "actual": "07ba66375d548375058e4366009f1d43a0ee3e610d3a2591de27c57432571ef2",
+      "match": true
+    },
+    "src/research_agent/resources/skills/research_reporting/skill.toml": {
+      "expected": "889561f4b8512c39144ea97dd20cc21c5d4bf1c0a4343e2abeb6e0f83b57638e",
+      "actual": "889561f4b8512c39144ea97dd20cc21c5d4bf1c0a4343e2abeb6e0f83b57638e",
+      "match": true
+    },
+    "src/research_agent/resources/skills/strategy_backtest/SKILL.md": {
+      "expected": "ff707d4da283b199917c4d8d8b9b8e6a381c94f659d3017e25b87ef966b90541",
+      "actual": "ff707d4da283b199917c4d8d8b9b8e6a381c94f659d3017e25b87ef966b90541",
+      "match": true
+    },
+    "src/research_agent/resources/skills/strategy_backtest/example.json": {
+      "expected": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+      "actual": "2306d8cba6e7fe9964f6fad6f7a99505d4e3439137cfb364ef24eaa0e01fb753",
+      "match": true
+    },
+    "src/research_agent/resources/skills/strategy_backtest/input.schema.json": {
+      "expected": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+      "actual": "198bc9a43bd1a94d3b8bf3471d8b9a61ebdfd0f766527f0c88c02635e66ea950",
+      "match": true
+    },
+    "src/research_agent/resources/skills/strategy_backtest/output.schema.json": {
+      "expected": "07ba66375d548375058e4366009f1d43a0ee3e610d3a2591de27c57432571ef2",
+      "actual": "07ba66375d548375058e4366009f1d43a0ee3e610d3a2591de27c57432571ef2",
+      "match": true
+    },
+    "src/research_agent/resources/skills/strategy_backtest/skill.toml": {
+      "expected": "e94ee12ed5020734a21b33e05a4cffde1559330b4a8d8129a04c83e763bd7871",
+      "actual": "e94ee12ed5020734a21b33e05a4cffde1559330b4a8d8129a04c83e763bd7871",
+      "match": true
+    },
+    "src/research_agent/resources/visuals/LICENSE.txt": {
+      "expected": "f880d5986ff583154fec04542abd782d8087bd173c38df852018fc6447748eb8",
+      "actual": "f880d5986ff583154fec04542abd782d8087bd173c38df852018fc6447748eb8",
+      "match": true
+    },
+    "src/research_agent/resources/visuals/NOTICE.txt": {
+      "expected": "dc092062bd819972e139216034233b9f7599efba0686373de19a9ade49f721cb",
+      "actual": "dc092062bd819972e139216034233b9f7599efba0686373de19a9ade49f721cb",
+      "match": true
+    },
+    "src/research_agent/resources/visuals/plotly-2.32.0.min.js": {
+      "expected": "0a17719a72751704861215da0e5c5cdb3f9a8d50eff5cb84cb6f8b80786682b0",
+      "actual": "0a17719a72751704861215da0e5c5cdb3f9a8d50eff5cb84cb6f8b80786682b0",
+      "match": true
+    },
+    "src/research_agent/rolling_client.py": {
+      "expected": "e8b478a27df8896c2d4ae76c541b7a7a4df9dc08e5941677dd71ce96cc9d1179",
+      "actual": "e8b478a27df8896c2d4ae76c541b7a7a4df9dc08e5941677dd71ce96cc9d1179",
+      "match": true
+    },
+    "src/research_agent/runtime.py": {
+      "expected": "43f302bdbc7d38b7e803d7190d133229e3f8a5712fbfa5f050874d3201989193",
+      "actual": "43f302bdbc7d38b7e803d7190d133229e3f8a5712fbfa5f050874d3201989193",
+      "match": true
+    },
+    "src/research_agent/security.py": {
+      "expected": "ec01b9657f3a3925c96b39e25f881a602054d166b534ebca21eb069dd6222347",
+      "actual": "ec01b9657f3a3925c96b39e25f881a602054d166b534ebca21eb069dd6222347",
+      "match": true
+    },
+    "src/research_agent/server_plot.py": {
+      "expected": "69cc7ad256d9b4d791cc7519ffb2bea353d4536d54d883ec53c501a087b975b0",
+      "actual": "69cc7ad256d9b4d791cc7519ffb2bea353d4536d54d883ec53c501a087b975b0",
+      "match": true
+    },
+    "src/research_agent/skills.py": {
+      "expected": "5bba576603ae3d706b20ade47511150766f1aa3ccb9bb07b252d4ae373c474ab",
+      "actual": "5bba576603ae3d706b20ade47511150766f1aa3ccb9bb07b252d4ae373c474ab",
+      "match": true
+    },
+    "src/research_agent/store.py": {
+      "expected": "f130e8c2ea5fdef088eaa07f80e50e637782cb93b63bb730e83092fee3d987eb",
+      "actual": "f130e8c2ea5fdef088eaa07f80e50e637782cb93b63bb730e83092fee3d987eb",
+      "match": true
+    },
+    "src/research_agent/terminal.py": {
+      "expected": "dfab70cad8b397cb50b07c6efab7aae51ca9e049f0832a15510561bace5d58df",
+      "actual": "dfab70cad8b397cb50b07c6efab7aae51ca9e049f0832a15510561bace5d58df",
+      "match": true
+    },
+    "src/research_agent/tools.py": {
+      "expected": "a864c0dd119f3f461a1dfa6359860dcbbe842d3ea5c18363e3f6d0971873fb99",
+      "actual": "a864c0dd119f3f461a1dfa6359860dcbbe842d3ea5c18363e3f6d0971873fb99",
+      "match": true
+    },
+    "src/research_agent/workflow.py": {
+      "expected": "91bf7cbe7fb6b09531aae83cc497dbdff25187d6d1a94c5ae29c646df381a2ab",
+      "actual": "91bf7cbe7fb6b09531aae83cc497dbdff25187d6d1a94c5ae29c646df381a2ab",
+      "match": true
+    },
+    "src/rolling_test/__init__.py": {
+      "expected": "c68d0623e3f88e81520b59b88feef2e3001eadf73a5d1003b646bf99efa2006e",
+      "actual": "c68d0623e3f88e81520b59b88feef2e3001eadf73a5d1003b646bf99efa2006e",
+      "match": true
+    },
+    "src/rolling_test/broker.py": {
+      "expected": "1ef6584ed79678d9b9a2c24dd186b8455ad2916e26e83876e5c44ef57c4b78d7",
+      "actual": "1ef6584ed79678d9b9a2c24dd186b8455ad2916e26e83876e5c44ef57c4b78d7",
+      "match": true
+    },
+    "src/rolling_test/broker_main.py": {
+      "expected": "217c401b69b242538642af9888c3c9180267378d22591c0a6126fc06aaf7956e",
+      "actual": "217c401b69b242538642af9888c3c9180267378d22591c0a6126fc06aaf7956e",
+      "match": true
+    },
+    "src/rolling_test/evaluator.py": {
+      "expected": "80eeeb63536cfbdc91e9cc247359d08d2b5ab9b5437fc14d320696f3750ccd63",
+      "actual": "80eeeb63536cfbdc91e9cc247359d08d2b5ab9b5437fc14d320696f3750ccd63",
+      "match": true
+    },
+    "src/rolling_test/factors.py": {
+      "expected": "96e454704e1743b0dd995562d371abd0d366485b67102f78455fd26425df0c3a",
+      "actual": "96e454704e1743b0dd995562d371abd0d366485b67102f78455fd26425df0c3a",
+      "match": true
+    },
+    "src/rolling_test/protocol.py": {
+      "expected": "e7067d79051fcb306b346e2d1381d2a2d8d5f2f22dcaccd63223c2bf41f7a2d8",
+      "actual": "e7067d79051fcb306b346e2d1381d2a2d8d5f2f22dcaccd63223c2bf41f7a2d8",
+      "match": true
+    },
+    "src/rolling_test/publish.py": {
+      "expected": "24774a7d8897937c8febb8c4a91921c856677be16309108166cd17bef35b97a4",
+      "actual": "24774a7d8897937c8febb8c4a91921c856677be16309108166cd17bef35b97a4",
+      "match": true
+    },
+    "src/rolling_test/snapshot.py": {
+      "expected": "3df47e4e5dcebb5541a8c447c102d44a2d8584f404bcf1a9c58aff5cc6ea0bc8",
+      "actual": "3df47e4e5dcebb5541a8c447c102d44a2d8584f404bcf1a9c58aff5cc6ea0bc8",
+      "match": true
+    },
+    "src/rolling_test/vendor/linux_publisher.py": {
+      "expected": "a74aaf203bfb9f2e3b554172b73e74575ff847d725e0ff63d39b3cf19a018790",
+      "actual": "a74aaf203bfb9f2e3b554172b73e74575ff847d725e0ff63d39b3cf19a018790",
+      "match": true
+    },
+    "src/rolling_test/vendor/private_release.py": {
+      "expected": "27dd57c1620ce06823bf0e8ff16c9ddf1e8de9d627316dcbe7b285e20314324b",
+      "actual": "27dd57c1620ce06823bf0e8ff16c9ddf1e8de9d627316dcbe7b285e20314324b",
+      "match": true
+    },
+    "src/rolling_test/vendor/qra_data/__init__.py": {
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "match": true
+    },
+    "src/rolling_test/vendor/qra_data/adapter.py": {
+      "expected": "048316341cb946bf35a71f42e2f6634a941334a1ca43841aea486ed0054d41de",
+      "actual": "048316341cb946bf35a71f42e2f6634a941334a1ca43841aea486ed0054d41de",
+      "match": true
+    },
+    "src/rolling_test/vendor/qra_data/contracts.py": {
+      "expected": "0594c649c6c3db4f92e66cd5ed8bd05f95fb4213e6375d1f73278ce90400e884",
+      "actual": "0594c649c6c3db4f92e66cd5ed8bd05f95fb4213e6375d1f73278ce90400e884",
+      "match": true
+    },
+    "src/rolling_test/vendor/qra_data/splits.py": {
+      "expected": "12365d8a691ad8477b73f137e42a6c0eb19d08ca9bacde269dc3c3acce8b887d",
+      "actual": "12365d8a691ad8477b73f137e42a6c0eb19d08ca9bacde269dc3c3acce8b887d",
+      "match": true
+    },
+    "src/rolling_test/vendor/qra_data/static_pickle.py": {
+      "expected": "3a442a548b952338758dc1c1780e18be1c7077a39d5596fddf10ce117cf23eff",
+      "actual": "3a442a548b952338758dc1c1780e18be1c7077a39d5596fddf10ce117cf23eff",
+      "match": true
+    },
+    "src/rolling_test/vendor/qra_data/synthetic.py": {
+      "expected": "bd9e24f9fb65050f2be625a4b569844bb8c0e74922f5e8a6b1ce0c74e71f7e53",
+      "actual": "bd9e24f9fb65050f2be625a4b569844bb8c0e74922f5e8a6b1ce0c74e71f7e53",
+      "match": true
+    },
+    "src/rolling_test/vendor/qra_data/validators.py": {
+      "expected": "ee3866b01f290a1ac82314d67606d7d7cc654e6a1259c6e26ee2a87ca4ce5249",
+      "actual": "ee3866b01f290a1ac82314d67606d7d7cc654e6a1259c6e26ee2a87ca4ce5249",
+      "match": true
+    },
+    "src/rolling_test/vendor/release.py": {
+      "expected": "ea3702bba89fcef3b9c6a5420d38a52fd6b70d36b191dae7ec02f3c71bdcdb26",
+      "actual": "ea3702bba89fcef3b9c6a5420d38a52fd6b70d36b191dae7ec02f3c71bdcdb26",
+      "match": true
+    }
+  }
+}

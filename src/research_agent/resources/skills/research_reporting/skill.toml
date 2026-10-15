@@ -1,0 +1,33 @@
+id = "research_reporting"
+version = "0.4.0"
+contract_version = "research-v1"
+summary = "读取本会话固定工具生成的指标表、专业报告及成果路径；复核或修复既有因子PKL，不重复计算。"
+depends_on = ["contracts-v1"]
+validator = "quant_research_v1"
+
+[tools]
+qrtk_export_report = "0.4.0"
+qrtk_export_factor = "0.4.0"
+
+[permissions]
+data_paths = ["resource:catalog"]
+write_scopes = ["research_runs"]
+network = "none"
+gpu = false
+risk_level = "L0"
+requires_approval = false
+
+[budget]
+max_iterations = 4
+max_model_calls = 8
+max_tool_calls = 6
+max_jobs = 0
+cpu_cores = 1
+memory_mib = 4096
+pids = 1
+job_wall_seconds = 600
+output_mib = 512
+
+[acceptance]
+cases = ["quant_research_smoke"]
+stop_on = ["authorization_denied", "tool_error", "budget_exhausted"]

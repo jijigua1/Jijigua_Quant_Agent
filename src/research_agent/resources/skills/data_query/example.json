@@ -1,0 +1,1 @@
+{"input":{"goal":"描述已授权日频数据的字段、日期和缺失情况，并取5行样本。"},"output":{"mode":"synthetic","summary":"固定测试资源只有演示数据，缺失数和日期由程序核验；不作回测结论。","resource_ids":["fixture:daily"],"analysis_scope":"data_description"}}

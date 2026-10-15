@@ -1,0 +1,44 @@
+{
+  "data_kind": "synthetic",
+  "desktop_viewport": [
+    1280,
+    720
+  ],
+  "mobile_viewport": [
+    390,
+    844
+  ],
+  "observed_desktop_document_width": 1265,
+  "observed_mobile_document_width": 375,
+  "broken_images": 0,
+  "images": 14,
+  "interactive_plots": 18,
+  "checks": [
+    "Desktop summary and numeric tables visibly readable",
+    "Narrow tables scroll locally; page does not overflow",
+    "RankIC heatmap values visible, centered diverging palette, unavailable Test cells N/A",
+    "OFL Noto font used for distributable PDF subsets",
+    "Font-only rerender preserves exact report-table JSON"
+  ],
+  "pdfs_embedded": 7,
+  "pdf_font_names": [
+    "GTXPTE+NotoSansSC-Thin"
+  ],
+  "font_source": {
+    "seconds": 16.0,
+    "font_name": "Noto Sans SC",
+    "font_sha256": "763146584cf0710223441356b4395e279021b0806c196614377a7a0174ae074a",
+    "license_url": "https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/LICENSE",
+    "license_sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
+    "data_kind": "synthetic",
+    "network_calls_to_models": 0
+  },
+  "screenshots": [
+    "docs/examples/report_desktop.jpg",
+    "docs/examples/report_heatmaps.jpg",
+    "docs/examples/report_mobile.jpg"
+  ],
+  "limits": [
+    "Browser inspection on Windows only; not a real market report or all operating-system visual certification"
+  ]
+}

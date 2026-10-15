@@ -1,0 +1,3 @@
+# Content fingerprints are a runtime contract. Never normalize reviewed bytes on checkout.
+# New authored files use UTF-8/LF; inherited CRLF files keep their approved byte hashes.
+* -text

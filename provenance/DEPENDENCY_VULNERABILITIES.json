@@ -1,0 +1,350 @@
+{
+  "queried_at_utc": "2026-10-15T07:45:13.275430+00:00",
+  "database": "OSV",
+  "packages": 33,
+  "findings": [
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-45hq-cxwh-f6vc",
+      "url": "https://osv.dev/vulnerability/GHSA-45hq-cxwh-f6vc"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-4x4j-2g7c-83w6",
+      "url": "https://osv.dev/vulnerability/GHSA-4x4j-2g7c-83w6"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-5x94-69rx-g8h2",
+      "url": "https://osv.dev/vulnerability/GHSA-5x94-69rx-g8h2"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-62p4-gmf7-7g93",
+      "url": "https://osv.dev/vulnerability/GHSA-62p4-gmf7-7g93"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-6r8x-57c9-28j4",
+      "url": "https://osv.dev/vulnerability/GHSA-6r8x-57c9-28j4"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-8v84-f9pq-wr9x",
+      "url": "https://osv.dev/vulnerability/GHSA-8v84-f9pq-wr9x"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-9hw9-ch79-4vh6",
+      "url": "https://osv.dev/vulnerability/GHSA-9hw9-ch79-4vh6"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-cfh3-3jmp-rvhc",
+      "url": "https://osv.dev/vulnerability/GHSA-cfh3-3jmp-rvhc"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-fj7v-r99m-22gq",
+      "url": "https://osv.dev/vulnerability/GHSA-fj7v-r99m-22gq"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-jjj6-mw9f-p565",
+      "url": "https://osv.dev/vulnerability/GHSA-jjj6-mw9f-p565"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-phj9-mv4w-65pm",
+      "url": "https://osv.dev/vulnerability/GHSA-phj9-mv4w-65pm"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-pwv6-vv43-88gr",
+      "url": "https://osv.dev/vulnerability/GHSA-pwv6-vv43-88gr"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-r73j-pqj5-w3x7",
+      "url": "https://osv.dev/vulnerability/GHSA-r73j-pqj5-w3x7"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-vjc4-5qp5-m44j",
+      "url": "https://osv.dev/vulnerability/GHSA-vjc4-5qp5-m44j"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-whj4-6x5x-4v2j",
+      "url": "https://osv.dev/vulnerability/GHSA-whj4-6x5x-4v2j"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-wjx4-4jcj-g98j",
+      "url": "https://osv.dev/vulnerability/GHSA-wjx4-4jcj-g98j"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "GHSA-xj96-63gp-2gmr",
+      "url": "https://osv.dev/vulnerability/GHSA-xj96-63gp-2gmr"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-165",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-165"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-2249",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-2249"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-2250",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-2250"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-2252",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-2252"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-2253",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-2253"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-2254",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-2254"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-2255",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-2255"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-2256",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-2256"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-2257",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-2257"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-2874",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-2874"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-3451",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-3451"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-3453",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-3453"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-3454",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-3454"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-3493",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-3493"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-3494",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-3494"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-3495",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-3495"
+    },
+    {
+      "package": "pillow",
+      "version": "10.3.0",
+      "id": "PYSEC-2026-3496",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-3496"
+    },
+    {
+      "package": "pytest",
+      "version": "7.4.4",
+      "id": "GHSA-6w46-j5rx-g56g",
+      "url": "https://osv.dev/vulnerability/GHSA-6w46-j5rx-g56g"
+    },
+    {
+      "package": "pytest",
+      "version": "7.4.4",
+      "id": "PYSEC-2026-1845",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-1845"
+    },
+    {
+      "package": "pyarrow",
+      "version": "14.0.2",
+      "id": "PYSEC-2024-161",
+      "url": "https://osv.dev/vulnerability/PYSEC-2024-161"
+    },
+    {
+      "package": "setuptools",
+      "version": "69.5.1",
+      "id": "GHSA-5rjg-fvgr-3xxf",
+      "url": "https://osv.dev/vulnerability/GHSA-5rjg-fvgr-3xxf"
+    },
+    {
+      "package": "setuptools",
+      "version": "69.5.1",
+      "id": "GHSA-cx63-2mw6-8hw5",
+      "url": "https://osv.dev/vulnerability/GHSA-cx63-2mw6-8hw5"
+    },
+    {
+      "package": "setuptools",
+      "version": "69.5.1",
+      "id": "GHSA-h35f-9h28-mq5c",
+      "url": "https://osv.dev/vulnerability/GHSA-h35f-9h28-mq5c"
+    },
+    {
+      "package": "setuptools",
+      "version": "69.5.1",
+      "id": "PYSEC-2025-49",
+      "url": "https://osv.dev/vulnerability/PYSEC-2025-49"
+    },
+    {
+      "package": "setuptools",
+      "version": "69.5.1",
+      "id": "PYSEC-2026-1918",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-1918"
+    },
+    {
+      "package": "setuptools",
+      "version": "69.5.1",
+      "id": "PYSEC-2026-3447",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-3447"
+    },
+    {
+      "package": "wheel",
+      "version": "0.43.0",
+      "id": "GHSA-8rrh-rw8j-w5fx",
+      "url": "https://osv.dev/vulnerability/GHSA-8rrh-rw8j-w5fx"
+    },
+    {
+      "package": "wheel",
+      "version": "0.43.0",
+      "id": "PYSEC-2026-2047",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-2047"
+    },
+    {
+      "package": "fonttools",
+      "version": "4.51.0",
+      "id": "GHSA-768j-98cg-p3fv",
+      "url": "https://osv.dev/vulnerability/GHSA-768j-98cg-p3fv"
+    },
+    {
+      "package": "fonttools",
+      "version": "4.51.0",
+      "id": "PYSEC-2026-1389",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-1389"
+    },
+    {
+      "package": "soupsieve",
+      "version": "2.5",
+      "id": "GHSA-2wc2-fm75-p42x",
+      "url": "https://osv.dev/vulnerability/GHSA-2wc2-fm75-p42x"
+    },
+    {
+      "package": "soupsieve",
+      "version": "2.5",
+      "id": "GHSA-836r-79rf-4m37",
+      "url": "https://osv.dev/vulnerability/GHSA-836r-79rf-4m37"
+    },
+    {
+      "package": "soupsieve",
+      "version": "2.5",
+      "id": "GHSA-gjv8-xp57-g29c",
+      "url": "https://osv.dev/vulnerability/GHSA-gjv8-xp57-g29c"
+    },
+    {
+      "package": "soupsieve",
+      "version": "2.5",
+      "id": "GHSA-j934-xhv5-fg8f",
+      "url": "https://osv.dev/vulnerability/GHSA-j934-xhv5-fg8f"
+    },
+    {
+      "package": "soupsieve",
+      "version": "2.5",
+      "id": "PYSEC-2026-3071",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-3071"
+    },
+    {
+      "package": "soupsieve",
+      "version": "2.5",
+      "id": "PYSEC-2026-3072",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-3072"
+    },
+    {
+      "package": "soupsieve",
+      "version": "2.5",
+      "id": "PYSEC-2026-4170",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-4170"
+    },
+    {
+      "package": "soupsieve",
+      "version": "2.5",
+      "id": "PYSEC-2026-4171",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-4171"
+    },
+    {
+      "package": "lxml",
+      "version": "5.2.1",
+      "id": "GHSA-vfmq-68hx-4jfw",
+      "url": "https://osv.dev/vulnerability/GHSA-vfmq-68hx-4jfw"
+    },
+    {
+      "package": "lxml",
+      "version": "5.2.1",
+      "id": "PYSEC-2026-87",
+      "url": "https://osv.dev/vulnerability/PYSEC-2026-87"
+    }
+  ],
+  "scope": "Public PyPI package names and versions only; matching advisories are not reachability proof."
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "path": "tests/fixtures/pyx_ledger.py",
+    "sha256": "39e2efff9659348d80af38a6f8f61be78add628326a35b75fb6963a0391ceb47",
+    "reason": "External researcher implementation; redistribution licence not established."
+  },
+  {
+    "path": "tests/fixtures/server_factor_readers.py",
+    "sha256": "185b4dfe44db1cea7add5d1edfa2aa89042ed9d0efbed04a386267a7d635005a",
+    "reason": "External researcher implementation; redistribution licence not established."
+  }
+]

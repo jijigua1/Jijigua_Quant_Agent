@@ -1,0 +1,23 @@
+[skill]
+name = "paper_research"
+version = "0.1.0"
+description = "Read academic papers and research reports (PDF/HTML/Markdown/DOCX) into an evidence-grounded research specification."
+
+[tools]
+allowed = ["paper.ingest", "paper.extract_spec", "paper.validate_spec", "paper.export_spec"]
+
+[permissions]
+# Requested only; the host grants. Documents must be registered by the host as DocumentRef.
+requested = ["read:catalog", "compute", "write:artifacts"]
+
+[resources]
+max_memory_mb = 2048
+timeout_s = 600
+cpu = 1
+
+[dependencies]
+python = ["PyMuPDF>=1.23", "beautifulsoup4>=4.11", "python-docx>=1.0", "qrtk_skills>=0.1.0"]
+
+[implementation]
+module = "paper_research.skill_tools"
+schemas = "schemas.json"

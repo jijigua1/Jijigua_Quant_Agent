@@ -1,0 +1,1 @@
+{"type":"object","properties":{"mode":{"const":"synthetic"},"summary":{"type":"string","minLength":1,"maxLength":2000},"factor_experiments":{"type":"integer","minimum":2,"maximum":6}},"required":["mode","summary","factor_experiments"],"additionalProperties":false}

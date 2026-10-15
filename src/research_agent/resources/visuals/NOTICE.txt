@@ -1,0 +1,1 @@
+Plotly.js v2.32.0, Copyright 2012-2024 Plotly, Inc. MIT license. Bundled from plotly.py 5.22.0. Source: https://github.com/plotly/plotly.js/tree/v2.32.0

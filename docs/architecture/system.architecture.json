@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {"title": "Jijigua Quant Agent · 研究与证据", "locale": "zh-CN", "quality_profile": "showcase", "viewBox": [1200, 630]},
+  "components": [
+    {"id":"client","type":"frontend","label":"研究客户端","sublabel":"Windows / macOS · SSH","pos":[35,255],"size":[180,76]},
+    {"id":"agent","type":"backend","label":"研究 Agent","sublabel":"会话 · 规划 · 授权","pos":[335,255],"size":[190,76]},
+    {"id":"model","type":"external","label":"官方 DeepSeek","sublabel":"理解与解释 · 非数值来源","pos":[335,45],"size":[190,76]},
+    {"id":"evidence","type":"database","label":"论文与原文证据","sublabel":"引用 · 参数 · 冻结定义","pos":[335,465],"size":[190,76]},
+    {"id":"compute","type":"backend","label":"可信计算与评价","sublabel":"DSL / IR · Train / Validation","pos":[665,255],"size":[210,76]},
+    {"id":"eval","type":"security","label":"独立 Test 评估","sublabel":"私有数据 · 授权 · 签名回执","pos":[665,465],"size":[210,76]},
+    {"id":"report","type":"database","label":"研究资产与报告","sublabel":"PKL · CSV · HTML · 账本","pos":[975,255],"size":[190,76]}
+  ],
+  "connections": [
+    {"from":"client","to":"agent","label":"SSH","variant":"emphasis"},
+    {"from":"agent","to":"model","label":"HTTPS / JSON"},
+    {"from":"agent","to":"evidence","label":"核验与冻结","labelAt":[430,380]},
+    {"from":"agent","to":"compute","label":"白名单 Tool","variant":"emphasis"},
+    {"from":"compute","to":"report","label":"确定性产物","variant":"emphasis"},
+    {"from":"compute","to":"eval","label":"获批冻结方案","variant":"security","labelAt":[770,380]}
+  ]
+}

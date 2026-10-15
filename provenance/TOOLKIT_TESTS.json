@@ -1,0 +1,50 @@
+[
+  {
+    "path": "tests/toolkit/synth.py",
+    "source_id": "local-quant-toolkit",
+    "original_sha256": "8949f6f6fe51fe8d1253bbdf58c522e758b590c62b6e254181dc26f3a8e27867",
+    "archival_sha256": "8949f6f6fe51fe8d1253bbdf58c522e758b590c62b6e254181dc26f3a8e27867"
+  },
+  {
+    "path": "tests/toolkit/test_backtest_v02.py",
+    "source_id": "local-quant-toolkit",
+    "original_sha256": "bc79d69a600ff3a293c87154168e867e020cbd285cc18decbd0e00cc42c81318",
+    "archival_sha256": "bc79d69a600ff3a293c87154168e867e020cbd285cc18decbd0e00cc42c81318"
+  },
+  {
+    "path": "tests/toolkit/test_backtest.py",
+    "source_id": "local-quant-toolkit",
+    "original_sha256": "24d9ae604d054e7c1784ad43713a84e28bfcb9fb02fbccba7f0d3922b412a517",
+    "archival_sha256": "24d9ae604d054e7c1784ad43713a84e28bfcb9fb02fbccba7f0d3922b412a517"
+  },
+  {
+    "path": "tests/toolkit/test_diagnostics.py",
+    "source_id": "local-quant-toolkit",
+    "original_sha256": "1064c464a3db7607c87ca855501bf7a94692b9d14273047dbaf1f1d31cac7b73",
+    "archival_sha256": "1064c464a3db7607c87ca855501bf7a94692b9d14273047dbaf1f1d31cac7b73"
+  },
+  {
+    "path": "tests/toolkit/test_execution.py",
+    "source_id": "local-quant-toolkit",
+    "original_sha256": "2a3c5782a11874d4a0af363577e8e7803d89a65d0d982aeefbc7694f9fbdf6fb",
+    "archival_sha256": "2a3c5782a11874d4a0af363577e8e7803d89a65d0d982aeefbc7694f9fbdf6fb"
+  },
+  {
+    "path": "tests/toolkit/test_factor_eval.py",
+    "source_id": "local-quant-toolkit",
+    "original_sha256": "15336a259dc3cfc419329b005fac3b6068acff3e416917db4df0153357616f2d",
+    "archival_sha256": "15336a259dc3cfc419329b005fac3b6068acff3e416917db4df0153357616f2d"
+  },
+  {
+    "path": "tests/toolkit/test_minute.py",
+    "source_id": "local-quant-toolkit",
+    "original_sha256": "8ae16d8f408c6957bff51b2e4762e34a33ab810c04f22f7e5d0ef8e24d0e41a1",
+    "archival_sha256": "8ae16d8f408c6957bff51b2e4762e34a33ab810c04f22f7e5d0ef8e24d0e41a1"
+  },
+  {
+    "path": "tests/toolkit/baseline/v01_backtest.py",
+    "source_id": "local-quant-toolkit",
+    "original_sha256": "dbd95b22d0b4086bd624e680317476a18b90a26da757b9bacd2e127bd6e21dd9",
+    "archival_sha256": "dbd95b22d0b4086bd624e680317476a18b90a26da757b9bacd2e127bd6e21dd9"
+  }
+]

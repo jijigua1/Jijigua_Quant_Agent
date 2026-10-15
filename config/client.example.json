@@ -1,0 +1,10 @@
+{
+  "host": "gpu.example.org",
+  "port": 22,
+  "user": "YOUR_LOGIN",
+  "identity": "/path/to/your/private_key",
+  "remote_command": "quant-agent",
+  "staging_dir": "/srv/jijigua-quant-agent/paper_staging",
+  "research_root": "/srv/jijigua-quant-agent/v1beta/research_runs",
+  "timeout": 180
+}

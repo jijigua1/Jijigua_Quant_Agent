@@ -1,0 +1,50 @@
+name: Offline public checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: CJK font for offline Linux report tests
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y fonts-noto-cjk
+      - run: python -m pip install -r requirements.lock -r requirements-research.lock -r requirements-paper.lock
+      - run: python -m pip install --no-build-isolation -e ".[parquet]"
+      - name: Public source, syntax, links and complete Git history
+        run: python tools/release_audit.py --history
+      - name: Python indentation format check (standard library)
+        run: python -m tabnanny src tests tools examples
+      - name: Offline synthetic and rejection tests (no API credentials)
+        run: python -m pytest -q -p no:cacheprovider --durations=10
+      - name: Build distributable package
+        run: python -m pip wheel --no-deps --no-build-isolation . -w dist
+  publication-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/dependency_audit.py
+      - run: python tools/publication_gate.py

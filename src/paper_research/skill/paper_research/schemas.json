@@ -1,0 +1,136 @@
+{
+  "paper.ingest": {
+    "input": {
+      "type": "object",
+      "required": [
+        "document"
+      ],
+      "properties": {
+        "document": {
+          "type": "data_ref"
+        }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "required": [
+        "doc_id",
+        "format",
+        "language",
+        "n_blocks",
+        "pages_unreadable",
+        "injection_findings",
+        "document_ref",
+        "ref"
+      ],
+      "properties": {
+        "document_ref": {
+          "type": "artifact_ref"
+        },
+        "ref": {
+          "type": "artifact_ref"
+        }
+      }
+    }
+  },
+  "paper.extract_spec": {
+    "input": {
+      "type": "object",
+      "required": [
+        "document"
+      ],
+      "properties": {
+        "document": {
+          "type": "artifact_ref"
+        }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "required": [
+        "spec_id",
+        "supported_fields",
+        "n_missing",
+        "reproduction_status",
+        "spec_ref",
+        "ref"
+      ],
+      "properties": {
+        "spec_ref": {
+          "type": "artifact_ref"
+        },
+        "ref": {
+          "type": "artifact_ref"
+        },
+        "reproduction_status": {
+          "type": "string",
+          "enum": [
+            "not_reproduced"
+          ]
+        }
+      }
+    }
+  },
+  "paper.validate_spec": {
+    "input": {
+      "type": "object",
+      "required": [
+        "spec",
+        "document"
+      ],
+      "properties": {
+        "spec": {
+          "type": "artifact_ref"
+        },
+        "document": {
+          "type": "artifact_ref"
+        }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "required": [
+        "valid",
+        "errors",
+        "warnings"
+      ],
+      "properties": {
+        "valid": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "paper.export_spec": {
+    "input": {
+      "type": "object",
+      "required": [
+        "spec",
+        "basename"
+      ],
+      "properties": {
+        "spec": {
+          "type": "artifact_ref"
+        },
+        "basename": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "required": [
+        "files"
+      ],
+      "properties": {
+        "files": {
+          "type": "array"
+        }
+      }
+    }
+  }
+}

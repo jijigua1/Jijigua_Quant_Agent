@@ -1,0 +1,52 @@
+{
+  "python": "3.12.4",
+  "imports": [
+    {
+      "module": "research_agent",
+      "origin_in_clean_venv": true
+    },
+    {
+      "module": "research_agent.app",
+      "origin_in_clean_venv": true
+    },
+    {
+      "module": "research_agent.quant",
+      "origin_in_clean_venv": true
+    },
+    {
+      "module": "research_agent.providers.deepseek",
+      "origin_in_clean_venv": true
+    },
+    {
+      "module": "paper_agent",
+      "origin_in_clean_venv": true
+    },
+    {
+      "module": "paper_agent.trusted_ir",
+      "origin_in_clean_venv": true
+    },
+    {
+      "module": "paper_research",
+      "origin_in_clean_venv": true
+    },
+    {
+      "module": "paper_research.ingest_pdf",
+      "origin_in_clean_venv": true
+    },
+    {
+      "module": "rolling_test",
+      "origin_in_clean_venv": true
+    },
+    {
+      "module": "qrtk",
+      "origin_in_clean_venv": true
+    },
+    {
+      "module": "qrtk_skills",
+      "origin_in_clean_venv": true
+    }
+  ],
+  "wheel_cli_demo_exit": 0,
+  "network_calls": 0,
+  "scope": "fresh Windows venv, pinned dependencies, installed wheel, no PYTHONPATH"
+}

@@ -1,0 +1,34 @@
+id = "data_query"
+version = "1.0.0"
+contract_version = "research-v1"
+summary = "描述操作者明确登记的小型日频 CSV/Parquet 资源，核验指纹并只读查询。"
+depends_on = ["contracts-v1"]
+validator = "data_query_v1"
+
+[tools]
+list_resources = "1.0.0"
+describe_resource = "1.0.0"
+read_data_slice = "1.0.0"
+
+[permissions]
+data_paths = ["resource:catalog"]
+write_scopes = []
+network = "none"
+gpu = false
+risk_level = "L0"
+requires_approval = false
+
+[budget]
+max_iterations = 4
+max_model_calls = 8
+max_tool_calls = 6
+max_jobs = 0
+cpu_cores = 1
+memory_mib = 64
+pids = 1
+job_wall_seconds = 1
+output_mib = 0
+
+[acceptance]
+cases = ["data_query_smoke"]
+stop_on = ["authorization_denied", "tool_error", "budget_exhausted"]

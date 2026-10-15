@@ -1,0 +1,12 @@
+version = "offline-v1"
+phase = "offline"
+allowed_tools = ["query_mock_data", "compute_mock_factor"]
+resources = ["mock:ohlcv-v1"]
+write_scopes = []
+max_risk = "L0"
+requires_approval = false
+
+[budget]
+max_iterations = 4
+max_model_calls = 16
+max_tool_calls = 6

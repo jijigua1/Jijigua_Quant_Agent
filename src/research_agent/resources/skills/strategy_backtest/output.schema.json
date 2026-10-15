@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "properties": {
+    "mode": {
+      "enum": [
+        "real_data",
+        "synthetic"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "analysis_scope": {
+      "type": "string"
+    },
+    "resource_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "study_id": {
+      "type": "string"
+    },
+    "artifact_path": {
+      "type": "string"
+    },
+    "report_path": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "mode",
+    "summary",
+    "analysis_scope",
+    "resource_ids"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,54 @@
+{
+  "items": [
+    {
+      "id": "PROJECT_COPYRIGHT",
+      "status": "PENDING_OWNER_CONFIRMATION",
+      "scope": "research_agent, original documentation and original archive additions"
+    },
+    {
+      "id": "LOCAL_TOOLKIT_COPYRIGHT",
+      "status": "PENDING_OWNER_CONFIRMATION",
+      "scope": "qrtk, qrtk_skills, paper_research, paper_agent, included synthetic toolkit tests"
+    },
+    {
+      "id": "OWN_PLOT_ADAPTATION",
+      "status": "PENDING_OWNER_CONFIRMATION",
+      "scope": "existing user-project plot adaptation in server_plot.py"
+    },
+    {
+      "id": "EXTERNAL_PYX",
+      "status": "EXCLUDED",
+      "scope": "original ledger snippet"
+    },
+    {
+      "id": "EXTERNAL_CONSUMERS",
+      "status": "EXCLUDED",
+      "scope": "original Gyc/Perry reader implementations replaced by an original probe"
+    },
+    {
+      "id": "PAPER_REPLAY",
+      "status": "EXCLUDED",
+      "scope": "real PDFs, extracted full text and model replay payloads"
+    },
+    {
+      "id": "GLOBAL_TOOLS",
+      "status": "EXCLUDED",
+      "scope": "global Skills, MCP, plugin and credential configuration"
+    },
+    {
+      "id": "PLOTLY",
+      "status": "CLEARED",
+      "scope": "bundled v2.32.0 MIT licence and notice retained"
+    },
+    {
+      "id": "ARCHIFY_VIEWER",
+      "status": "CLEARED",
+      "scope": "MIT and embedded font OFL retained; no brand marks selected"
+    },
+    {
+      "id": "PYMUPDF",
+      "status": "INSTALL_SEPARATELY",
+      "scope": "AGPL/commercial; project licence selection remains a separate blocking requirement"
+    }
+  ]
+}
