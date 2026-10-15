@@ -19,3 +19,7 @@
 - Plotly离线报告体积较大；预算与有限并发是当前约束，不是SaaS容量承诺。
 
 本次实际回归、公开适配和失败修复见[TEST_RESULTS](release/TEST_RESULTS.md)。历史缺陷见[Incident目录](history/INCIDENTS.md)，原报告状态保留，后续修复不抹去过去失败。
+
+## 首次公开CI暴露的macOS限制
+
+本次macOS runner完整离线测试538通过、79跳过、2失败：`test_launcher_drops_root_and_clears_environment_before_exec`缺少quantdata组测试夹具；`test_a_reupload_becomes_what_the_user_just_uploaded`的POSIX PDF子进程返回PDF_UNREADABLE。后一项具体子进程失败原因未确定。macOS客户端上传的其他合成检查不能代替服务端解析与交互实机验收。所有者接受本轮macOS不阻塞公开，原失败继续保留。

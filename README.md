@@ -165,3 +165,7 @@ provenance/         来源、转换、文件指纹与版本差异
 ## 当前公开许可
 
 Copyright © 2026 jijigua1。所有者于2026-10-15批准本归档范围及原创模块分发权，项目自有代码按[AGPL-3.0-only](LICENSE)公开。第三方代码、字体与资源仍按各自条款，详见[通知](THIRD_PARTY_NOTICES.md)和[权利确认](provenance/OWNER_APPROVAL.json)。历史证据中的“等待许可”是当时状态，不是当前授权。
+
+## 首次公开验收状态
+
+[GitHub CI](https://github.com/jijigua1/Jijigua_Quant_Agent/actions/runs/38706709199)已实际启动，发布安全门禁通过；macOS发现2项失败，未宣称兼容通过，所有者接受本轮不阻塞公开。Windows/Linux在最终文档补记时仍运行，请以Actions实时结论为准。[交付报告](docs/release/FINAL_REPORT.md)保留全部状态与限制。

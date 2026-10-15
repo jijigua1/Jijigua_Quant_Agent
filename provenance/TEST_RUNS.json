@@ -4435,5 +4435,57 @@
   },
   "real_api_calls": 0,
   "real_2026_evaluations": 0,
-  "remote_production_writes": 0
+  "remote_production_writes": 0,
+  "github_publication_ci": {
+    "url": "https://github.com/jijigua1/Jijigua_Quant_Agent/actions/runs/38706709199",
+    "tested_commit": "140a0fd154af8e9d0f6b06ee08fd22e0d8b117ff",
+    "observed_at_utc": "2026-10-15T09:07:44.740328+00:00",
+    "status": "in_progress",
+    "conclusion": "",
+    "jobs": [
+      {
+        "name": "publication-policy",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/jijigua1/Jijigua_Quant_Agent/actions/runs/38706709199/job/116327795058"
+      },
+      {
+        "name": "offline (macos-latest)",
+        "status": "completed",
+        "conclusion": "failure",
+        "url": "https://github.com/jijigua1/Jijigua_Quant_Agent/actions/runs/38706709199/job/116327795404"
+      },
+      {
+        "name": "offline (windows-latest)",
+        "status": "in_progress",
+        "conclusion": "",
+        "url": "https://github.com/jijigua1/Jijigua_Quant_Agent/actions/runs/38706709199/job/116327795471"
+      },
+      {
+        "name": "offline (ubuntu-latest)",
+        "status": "in_progress",
+        "conclusion": "",
+        "url": "https://github.com/jijigua1/Jijigua_Quant_Agent/actions/runs/38706709199/job/116327795553"
+      }
+    ],
+    "macos": {
+      "failed": 2,
+      "passed": 538,
+      "skipped": 79,
+      "seconds": 1375.96,
+      "failures": [
+        {
+          "test": "test_launcher_drops_root_and_clears_environment_before_exec",
+          "observed": "KeyError: group quantdata not found; test fixture did not provide a group record"
+        },
+        {
+          "test": "test_a_reupload_becomes_what_the_user_just_uploaded",
+          "observed": "PDF_UNREADABLE in POSIX PDF child; precise child failure not determined"
+        }
+      ],
+      "release_decision": "Owner explicitly accepts macOS limitations and requests completion of the public push. Tests remain failed; no assertions were relaxed and no compatibility pass is claimed."
+    },
+    "scope": "Hosted runner CI only. No production write, live model credential or real market evaluation.",
+    "documentation_commit_policy": "Publication-state documentation and provenance only, marked [skip ci] to avoid duplicating the expensive full numerical run; local complete history/source/link/schema and owner licence gates rerun. Runtime code/config/dependencies/tests stay byte-identical to tested commit."
+  }
 }

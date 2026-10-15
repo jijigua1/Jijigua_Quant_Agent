@@ -160,3 +160,7 @@ Thanks to the NumPy, Pandas, Matplotlib, jsonschema, Plotly.js and document-proc
 [Synthetic report and screenshots](docs/examples/README.md) · [Actual test record](docs/release/TEST_RESULTS.md) · [Archival changes](docs/release/ARCHIVAL_CHANGES.md) · [Publication approval package](docs/release/PUBLIC_RELEASE_APPROVAL.md)
 
 Historical documents may retain their original pending-licence status. The current decision is recorded in [owner approval](provenance/OWNER_APPROVAL.json); third-party notices remain applicable.
+
+## First public CI status
+
+[Hosted CI](https://github.com/jijigua1/Jijigua_Quant_Agent/actions/runs/38706709199) is real. Publication-policy checks passed. macOS reported 538 passed, 79 skipped and 2 failed; the owner accepts those limitations for this archival publication. Windows/Linux were still running when this record was written; consult Actions for their final result. This is not a claim of universal cross-platform compatibility. See the [delivery report](docs/release/FINAL_REPORT.md).

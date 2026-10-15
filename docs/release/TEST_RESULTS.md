@@ -61,3 +61,7 @@ python examples/offline_research.py --output demo_output/factor_run_01
 `publication_gate.py`在未选LICENSE时必须非零退出；CI为此保持阻断是正确行为，不是通过绕过门禁发布。新环境可有额外平台失败，须保留真实结果再修复，不能沿用本次Windows结果冒充。
 
 所有者批准后的AGPL元数据wheel已重新构建、检查License-Expression及许可文件、安装并重新通过11模块导入/Mock CLI；源码算法和依赖pins未改变，不重复宣称全量数值测试。
+
+## GitHub实际执行（公开后补记）
+
+[完整CI](https://github.com/jijigua1/Jijigua_Quant_Agent/actions/runs/38706709199)。macOS：538通过、79跳过、2失败；失败为launcher未模拟quantdata组和服务器PDF导入子进程PDF_UNREADABLE。Windows/Linux在本次补记时仍运行，不提前填通过。所有者决定macOS本轮不阻塞公开；不改断言、不删除失败。最终状态见Actions。发布后补记仅涉及文档与来源清单，不重复跑全量数值回归。
