@@ -5,6 +5,8 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "wty-research-agent"
 version = "0.8.2"
+license = "AGPL-3.0-only"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md", "LICENSES/*"]
 description = "Model independent research core with controlled development API and read-only data tools"
 requires-python = ">=3.11"
 dependencies = ["jsonschema==4.19.2"]

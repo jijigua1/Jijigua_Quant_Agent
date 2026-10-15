@@ -1,6 +1,7 @@
 # 公开候选验收结果 · 2026-10-15
 
-**结论：离线工程候选可审阅；PUBLIC仍因所有者许可、权利和最终披露确认而阻断。当前源码不是生产稳定版承诺。**
+> 2026-10-15最终更新：所有者已批准公开范围、自有代码权利及AGPL-3.0-only（版权jijigua1）。下方保留审阅时的过程记录；当前决定以`provenance/OWNER_APPROVAL.json`、根LICENSE和最终manifest为准。远端CI结果需另行实际核验。
+**结论：离线工程候选可审阅；所有者已完成许可、权利和最终披露确认，远端发布仍须通过最终技术核验。当前源码不是生产稳定版承诺。**
 
 ## 实际运行的测试轮次
 
@@ -19,7 +20,7 @@
 
 - 标准库`tabnanny`检查src/tests/tools/examples缩进格式，0问题；不是强制整体重排代码风格。CI也包含该无新增依赖检查。
 - 全新Windows CPython3.12.4 venv安装固定依赖及构建wheel成功，11个关键模块确认从venv wheel加载，安装后Mock CLI退出0；未依赖活跃项目的PYTHONPATH。
-- 安全wheel：`wty_research_agent-0.8.2-py3-none-any.whl`，SHA-256 `41355563b55146a0e7314871ca3b1d710f762cdf70a9505c4e2a84e05d6d15bc`。wheel只保留在私有验收区，不上传公开仓库。
+- 安全wheel：`wty_research_agent-0.8.2-py3-none-any.whl`，SHA-256 `fc3a0dfd3eefae7e04da410470b55c434d7cdf03aa8399c0ec568edd4c5a8766`。wheel只保留在私有验收区，不上传公开仓库。
 - 原创文本论文离线例：参数/定义验证通过，0警告，不声称复现任何真实论文。
 - 合成五日反转完整研究：21.047秒；默认PKL、14张静态图、HTML/Markdown、manifest实际生成，未连模型/2026评价器。
 - 独立因子复算：58,240个有限因子单元；NaN位置一致；IC/RankIC最大差分别3.33e-16/1.67e-16；G0–G4差9.98e-17；HAC和分区汇总通过。故意反转分组方向的负对照按预期失败。
@@ -58,3 +59,5 @@ python examples/offline_research.py --output demo_output/factor_run_01
 ```
 
 `publication_gate.py`在未选LICENSE时必须非零退出；CI为此保持阻断是正确行为，不是通过绕过门禁发布。新环境可有额外平台失败，须保留真实结果再修复，不能沿用本次Windows结果冒充。
+
+所有者批准后的AGPL元数据wheel已重新构建、检查License-Expression及许可文件、安装并重新通过11模块导入/Mock CLI；源码算法和依赖pins未改变，不重复宣称全量数值测试。

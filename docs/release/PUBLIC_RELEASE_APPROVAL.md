@@ -1,6 +1,7 @@
 # Jijigua_Quant_Agent 最终公开审阅与许可证决定
 
-**状态：READY_FOR_OWNER_REVIEW；PUBLICATION_BLOCKED_PENDING_LICENSE_AND_DISCLOSURE_APPROVAL。**
+> 2026-10-15最终更新：所有者已批准公开范围、自有代码权利及AGPL-3.0-only（版权jijigua1）。下方保留审阅时的过程记录；当前决定以`provenance/OWNER_APPROVAL.json`、根LICENSE和最终manifest为准。远端CI结果需另行实际核验。
+**状态：OWNER_APPROVED_AGPL_3_ONLY；最终技术门禁及远端验收随后执行。**
 
 本轮只在独立归档副本整理，未创建远端仓库、未push、未部署生产。内部活跃研发、candidate4、v1rc和2026评价没有写入。此清单是公开前最后审阅，不是建议立即把整个内部项目上传。
 

@@ -1,14 +1,14 @@
 {
   "schema": "public-archive/1",
   "project": "Jijigua_Quant_Agent",
-  "created_at_utc": "2026-10-15T08:26:25.597336+00:00",
-  "status": "OWNER_REVIEW_CANDIDATE_NOT_PUBLIC",
+  "created_at_utc": "2026-10-15T08:33:48.551934+00:00",
+  "status": "OWNER_APPROVED_AGPL_3_ONLY",
   "self_excluded": [
     "provenance/PUBLIC_MANIFEST.json",
     "SHA256SUMS"
   ],
-  "inventory_files": 566,
-  "inventory_bytes": 18973950,
+  "inventory_files": 568,
+  "inventory_bytes": 19013114,
   "files": [
     {
       "path": ".env.example",
@@ -52,8 +52,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 776,
-      "sha256": "63cef63fcd58c1b4bf375db2da4ee3729eb14be9fe780f3805dbddf37a8a641f"
+      "bytes": 1118,
+      "sha256": "63c10dc56c5d747be847934ebb73c42ea925655fd47c426778052d46a0b752f4"
     },
     {
       "path": "config/client.example.json",
@@ -1447,8 +1447,8 @@
     },
     {
       "path": "docs/release/ENGINEERING_AUDIT.md",
-      "bytes": 3712,
-      "sha256": "380e0eff5f24e77571acd6fba5619be3ba49b1d72c3898d094e705980e626925"
+      "bytes": 3994,
+      "sha256": "fda82ea48d5fcc3273fdce4d1bdfbfbb2007291c79ded1cefecf58ee18356be2"
     },
     {
       "path": "docs/release/EXCLUSIONS.md",
@@ -1457,23 +1457,23 @@
     },
     {
       "path": "docs/release/FILE_TREE.md",
-      "bytes": 24103,
-      "sha256": "8ec1d31287115cba7874a4619f74743e3e86510818e39f26e4f5bf227dd7c936"
+      "bytes": 24163,
+      "sha256": "cac1b7e462d7a1ca36077fb463a33f84beb15de8bb225ffc8c2e623740574685"
     },
     {
       "path": "docs/release/FINAL_REPORT.md",
-      "bytes": 1293,
-      "sha256": "2c7879532bc50ac66c7f8f296f68125882aa00075850a72a9b8839ffece4801a"
+      "bytes": 1619,
+      "sha256": "1cc840552e0ff21fb99a3be114d34c4e0a17b8c5604ce651f76c4dff341df882"
     },
     {
       "path": "docs/release/LICENSE_REVIEW.md",
-      "bytes": 4665,
-      "sha256": "6f8ca209eaa52fc9e1a96f9e590b6d6e0fe648b58242ff9d6ddfaf46c516b898"
+      "bytes": 4941,
+      "sha256": "78e676d51b954462a35fa3c3adbafa394a45adeb05e2f0d650bd047023002164"
     },
     {
       "path": "docs/release/PUBLIC_RELEASE_APPROVAL.md",
-      "bytes": 5296,
-      "sha256": "7891797bb84db2ce3f391a15ddaf835c00f1d0df9b6f49db1fe765a0cf481e26"
+      "bytes": 5568,
+      "sha256": "e7c3a9b4d3259adf007da877d6ac990a132474cae199180b958419ab41645ce1"
     },
     {
       "path": "docs/release/SAFE_SYNC.md",
@@ -1487,8 +1487,8 @@
     },
     {
       "path": "docs/release/TEST_RESULTS.md",
-      "bytes": 4746,
-      "sha256": "b52b31b82f565f0bcd4a4a3d42a4cc9c2e7a649d12ed1a25ba1f759a51e1ae10"
+      "bytes": 5284,
+      "sha256": "0846c352a565f5623bdce768eceb4bc40efe2e0381e2b39b897af77e81fec052"
     },
     {
       "path": "examples/offline_paper.py",
@@ -1504,6 +1504,11 @@
       "path": "examples/synthetic_factor_note.md",
       "bytes": 684,
       "sha256": "da6f7bd3204a457f4840c57202214857a893c406993df873c68f6db805278df2"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 34020,
+      "sha256": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee"
     },
     {
       "path": "LICENSES/Archify-MIT.txt",
@@ -1527,18 +1532,18 @@
     },
     {
       "path": "provenance/BUILD_CHECK.json",
-      "bytes": 273,
-      "sha256": "e519428f4186d8f91e1fc7bdf59457cca2bc881a2898f0dd18c628abd2f6b302"
+      "bytes": 635,
+      "sha256": "45f1848d7e8384febbb529eaa811001f44b32557bd09728e4a0c11cc8f0748b8"
     },
     {
       "path": "provenance/DEPENDENCY_SBOM.json",
-      "bytes": 21349,
-      "sha256": "8105fa94a5c031b6a80b893cb1c140e15919b8fefd858cf95ae935c6de4ab9fb"
+      "bytes": 21360,
+      "sha256": "5ebed583961dd6f3adb2570a427bd4f3bd4be968eb8150737c70ea5aab50492c"
     },
     {
       "path": "provenance/DEPENDENCY_SECURITY_CURRENT.json",
       "bytes": 661,
-      "sha256": "bafcb67e5ef62ede8c8f3f32c0d57d5ff2d7166829783d1b6b84b9cb64534047"
+      "sha256": "10596541204f2b8e4afebd297321115e55ded8aacc4db5511dbfe286cfd598ac"
     },
     {
       "path": "provenance/DEPENDENCY_VULNERABILITIES.json",
@@ -1566,14 +1571,19 @@
       "sha256": "253dcfb5325b21011609836de52be77280ff774147eed08ced131f2ada1af51e"
     },
     {
+      "path": "provenance/OWNER_APPROVAL.json",
+      "bytes": 1058,
+      "sha256": "970a4abc52f0c53d6608525c2e44d63c43e932475d8b6db3ba6f1b90c3a9574e"
+    },
+    {
       "path": "provenance/PRODUCTION_BASELINE.json",
       "bytes": 43105,
       "sha256": "ff096a14dcf7700dbfc7f697d9c9f92413e194a7954334bc5af022b692d6940a"
     },
     {
       "path": "provenance/PUBLIC_FILE_PROVENANCE.json",
-      "bytes": 226579,
-      "sha256": "9201f1cac24f31bcd8126880ee8478e1500ac8a4ee1c45a00076f38ad72ac255"
+      "bytes": 227107,
+      "sha256": "27fc540a9c1249704e54010ca4781bf35d04c9ee827f7fb8d5c632ec41d357ef"
     },
     {
       "path": "provenance/QUARANTINED_COMPONENTS.json",
@@ -1582,13 +1592,13 @@
     },
     {
       "path": "provenance/RELEASE_CHECKS.json",
-      "bytes": 2023,
-      "sha256": "870c2557c813bcaff23ba9d60a9f503b335500c35a93fb68a185a357954fd3ab"
+      "bytes": 2061,
+      "sha256": "7cc3a3eebd1240adf7ee67a789602892fd2840d9c0b61c1ab1c456cb8a82aaee"
     },
     {
       "path": "provenance/RIGHTS_REVIEW.json",
-      "bytes": 1621,
-      "sha256": "745362975404ac65dfd32e4bf129bff5fc571e8dd8b38941b8b2acb02646dbeb"
+      "bytes": 1791,
+      "sha256": "c8f5c90cba74991fa03b4ff2fe306a18cdb8a3edee4fb736b92200084d17b14a"
     },
     {
       "path": "provenance/SECURITY_PIN_CHANGES.json",
@@ -1622,18 +1632,18 @@
     },
     {
       "path": "pyproject.toml",
-      "bytes": 987,
-      "sha256": "7d247160a1304f093ef1f85912c0aeeb31961dfd5759b0669faef38ed7f19aec"
+      "bytes": 1083,
+      "sha256": "059234f1d0f6d7f55e17bd3f2e85b6bfb6a68a9f8479808596702452161086dc"
     },
     {
       "path": "README.md",
-      "bytes": 11915,
-      "sha256": "ee084be005ae6b91ee6f9e3be89f53f4148868227cc5b995011618365ae612dc"
+      "bytes": 12320,
+      "sha256": "940f23fb6152fc7057792da1b70bf5f87cc1af6bb66a63ed929915d02cc85fa6"
     },
     {
       "path": "README_EN.md",
-      "bytes": 13755,
-      "sha256": "f9573454ab77f08038e9b636186bc41d0b4d34e09880c6b5fa6aaa3a55b6b100"
+      "bytes": 14063,
+      "sha256": "701b4e4dfbaf77b0b6f4e717ba3426d3b2eee4d4bd62b3b3cb1b4fc0449ea03c"
     },
     {
       "path": "requirements-paper.lock",
@@ -2742,8 +2752,8 @@
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 1463,
-      "sha256": "3f71197af839cd282b53a10544c4a0368aab2414c5b9d47b516f07e638509318"
+      "bytes": 1535,
+      "sha256": "d35283cb06ecdde1ec8f9c3d9bd0fc285f2086f239a6e5a21be8b06da5485f00"
     },
     {
       "path": "tools/dependency_audit.py",

@@ -2,18 +2,21 @@
   "items": [
     {
       "id": "PROJECT_COPYRIGHT",
-      "status": "PENDING_OWNER_CONFIRMATION",
-      "scope": "research_agent, original documentation and original archive additions"
+      "status": "CLEARED",
+      "scope": "research_agent, original documentation and original archive additions",
+      "basis": "Explicit owner approval; provenance/OWNER_APPROVAL.json"
     },
     {
       "id": "LOCAL_TOOLKIT_COPYRIGHT",
-      "status": "PENDING_OWNER_CONFIRMATION",
-      "scope": "qrtk, qrtk_skills, paper_research, paper_agent, included synthetic toolkit tests"
+      "status": "CLEARED",
+      "scope": "qrtk, qrtk_skills, paper_research, paper_agent, included synthetic toolkit tests",
+      "basis": "Explicit owner approval; provenance/OWNER_APPROVAL.json"
     },
     {
       "id": "OWN_PLOT_ADAPTATION",
-      "status": "PENDING_OWNER_CONFIRMATION",
-      "scope": "existing user-project plot adaptation in server_plot.py"
+      "status": "CLEARED",
+      "scope": "existing user-project plot adaptation in server_plot.py",
+      "basis": "Explicit owner approval; provenance/OWNER_APPROVAL.json"
     },
     {
       "id": "EXTERNAL_PYX",

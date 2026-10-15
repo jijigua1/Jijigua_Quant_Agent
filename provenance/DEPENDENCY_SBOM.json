@@ -323,7 +323,7 @@
   {
     "name": "wty-research-agent",
     "installed_version": "0.8.2",
-    "license_expression": null,
+    "license_expression": "AGPL-3.0-only",
     "license_metadata": "",
     "classifiers": [],
     "scope": "fresh Windows archival verification venv; metadata only, not bundled binaries"

@@ -1,0 +1,23 @@
+{
+  "status": "APPROVED",
+  "approved_on": "2026-10-15",
+  "copyright_holder": "jijigua1",
+  "license": "AGPL-3.0-only",
+  "scope": "Reviewed 568-file archival candidate plus selected licence, copyright/approval metadata and necessary publication-state updates",
+  "approved_candidate_commit": "516d42f8ac194da6df7c34fe04e8d8ae652f8002",
+  "approved_manifest_sha256": "938f79ce1de7d5eac64cd419438ba87db6d5b6298901c595f9bfccdf317d4efe",
+  "owner_confirmed_rights": [
+    "research_agent",
+    "qrtk",
+    "qrtk_skills",
+    "paper_agent",
+    "paper_research",
+    "own plotting adaptation"
+  ],
+  "excluded_materials_unchanged": true,
+  "target": "jijigua1/Jijigua_Quant_Agent",
+  "visibility": "PUBLIC",
+  "licence_source_url": "https://raw.githubusercontent.com/spdx/license-list-data/main/text/AGPL-3.0-only.txt",
+  "licence_text_sha256": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+  "limits": "No production change, no market data, no new Test evaluation, no third-party grant beyond their own notices."
+}

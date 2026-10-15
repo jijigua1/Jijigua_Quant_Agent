@@ -1,3 +1,5 @@
+Copyright © 2026 jijigua1 — original project code: AGPL-3.0-only.
+
 # Third-party notices
 
 - Plotly.js v2.32.0: MIT, Copyright Plotly, Inc. Original notice and full licence are in `src/research_agent/resources/visuals/NOTICE.txt` and `LICENSE.txt`.

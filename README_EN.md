@@ -4,7 +4,7 @@
 
 [中文](README.md) · [Documentation](docs/README.md) · [Development history](docs/history/TIMELINE.md) · [Incidents](docs/history/INCIDENTS.md) · [Offline reproduction](docs/guides/REPRODUCIBILITY.md)
 
-> This is a **public-release review candidate**, not a new production release. The consistent source snapshot was captured on 2026-10-15. The internal product is called v1.0 Beta while Python distribution metadata remains 0.8.2. Some included hardening is staging-only. The owner has not yet selected the project licence or approved public disclosure.
+> This is an **owner-approved AGPL-3.0-only archival release**, not a new production release. The consistent source snapshot was captured on 2026-10-15. The internal product is called v1.0 Beta while Python distribution metadata remains 0.8.2. Some included hardening is staging-only. The owner approved this public scope and the original-code licensing rights; third-party terms remain applicable.
 
 ## Purpose
 
@@ -151,10 +151,12 @@ Priorities include repeated-paper consistency, isolation for approved implementa
 
 ## Licence, acknowledgements and citation
 
-The owner must select the project licence before public release. **No overall open-source grant is made by this candidate.** Third-party components retain their own notices and cannot be relicensed by a project LICENSE. Review toolkit provenance, plotting adaptations and external consumer code in the [licence review](docs/release/LICENSE_REVIEW.md).
+The owner approved this archival scope and the rights to the original modules on 2026-10-15. Copyright © 2026 jijigua1. Original project code is licensed under [AGPL-3.0-only](LICENSE). Third-party components retain their own notices and cannot be relicensed by a project LICENSE. Review toolkit provenance, plotting adaptations and external consumer code in the [licence review](docs/release/LICENSE_REVIEW.md).
 
 Thanks to the NumPy, Pandas, Matplotlib, jsonschema, Plotly.js and document-processing communities. Codex and Claude assisted development, but AI assistance does not grant redistribution rights to upstream content. Cite the final public repository and the exact released commit; no software DOI has been registered.
 
 ## Inspected offline example and publication review
 
 [Synthetic report and screenshots](docs/examples/README.md) · [Actual test record](docs/release/TEST_RESULTS.md) · [Archival changes](docs/release/ARCHIVAL_CHANGES.md) · [Publication approval package](docs/release/PUBLIC_RELEASE_APPROVAL.md)
+
+Historical documents may retain their original pending-licence status. The current decision is recorded in [owner approval](provenance/OWNER_APPROVAL.json); third-party notices remain applicable.

@@ -4,7 +4,7 @@
 
 [English](README_EN.md) · [文档导航](docs/README.md) · [研发历史](docs/history/TIMELINE.md) · [事故档案](docs/history/INCIDENTS.md) · [可复现演示](docs/guides/REPRODUCIBILITY.md)
 
-> 当前为**开源审阅候选**，尚未公开发布或选定项目许可证。源码来自2026-10-15采集的一致研发快照；产品内部称v1.0 Beta，Python发行元数据仍为0.8.2。这不是新的生产发布。候选包含部分预发布加固，不能将其全部称为已部署能力。[来源与版本](docs/release/SNAPSHOT_STATUS.md)
+> 当前为**AGPL-3.0-only开源归档版**，已获所有者公开批准。源码来自2026-10-15采集的一致研发快照；产品内部称v1.0 Beta，Python发行元数据仍为0.8.2。这不是新的生产发布。候选包含部分预发布加固，不能将其全部称为已部署能力。[来源与版本](docs/release/SNAPSHOT_STATUS.md)
 
 ## 为什么做这个项目
 
@@ -51,7 +51,7 @@ flowchart LR
 
 - Agent：CPython 3.11或3.12；数值依赖固定于`requirements-research.lock`，不建议在共享全局环境安装。
 - 离线核心：jsonschema；数值和报告：NumPy、Pandas、Matplotlib，Plotly.js随源码附带MIT声明，无外部CDN。
-- 论文解析可选：PyMuPDF、BeautifulSoup、python-docx；**PyMuPDF为AGPL/商业双许可**，发布前必须决定兼容方案，见[许可证审查](docs/release/LICENSE_REVIEW.md)。
+- 论文解析可选：PyMuPDF、BeautifulSoup、python-docx；**PyMuPDF为AGPL/商业双许可**，项目自有代码已选AGPL-3.0-only；第三方条款继续适用，见[许可证审查](docs/release/LICENSE_REVIEW.md)。
 - 本地SSH客户端：Python ≥3.9、系统OpenSSH，不需要把研究计算环境装到客户端。
 - Linux特权启动器需要专门的用户、数据发布、权限和审批配置；不能把`deploy/`脚本当作普通安装脚本直接在现有服务器运行。
 
@@ -154,10 +154,14 @@ provenance/         来源、转换、文件指纹与版本差异
 
 ## 许可证、致谢与引用
 
-项目许可证由所有者在最终公开前选择，当前**未授予整体开源许可**。第三方文件保留各自声明，不能用未来项目LICENSE覆盖其条款。工具包、原回测绘图适配及外部消费函数的权利边界见[清单](docs/release/LICENSE_REVIEW.md)。
+项目自有代码已由所有者授权按[AGPL-3.0-only](LICENSE)公开。第三方文件保留各自声明，不能用项目LICENSE覆盖其条款。工具包、原回测绘图适配及外部消费函数的权利边界见[清单](docs/release/LICENSE_REVIEW.md)。
 
 感谢NumPy、Pandas、Matplotlib、jsonschema、Plotly.js及文档解析生态。Codex与Claude参与辅助开发，但AI辅助不等于上游材料自动可再分发。科研引用可先引用仓库名称与最终实际发布的提交SHA；正式版本DOI和软件引文尚未注册。
 
 ## 实际离线示例与最终审阅
 
 [合成研究HTML与截图](docs/examples/README.md) · [实际测试结果](docs/release/TEST_RESULTS.md) · [归档转换记录](docs/release/ARCHIVAL_CHANGES.md) · [最终公开审批包](docs/release/PUBLIC_RELEASE_APPROVAL.md)
+
+## 当前公开许可
+
+Copyright © 2026 jijigua1。所有者于2026-10-15批准本归档范围及原创模块分发权，项目自有代码按[AGPL-3.0-only](LICENSE)公开。第三方代码、字体与资源仍按各自条款，详见[通知](THIRD_PARTY_NOTICES.md)和[权利确认](provenance/OWNER_APPROVAL.json)。历史证据中的“等待许可”是当时状态，不是当前授权。

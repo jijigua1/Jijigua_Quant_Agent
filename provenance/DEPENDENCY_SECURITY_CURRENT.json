@@ -2,13 +2,13 @@
   "status": "PASS",
   "findings": [],
   "packages": 34,
-  "checked_at_utc": "2026-10-15T07:50:29.119331+00:00",
+  "checked_at_utc": "2026-10-15T08:32:07.244635+00:00",
   "database": "OSV",
   "lock_sha256": {
     "requirements.lock": "8a0bbe5387134364e11dc7d1378aef47c8aa2e4bd50ee024fe346b3ff5823ec2",
     "requirements-research.lock": "3b3a480a2f6e7be3aa93897f2380834277197081ead8f2adf68b042ac7bb9230",
     "requirements-paper.lock": "ab4dcbc9e98cfa177822bfc79cf937744396276502e89949d1f6fd6a329dd319",
-    "pyproject.toml": "7d247160a1304f093ef1f85912c0aeeb31961dfd5759b0669faef38ed7f19aec"
+    "pyproject.toml": "059234f1d0f6d7f55e17bd3f2e85b6bfb6a68a9f8479808596702452161086dc"
   },
   "limits": "Exact package/version advisory match only; no native/transitive reachability certification"
 }

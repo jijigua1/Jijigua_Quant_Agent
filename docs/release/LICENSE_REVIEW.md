@@ -1,6 +1,7 @@
 # 开源许可证与第三方权利审查
 
-**状态：BLOCKED_PENDING_OWNER_LICENSE_AND_RIGHTS_CONFIRMATION。没有创建根LICENSE，也没有替所有代码声明MIT。**
+> 2026-10-15最终更新：所有者已批准公开范围、自有代码权利及AGPL-3.0-only（版权jijigua1）。下方保留审阅时的过程记录；当前决定以`provenance/OWNER_APPROVAL.json`、根LICENSE和最终manifest为准。远端CI结果需另行实际核验。
+**状态：OWNER_APPROVED_AGPL_3_ONLY。根LICENSE已加入，自有代码权利已确认；第三方许可不被覆盖。**
 
 ## 一、建议由所有者最终选择
 
