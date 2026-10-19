@@ -21,7 +21,7 @@
   "installed_offline_cli": "COMPLETED; synthetic Mock only; no API",
   "public_source_audit": "PASS: no findings, no syntax failures, no broken links",
   "private_exact_staging": "PASS: 249 original files verified before extraction",
-  "public_staging": "PASS: 249 release payload files; build-generated egg-info excluded",
+  "public_staging": "PASS: 251 payload files; generated egg-info excluded",
   "production_historical_tests": {
     "count": 933,
     "status": "developer deployment evidence; not rerun by this task"
@@ -48,5 +48,25 @@
   },
   "installed_factor_example": "PASS: installed package computed synthetic factor, verified PKL and produced HTML",
   "pip_check": "PASS",
-  "clean_clone_check": "Detected and fixed generated egg-info in deployment inventory; rechecking final remote commit"
+  "clean_clone_check": "Detected and fixed generated egg-info in deployment inventory; rechecking final remote commit",
+  "ci": {
+    "validated_source_commit": "8d98626627bb64241bc4324916d4225ef0e4b1cd",
+    "run": 39291308037,
+    "linux": {
+      "status": "PASS",
+      "passed": 793,
+      "skipped": 184
+    },
+    "macos": {
+      "status": "PASS",
+      "passed": 773,
+      "skipped": 204
+    },
+    "windows": {
+      "status": "CANCELLED_AT_40_MIN_JOB_TIMEOUT",
+      "assertion_failures_before_timeout": 0,
+      "progress_at_last_complete_block": "81%",
+      "next": "same complete suite split into two non-overlapping jobs; no Agent source change"
+    }
+  }
 }

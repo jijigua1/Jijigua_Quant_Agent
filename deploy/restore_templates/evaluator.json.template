@@ -1,0 +1,8 @@
+{
+  "key_path": "/var/lib/jijigua-quant-agent/v1beta_rolling/rolling.key",
+  "snapshot_root": "/var/lib/jijigua-quant-agent/v1beta_rolling/snapshots",
+  "ledger_path": "/var/lib/jijigua-quant-agent/v1beta_rolling/eval/ledger.sqlite",
+  "evaluator_uid": 997,
+  "outbox": "/var/lib/jijigua-quant-agent/v1beta_rolling/eval/outbox",
+  "synthetic": false
+}

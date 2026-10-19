@@ -3,6 +3,12 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform coverage (use windows-only after unchanged server sources already passed)
+        type: choice
+        options: [all, windows-only]
+        default: all
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -13,9 +19,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        include: ${{ fromJSON(inputs.platform == 'windows-only' && '[{"os":"windows-latest","shard":"core"},{"os":"windows-latest","shard":"reports"}]' || '[{"os":"ubuntu-latest","shard":"all"},{"os":"macos-latest","shard":"all"},{"os":"windows-latest","shard":"core"},{"os":"windows-latest","shard":"reports"}]') }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 40
+    timeout-minutes: 60
     env:
       OPENBLAS_NUM_THREADS: '1'
       OMP_NUM_THREADS: '1'
@@ -40,8 +46,10 @@ jobs:
           python tools/recovery_bundle.py stage --output ../ver1.0-ci-stage
       - name: Python indentation format check (standard library)
         run: python -m tabnanny src tests tools examples
+      - name: Verify complete test partition
+        run: python tools/run_public_tests.py --verify-partition
       - name: Offline synthetic and rejection tests (no API credentials)
-        run: python -m pytest -q -p no:cacheprovider --durations=10
+        run: python tools/run_public_tests.py --shard ${{ matrix.shard }}
       - name: Build distributable package
         run: python -m pip wheel --no-deps --no-build-isolation . -w dist
   publication-policy:

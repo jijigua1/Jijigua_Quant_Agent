@@ -1624,5 +1624,13 @@
     "tests/fixtures_v1beta/amihud2002.pdf",
     "tests/fixtures_v1beta/gh4-paper.pdf",
     "tests/fixtures_v1beta/live_model_outputs.json"
-  ]
+  ],
+  "production_python_source_fingerprint": {
+    "files": 122,
+    "sha256": "f776f10eb736486da46c4803613d0f3b076d6e32db21bcd6ab4d2282db6a5059"
+  },
+  "public_python_source_fingerprint": {
+    "files": 122,
+    "sha256": "4bce85890a546e8722b5a9c03edef2feee1d639e20a647c0003eb42bbfce2427"
+  }
 }

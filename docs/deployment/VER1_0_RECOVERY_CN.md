@@ -60,6 +60,7 @@ python3.11 -m venv /absolute/new-code-root/.venv
 - 代码与 launcher、broker、evaluator 的 Python 必须全部指向同一 ver1.0，避免导入 v1beta/v1rc 旧代码。
 - 研究输出位于 ver1.0 的 research_runs；`legacy_workspaces` 保留旧研究入口。
 - 原论文库、state 与预算 campaign 沿用旧 v1beta 数据路径；不能创建同名空库代替恢复。
+- 代码目录中的 `reports`、`papers`、`inbox`、`state` 是便利符号链接，分别指向研究输出、旧论文库、受控 staging/inbox 和旧 state。源代码归档刻意不解包符号链接；数据恢复并校验后，依据私有布局记录重新创建这四个链接，不允许链接指向未验证位置。
 - 签名回执、评价账本和密钥沿用原 rolling 可信域。恢复旧回执必须恢复原密钥，不能重新生成后宣称旧回执有效。
 - host.json、broker.json、入口及代码由 root 控制、Agent 不可写。评价快照/requests 为 root:quanteval 0750；receipts 为 root:quantagent 0750，回执文件 0440；签名密钥及 evaluator.json 为 root:quanteval 0440；评价 ledger 仅评价身份可写。论文/state/研究数据由 quantagent 管理。
 - 所有配置内资源 manifest、发布 SHA、输入轴和路径必须校验。恢复已有预算 DB 和 campaign，保留已消费请求和单位，不重置。

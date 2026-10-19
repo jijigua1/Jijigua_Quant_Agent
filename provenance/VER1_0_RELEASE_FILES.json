@@ -43,8 +43,8 @@
   },
   {
     "path": "VERSION.json",
-    "bytes": 311,
-    "sha256": "5dd29cee2b7686d5680effcd18aee19888b2bb7d8931be9b1841df5e29d0c701",
+    "bytes": 366,
+    "sha256": "70aecf3a12fdf91a0956af15104836e9d12ef69e653f0141aff125e4cbf48787",
     "mode": 420
   },
   {
@@ -198,6 +198,12 @@
     "mode": 420
   },
   {
+    "path": "deploy/restore_templates/evaluator.json.template",
+    "mode": 420,
+    "bytes": 352,
+    "sha256": "c989ebd164ec0fea9e6159ba477175019de92e990d2d0506fc58689aec182242"
+  },
+  {
     "path": "deploy/rollback_production_v1.sh",
     "bytes": 1473,
     "sha256": "94399a965d4e1f5a17bc7fcade1545d60c8810f71954227326a664610708d03b",
@@ -241,8 +247,8 @@
   },
   {
     "path": "docs/deployment/VER1_0_RECOVERY_CN.md",
-    "bytes": 7246,
-    "sha256": "a9399d120a5b02c5acc6b4f585121e84bc28a98f89bb15684b9ec932157abf8c",
+    "bytes": 7489,
+    "sha256": "684c590feadbd1af079ff3be7a6119fad42f67096668f3ba97dd274dbbaa5964",
     "mode": 420
   },
   {
@@ -271,8 +277,8 @@
   },
   {
     "path": "provenance/VER1_0_SOURCE.json",
-    "bytes": 82408,
-    "sha256": "e27cef93e013b769cfe53713a9fc03fa2f3367db29a0a58bfc6ce9d3500cd0d3",
+    "bytes": 82708,
+    "sha256": "b8c0fee50e21ac06e1349a177ebe6b6dc625d0ae34dc12e971aeb43ccd148d15",
     "mode": 420
   },
   {
@@ -1480,6 +1486,12 @@
     "bytes": 2951,
     "sha256": "faccd22e1415771bdcf150d44258bcab2cdf9518cec6b93d33669fb07199e4fa",
     "mode": 420
+  },
+  {
+    "path": "tools/run_public_tests.py",
+    "mode": 420,
+    "bytes": 1434,
+    "sha256": "efa14c74eb277233d187264c6f6af36e4df0cd95153c09c850d7b6938a1ca48a"
   },
   {
     "path": "tools/src_fingerprint.py",
