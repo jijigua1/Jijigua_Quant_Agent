@@ -1,6 +1,7 @@
 """Stage 1 fixes from the live A/B of 2026-10-15 14:03 (src 322ca59a, reader /5). The real DeepSeek replies of the two
 nondeterministic cases are replayed offline on the real staging evidence of the same papers (SHA-identical fixtures)."""
 import json
+import pytest
 import sys
 from pathlib import Path
 
@@ -15,7 +16,7 @@ from paper_research.factor_ir import parse_formula  # noqa: E402
 from paper_research.task import _common_lag  # noqa: E402
 
 if not (Path(__file__).parent / 'fixtures_v1beta' / 'live_20261015_stage1_replies.json').is_file():
-    pytest.skip('Historical live model replies omitted from public release')
+    pytest.skip('Historical live model replies omitted from public release', allow_module_level=True)
 LIVE = json.loads((Path(__file__).parent / 'fixtures_v1beta' / 'live_20261015_stage1_replies.json').read_text(encoding='utf-8'))
 
 
