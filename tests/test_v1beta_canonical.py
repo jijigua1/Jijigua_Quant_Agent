@@ -257,6 +257,8 @@ def test_proposals_and_repeated_executions_are_idempotent_and_chained(tmp_path):
 def test_json_repair_only_moves_brackets_and_otherwise_fails_explicitly(tmp_path):
     from paper_agent.ledger import TaskLedger
     from paper_agent.model import ModelFailure, ScriptedClient, _bracket_repair, ask_json
+    if not (Path(__file__).parent / 'fixtures_v1beta' / 'live_20261015_ready_replies.json').is_file():
+        pytest.skip('Historical live model replies omitted from public release')
     live = json.loads((Path(__file__).parent / 'fixtures_v1beta' / 'live_20261015_ready_replies.json').read_text(encoding='utf-8'))
     raw = [r['raw_output'] for r in live['20261016_142232/D09'] if r['purpose'] == 'paper_understanding'][0]
     obj, fixes = _bracket_repair(raw)

@@ -14,6 +14,8 @@ from paper_agent.understanding import understand  # noqa: E402
 from paper_research.factor_ir import parse_formula  # noqa: E402
 from paper_research.task import _common_lag  # noqa: E402
 
+if not (Path(__file__).parent / 'fixtures_v1beta' / 'live_20261015_stage1_replies.json').is_file():
+    pytest.skip('Historical live model replies omitted from public release')
 LIVE = json.loads((Path(__file__).parent / 'fixtures_v1beta' / 'live_20261015_stage1_replies.json').read_text(encoding='utf-8'))
 
 
@@ -118,6 +120,8 @@ def test_a_derivation_written_with_published_field_names_maps_them(tmp_path):
     assert not undefined, undefined
 
 
+if not (Path(__file__).parent / 'fixtures_v1beta' / 'live_20261015_ready_replies.json').is_file():
+    pytest.skip('Historical live model replies omitted from public release')
 READY = json.loads((Path(__file__).parent / 'fixtures_v1beta' / 'live_20261015_ready_replies.json').read_text(encoding='utf-8'))
 # this file's checks are about the four 10-15/16 runs; later runs in the same fixture are replayed by test_v1beta_canonical
 READY = {k: v for k, v in READY.items() if not k.startswith('20261017')}

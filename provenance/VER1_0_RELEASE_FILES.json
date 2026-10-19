@@ -1374,42 +1374,6 @@
     "mode": 420
   },
   {
-    "path": "src/wty_research_agent.egg-info/PKG-INFO",
-    "bytes": 1033,
-    "sha256": "957f71d59324f9f9f2245cb52c472f2f85ba6c0328c1d0ae610a1c613ec3fafb",
-    "mode": 420
-  },
-  {
-    "path": "src/wty_research_agent.egg-info/SOURCES.txt",
-    "bytes": 9475,
-    "sha256": "d758bde76297eb61ac4fd7b164c96fb7061296f0575f1c90e5ba8d4170475429",
-    "mode": 420
-  },
-  {
-    "path": "src/wty_research_agent.egg-info/dependency_links.txt",
-    "bytes": 1,
-    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-    "mode": 420
-  },
-  {
-    "path": "src/wty_research_agent.egg-info/entry_points.txt",
-    "bytes": 48,
-    "sha256": "cac228a50261692551cfddbeb0a0174e9d783a4452d4311914a161eae1117c54",
-    "mode": 420
-  },
-  {
-    "path": "src/wty_research_agent.egg-info/requires.txt",
-    "bytes": 208,
-    "sha256": "1cfe88f2c57d4e97649b262675c806494ed49b12b4b88880927173cf4d603127",
-    "mode": 420
-  },
-  {
-    "path": "src/wty_research_agent.egg-info/top_level.txt",
-    "bytes": 72,
-    "sha256": "c6d8795718b45ff271d197e1d945c72acce5bfac550c69aed372afbe62b39db2",
-    "mode": 420
-  },
-  {
     "path": "tools/dependency_audit.py",
     "bytes": 2505,
     "sha256": "9b99c30af9ba65351a52d856eeb2723ea2c2ff1d3c9c1d609956bc65c965e4cd",
