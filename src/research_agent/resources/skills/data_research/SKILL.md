@@ -1,3 +1,20 @@
+# 研究执行方法
+
+使用程序登记的真实数据资源。正式多年研究选择已发布 Train，自动配对 Validation 和受控 2026 Test。资源日期、字段、实际观测数与授权以工具返回为准，禁止把历史小样本说明或旧助手回答当成本次数据事实。
+
+保留用户的数学定义与参数。窗口、累计历史和预测期没有固定日数上限；执行前由程序检查真实历史、成熟标签和股票数。数据确实不足时给出实际观测数与需要的长度，不猜测“样本不足”，不自行缩短窗口、预测期或更换股票池。
+
+能精确表示的公式用 qrtk_expression_study：expression 包含 nodes 与 output。节点 op/field/value/window/args 按 Schema 填写；args 为前序节点下标，output 是最后节点，所有节点均须可达。field 为 open/high/low/close/volume/amount；constant 为有限数。单输入 neg/abs/cs_rank/cs_zscore；窗口 delay/diff/returns/rolling_mean/rolling_std/rolling_rank；双输入 add/sub/mul/div/min/max；rolling_corr 双输入加窗口。window 是正整数，std/corr 至少2；min/max 是逐元素比较，不能当滚动极值。因果性与量纲检查仍必须通过。DSL 有图大小资源预算，超出时改用同一定义的算法，不改变研究定义。
+
+当表达式缺少算子、条件、日历周期、递归或复杂构造时，使用 qrtk_algorithm_study（若当前 Skill 没有此工具，则交由 factor_research 完成，不声称数学上不可实现）。提交完整 contract：formula、inputs、warmup、time_semantics、missing_semantics、steps。说明具体算法、可用时间、历史需求、缺失/零分母处理；不能把未确定的选择伪装成用户定义。程序会生成独立参考与实现，用合成数据核验数值、前缀因果性和历史界限，自动修正代码，再冻结同一实现用于三阶段评价。无需提供源码、路径或Shell；原始行情不会发送给模型。
+
+只有数学定义或数据口径改变才需要 definition_change；换工具或实现算法不属于研究替代。用户接受已展示的完整默认定义后直接执行。只有实际数据缺失等原因确需另一研究定义时，先构造可执行的具体提案，一次展示并确认；确认后必须复用所保存参数，不能再由模型改写或反复要求确认。工具格式不合规可依据程序字段诊断纠正，不能据此宣称原定义不可执行。
+
+每次研究必须保存经核验的因子PKL与完整HTML报告。Train 2020–2023、Validation 2024–2025、2026受控滚动Test截至实际数据日；跨分区标签剔除，未来尚未成熟的标签不填造。Test已曝光，不能称盲测。未复权、PIT及交易状态等限制按数据合同披露。报告核验失败不得声称完整完成。读已有报告用本会话 study_id，查询或导出不重算。
+
+所有结果与路径引用程序证据。终端总结简洁，详细逐日、年度、月度、IC、RankIC、HAC、覆盖等在报告中；统计结果不等于可交易性或收益承诺。
+
+## 本 Skill 说明
 # 主 Agent 适配边界（Phase 2-C）
 
 下文原始专业方法保留作参考；可执行能力以主 Agent 工具合同为准，不调用 qrtk_skills.SkillRuntime。
@@ -14,7 +31,7 @@ qrtk_factor_study 自动复用受审 qrtk handlers 生成评价与报告；qrtk_
 field叶：{"op":"field","field":"close"}；constant叶：{"op":"constant","value":1}。
 单输入：neg、abs、cs_rank、cs_zscore；历史窗口单输入：delay、diff、returns、rolling_mean/std/rank；双输入：add、sub、mul、div、min、max；rolling_corr双输入+window。
 min/max是逐元素比较，不是滚动极值。max(x,c)的实际下界就是c；正部截断必须使用constant=0。构造前核对常量和窗口，摘要逐字引用工具公式，不把max(x,1)解释成截断于0；任何设计修改须作为新实验说明理由。
-args是已存在的前序节点下标数组（不是子对象），只允许引用更早节点；output必须是最后节点且所有节点都被使用。window为1至60正整数，std/corr至少2；最多40节点8层累计历史120。禁止未来偏移、路径、代码、额外键。
+args是已存在的前序节点下标数组（不是子对象），只允许引用更早节点；output必须是最后节点且所有节点都被使用。window为正整数，std/corr至少2；DSL图预算40节点8层，历史长度按真实数据检查。禁止未来偏移、路径、代码、额外键。
 五日反转示例expression={"nodes":[{"op":"field","field":"close"},{"op":"returns","args":[0],"window":5},{"op":"neg","args":[1]}],"output":2}。
 五日反转可写 neg(returns(close,5))；量比建议 volume / delay(rolling_mean(volume,L),1)，避免当前成交量混进历史均值。
 经济假设与生成理由单独传hypothesis/reason。公式不覆盖用户想法时先说明缺少算子，不假装已计算。
@@ -26,7 +43,7 @@ args是已存在的前序节点下标数组（不是子对象），只允许引�
 自相关是共同股票横截面值/秩相关的日期均值；预测衰减是不同持有期成熟收益标签。换手代理不是实际交易换手。HAC小样本为insufficient，不输出显著性星号。指标表由可信程序生成，不自行填写。
 完成摘要必须根据实际工具结果，不以模型判断替代缺失计算；说明日期、预测期与限制，不能声称独立样本外有效。
 终端摘要控制在约600中文字，重点为结论、关键指标和成果路径；详细表格在自包含HTML中，不重复罗列全部指标/指纹。
-只有获得本 Skill 合法工具结果后才能 action=complete。工具失败或授权拒绝时停止。
+只有获得本 Skill 合法工具结果后才能 action=complete。授权拒绝时停止；参数格式错误由程序在预算内纠正，禁止改变用户定义。
 
 ## 专业方法
 

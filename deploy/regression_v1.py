@@ -14,11 +14,11 @@ from pathlib import Path
 
 R = Path('/opt/jijigua-quant-agent/v1beta')
 sys.path[:0] = [str(R / 'src'), str(R / 'src/rolling_test/vendor')]
-PROD_RUNS = Path('/srv/jijigua-quant-agent/research_runs')
+PROD_RUNS = Path('/var/lib/jijigua-quant-agent/research_runs')
 REVERSAL = PROD_RUNS / '2026-10-13/01-33-21_reversal_5d'
 ACCEPTED_R4 = {'train': (0.020367376934, 0.026380421612, 959), 'valid': (0.043337659475, 0.046300839332, 479),
                'test': (-0.000863362188, 0.004014245450, 177)}
-ALPHA53 = Path('/srv/jijigua-quant-agent/claude_p4/research_runs/2026-10-13/01-04-45_alpha_53')
+ALPHA53 = Path('/var/lib/jijigua-quant-agent/claude_p4/research_runs/2026-10-13/01-04-45_alpha_53')
 
 
 def tree_digest(root):
@@ -30,12 +30,17 @@ def main():
     out = {}
     from research_agent.artifacts import ResearchArtifacts
     from research_agent.report_versions import latest_report
+    from research_agent.rolling_client import RollingClient
     versions = json.loads((REVERSAL / 'reports/report_versions.json').read_text(encoding='utf-8'))
     revision_dirs = [Path(v['artifact_path']) for v in versions if v.get('artifact_path')]
     before = {str(d): tree_digest(d) for d in [REVERSAL] + revision_dirs}
-    artifacts = ResearchArtifacts('/srv/jijigua-quant-agent')
+    artifacts = ResearchArtifacts('/var/lib/jijigua-quant-agent')
     analysis = json.loads((REVERSAL / 'data/analysis.json').read_text(encoding='utf-8'))
-    latest = latest_report(artifacts, REVERSAL, analysis)
+    # the 2026 receipt is shown only when it equals the root broker's registry copy (the launcher's QRA_ROLLING_RECEIPTS;
+    # configure_v1.py places the registry at v1beta_rolling/receipts, root-owned files, group quantagent read-only)
+    import os
+    registry = RollingClient(receipt_dir=os.environ.get('QRA_ROLLING_RECEIPTS') or '/var/lib/jijigua-quant-agent/v1beta_rolling/receipts')
+    latest = latest_report(artifacts, REVERSAL, analysis, registry)
     p = latest['metrics']['professional']
     got = {'train': p['partitions']['train'], 'valid': p['partitions']['valid'], 'test': p['test']['metrics']}
     rows = {}
@@ -49,7 +54,7 @@ def main():
     # Alpha#53 recomputation with the v1 study pipeline (real published releases; no model; no broker).
     from research_agent.data import ResourceCatalog
     from research_agent.quant import QuantBackend
-    work = Path('/srv/jijigua-quant-agent/v1beta/regression') / time.strftime('%Y%m%d_%H%M%S')
+    work = Path('/var/lib/jijigua-quant-agent/v1beta/regression') / time.strftime('%Y%m%d_%H%M%S')
     (work / 'research_runs').mkdir(parents=True)
     research = json.loads((R / 'config/research.json').read_text(encoding='utf-8')) | {'workspace': str(work)}
     research.pop('paper_root', None)

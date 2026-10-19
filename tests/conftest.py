@@ -58,3 +58,13 @@ def skill_copy(tmp_path):
         return SkillRegistry(root, manifest, mock_registry(), policy or load_policy())
 
     return target, reviewed_registry
+
+
+@pytest.fixture
+def amihud_250_carrier(monkeypatch):
+    """C6R4 (records/TEST_CHANGES_CN.md): flow tests (gates, approvals, frozen definitions, planner arithmetic) that use the
+    recorded Amihud reading with a fixed 250-day window only as a runnable carrier. The calendar-window check, which now
+    blocks that reading, is switched off in them alone; its behaviour is covered by tests/test_recovery_c6r4.py."""
+    import re
+    from paper_agent import reconcile
+    monkeypatch.setattr(reconcile, "CALENDAR_COUNT", re.compile(r"(?!x)x"))

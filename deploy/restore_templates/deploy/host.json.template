@@ -1,0 +1,20 @@
+{
+  "root": "/opt/jijigua-quant-agent/ver1.0",
+  "agent_python": "/opt/jijigua-quant-agent/ver1.0/.venv/bin/python",
+  "runner": "/opt/jijigua-quant-agent/ver1.0/deploy/run_v1.py",
+  "state_dir": "/var/lib/jijigua-quant-agent/v1beta/state",
+  "agent_home": "/var/lib/jijigua-quant-agent/v1beta/home",
+  "resources_manifest": "/opt/jijigua-quant-agent/ver1.0/config/resources.json",
+  "research_config": "/opt/jijigua-quant-agent/ver1.0/config/research.json",
+  "paper_staging": "/var/lib/jijigua-quant-agent/v1beta_staging",
+  "rolling": {
+    "receipt_dir": "/var/lib/jijigua-quant-agent/v1beta_rolling/receipts",
+    "broker_code": "/opt/jijigua-quant-agent/ver1.0/src",
+    "runtime_python": "/opt/jijigua-quant-agent/ver1.0/.venv/bin/python",
+    "config": "/opt/jijigua-quant-agent/ver1.0/deploy/rolling/broker.json"
+  },
+  "api_budget": {
+    "db": "/var/lib/jijigua-quant-agent/v1beta/state/api_budget_production.sqlite3",
+    "campaign": "production_I4_20261019"
+  }
+}

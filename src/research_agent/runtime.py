@@ -9,6 +9,10 @@ from .llm import Message, ModelError, Redactor, Role, check_request, check_respo
 from .security import BudgetExhausted, require_non_root
 from .store import LedgerError, StateConflict
 
+# Conservative byte reservations also cover providers without token usage.
+# Increased by the user's 2026-10-19 authorization; accounting is unchanged.
+DEFAULT_TASK_TOKEN_LIMIT = 100000
+
 
 class ModelRuntime:
     def __init__(self, provider, store, redactor=None):
@@ -36,18 +40,23 @@ class ModelRuntime:
         state.counters[field] += 1
 
     def _model(self, state, request):
-        for retry in range(self.provider.config.max_retries + 1):
+        # Network failures are not automatically retried under a cumulative budget.
+        # A rejected JSON response may receive one explicit format correction;
+        # both sends are reserved by the same adapter and campaign.
+        cumulative = getattr(self.provider, 'budget', None) is not None
+        retries = min(1, self.provider.config.max_retries) if cumulative else self.provider.config.max_retries
+        for retry in range(retries + 1):
             # Conservative byte-based reservation, not a claim about actual tokenizer counts.
             estimate = len(str(request).encode('utf-8')) + self.provider.config.max_output_tokens
             accounted = state.usage['total_tokens'] + state.usage.get('unknown_reserved_tokens',0)
-            if accounted + estimate > getattr(self, 'token_limit', 60000):
+            if accounted + estimate > getattr(self, 'token_limit', DEFAULT_TASK_TOKEN_LIMIT):
                 raise BudgetExhausted('model_tokens')
             self._reserve(state, "model_calls")
             state.pending = {"kind": "model", "stage": state.stage}
             self._save(state, "MODEL_ATTEMPT", {"attempt": state.counters["model_calls"], "retry": retry,
                 "provider_config": asdict(self.provider.config), "capabilities": asdict(self.provider.capabilities),
                 "config_sha256": fingerprint(asdict(self.provider.config)), "core_code_sha256": self.core_code_hash,
-                "token_budget": getattr(self, 'token_limit', 60000), "conservative_request_reservation": estimate,
+                "token_budget": getattr(self, 'token_limit', DEFAULT_TASK_TOKEN_LIMIT), "conservative_request_reservation": estimate,
                 "request_sha256": fingerprint({"messages": [message_dict(x) for x in request.messages],
                     "tools": [asdict(x) for x in request.tools], "output_schema": request.output_schema,
                     "require_strict_schema": request.require_strict_schema, "require_tool_call": request.require_tool_call,
@@ -67,11 +76,13 @@ class ModelRuntime:
                     state.usage['unknown_reserved_tokens']=state.usage.get('unknown_reserved_tokens',0)+estimate
                 self._save(state, "MODEL_FAILURE", {"code": error.code, "retryable": error.retryable,
                     "http_status": error.http_status, "validation_issue": error.validation_issue,
+                    "provider_detail": self.redactor.clean(error.provider_detail),
                     "usage": asdict(error.usage) if error.usage else None})
-                if error.retryable and retry < self.provider.config.max_retries:
+                if error.retryable and retry < retries and (not cumulative or error.code == 'INVALID_STRUCTURED_OUTPUT'):
                     if error.code == "INVALID_STRUCTURED_OUTPUT" and error.validation_issue:
                         request = replace(request, messages=request.messages + (Message(Role.SYSTEM,
                             "The previous response failed local JSON validation (" + error.validation_issue +
+                            ("; " + error.provider_detail if error.provider_detail else "") +
                             "). Return a fresh valid JSON object with all required fields, escaped strings, and no extra keys; "
                             "keep every text field well under its length limit (summarise, do not copy long proposal text). "
                             "No action from the invalid response was executed."),))
@@ -85,7 +96,7 @@ class ModelRuntime:
             self._save(state, "MODEL_RESULT", {"usage": asdict(response.usage), "request_id": response.request_id,
                                                 "content": response.content, "tool_calls": [asdict(x) for x in response.tool_calls],
                                                 "actual_model": response.actual_model or self.provider.config.model})
-            if state.usage['total_tokens'] + state.usage.get('unknown_reserved_tokens',0) > getattr(self, 'token_limit', 60000):
+            if state.usage['total_tokens'] + state.usage.get('unknown_reserved_tokens',0) > getattr(self, 'token_limit', DEFAULT_TASK_TOKEN_LIMIT):
                 raise BudgetExhausted('model_tokens')
             return response
 

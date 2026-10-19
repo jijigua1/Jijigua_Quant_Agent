@@ -1,0 +1,64 @@
+{
+  "version": "1",
+  "withheld_from": "2026-01-01",
+  "resources": [
+    {
+      "id": "gpushare:train2020_2023",
+      "path": "/var/lib/jijigua-quant-agent/data_releases/train/baseline_20261009_a864dc33/manifest.json",
+      "format": "published_npy",
+      "source": "GPUShare daily_update; fixed six-field published baseline, candidate prelisting mask, two identity conflicts excluded",
+      "approval_ref": "Phase3B2 published batch and Phase3B2C controlled candidate integration",
+      "data_kind": "real",
+      "frequency": "daily",
+      "timezone": "Asia/Shanghai",
+      "start_date": "2020-01-02",
+      "end_date": "2023-12-29",
+      "date_column": "date",
+      "fields": {
+        "date": "date",
+        "code": "string",
+        "open": "float",
+        "high": "float",
+        "low": "float",
+        "close": "float",
+        "volume": "float",
+        "amount": "float"
+      },
+      "adjustment": "none: raw unadjusted market prices",
+      "available_time": "after close assumed; historical authoritative availability unverified",
+      "sha256": "9d64e6c73962702ad5ce5cdca4ff736ef39dc36f97e26066e79b1bdb9a453221",
+      "partition": "train",
+      "release_id": "baseline_20261009_a864dc33",
+      "access_status": "PROFILED_EXPLORATORY_ONLY"
+    },
+    {
+      "id": "gpushare:validation2024_2025",
+      "path": "/var/lib/jijigua-quant-agent/data_releases/validation/baseline_20261009_a864dc33/manifest.json",
+      "format": "published_npy",
+      "source": "GPUShare daily_update; fixed six-field published baseline, candidate prelisting mask, two identity conflicts excluded",
+      "approval_ref": "Phase3B2 published batch and Phase3B2C controlled candidate integration",
+      "data_kind": "real",
+      "frequency": "daily",
+      "timezone": "Asia/Shanghai",
+      "start_date": "2024-01-02",
+      "end_date": "2025-12-31",
+      "date_column": "date",
+      "fields": {
+        "date": "date",
+        "code": "string",
+        "open": "float",
+        "high": "float",
+        "low": "float",
+        "close": "float",
+        "volume": "float",
+        "amount": "float"
+      },
+      "adjustment": "none: raw unadjusted market prices",
+      "available_time": "after close assumed; historical authoritative availability unverified",
+      "sha256": "82246b4424f8dbd45c11d959164199a4b45efeb6803d6a6064204a6fc08bf4b4",
+      "partition": "validation",
+      "release_id": "baseline_20261009_a864dc33",
+      "access_status": "PROFILED_EXPLORATORY_ONLY"
+    }
+  ]
+}

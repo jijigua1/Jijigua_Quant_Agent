@@ -3,11 +3,12 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 import hashlib
+import json
 import os
 import time
 from pathlib import Path
 
-from .artifacts import ResearchArtifacts
+from .artifacts import STUDY_JSON_MAX_BYTES, ResearchArtifacts
 from .contracts import ContractError, canonical, fingerprint, object_schema, parse_json, validate
 from .data import ResourceCatalog
 from .security import Denied
@@ -35,6 +36,8 @@ CONTRACT = object_schema({
     'research_use': {'enum':['exploratory_raw_price','predictive_research','synthetic']},
 })
 CONFIG = object_schema({'version':{'const':'1'},'workspace':{'type':'string'},
+    'require_rolling_test':{'type':'boolean'},
+    'legacy_workspaces':{'type':'array','items':{'type':'string'},'uniqueItems':True},
     'resources':{'type':'object','minProperties':1,'maxProperties':8,'additionalProperties':CONTRACT},
     'validation_pairs':{'type':'object','maxProperties':2,'additionalProperties':{'type':'string'}},
     'paper_root':{'type':'string','minLength':1,'maxLength':300}},
@@ -53,12 +56,15 @@ class QuantBackend:
         if any(r not in catalog.records for r in value['resources']):
             raise Denied('QUANT_RESOURCE_NOT_REGISTERED')
         self.catalog, self.contracts = catalog, value['resources']
+        # Formal installation sets this operator-only policy. Legacy/offline
+        # configurations retain their explicit Train/Validation-only contract.
+        self.require_rolling_test=value.get('require_rolling_test',False)
         self.validation_pairs=value.get('validation_pairs',{})
         self._factor_cache=None
         for train, valid in self.validation_pairs.items():
             if train not in self.contracts or valid not in self.contracts or catalog.records[train].get('partition')!='train' or catalog.records[valid].get('partition')!='validation':
                 raise Denied('VALIDATION_PAIR_INVALID')
-        self.artifacts = ResearchArtifacts(value['workspace'])
+        self.artifacts = ResearchArtifacts(value['workspace'],legacy_roots=value.get('legacy_workspaces',()))
         self.report_catalog = []
         report_catalog_path=Path(config_path).with_name('report_catalog.json')
         if report_catalog_path.exists():
@@ -96,10 +102,8 @@ class QuantBackend:
         train=next(iter(self.validation_pairs));valid=self.validation_pairs[train]
         tr,va=self.catalog.records[train],self.catalog.records[valid]
         fields=[f for f in tr['fields'] if f not in ('date','code')]
-        import numpy as np
-        # weekdays less ~4% exchange holidays: an estimate for the planner only; _study's sample gate stays authoritative
-        busdays=int(np.busday_count(str(tr['start_date'])[:10],(np.datetime64(str(tr['end_date'])[:10])+1).astype(str)))
-        return {'fields':fields,'train_rows_estimate':int(busdays*0.96),'status':tr.get('access_status','PROFILED_EXPLORATORY_ONLY'),
+        actual_rows=len(self.catalog.published(train)[2]['dates'])
+        return {'fields':fields,'train_rows_estimate':actual_rows,'train_rows':actual_rows,'status':tr.get('access_status','PROFILED_EXPLORATORY_ONLY'),
             'adjustment':'none (raw unadjusted market prices)','units':{'volume':'lots (100 shares)','amount':'thousand CNY'},
             'splits':{'train':[tr['start_date'],tr['end_date']],'valid':[va['start_date'],va['end_date']],'test':['2026-01-01','2026-12-31']},
             'holdout':'2026 evaluated only by the controlled rolling evaluator (aggregates)',
@@ -234,7 +238,14 @@ class QuantBackend:
             raise Denied('RESEARCH_DATA_CONTRACT_INCOMPLETE')
         if (factor_id=='volume_stall' or definition and 'volume' in definition['input_fields']) and contract['volume_unit']=='unknown':
             raise Denied('VOLUME_UNIT_UNVERIFIED')
-        if len(days)<max(30,lookback+horizon+10) or len(codes)<10:
+        if type(horizon) is not int or horizon < 1 or type(n_groups) is not int or n_groups < 2:
+            raise ContractError('INVALID_EVALUATION_PARAMETERS')
+        sample=dict(resource_id=resource_id,observed_dates=len(days),observed_codes=len(codes),
+                    required_history=lookback,horizon=horizon,label_lag=1,
+                    potential_mature_dates=max(0,len(days)-lookback-horizon-1),
+                    start=str(days[0].date()),end=str(days[-1].date()))
+        _task_context['emit']('RESEARCH_SAMPLE_CHECK',sample)
+        if len(days)<max(30,lookback+horizon+10) or len(codes)<max(10,n_groups):
             raise Denied('INSUFFICIENT_RESEARCH_SAMPLE')
         if _task_context.get('validate_only'):
             # Proposal check only: every input, contract and sample gate passed; nothing is computed or written.
@@ -286,12 +297,16 @@ class QuantBackend:
                 return self._factor_cache[1]
             if definition is None:
                 out=build_factor(factor_id,price,panels['volume'].reindex(price.index),lookback,standardization)
-            elif definition.get('kind') in ('approved_implementation','trusted_ir'):
+            elif definition.get('kind') in ('approved_implementation','trusted_ir','isolated_python'):
                 # Human-approved implementation with an exact source hash; output contract and trusted-IR equality checked.
                 # trusted_ir: the reviewed executor itself, cross-checked against the independent reference evaluator.
                 inputs={k:v.loc[price.index] for k,v in panels.items() if k in definition['input_fields']} \
                     |({'close':price} if 'close' in definition['input_fields'] else {})
-                out=self._trusted_ir_compute(definition,inputs) if definition['kind']=='trusted_ir' else self._approved_compute(definition,inputs)
+                if definition['kind']=='isolated_python':
+                    from paper_agent.algorithm_bundle import compute as isolated
+                    out=isolated(definition['bundle'],inputs)
+                else:
+                    out=self._trusted_ir_compute(definition,inputs) if definition['kind']=='trusted_ir' else self._approved_compute(definition,inputs)
                 if standardization=='zscore':
                     out=out.sub(out.mean(axis=1),axis=0).div(out.std(axis=1,ddof=1).replace(0,np.nan),axis=0)
             else:
@@ -356,6 +371,7 @@ class QuantBackend:
             implementation=self.source,resource=self._provenance(resource_id),parameters=parameters,spec=spec,
             ledger={'path':str(_task_context['store'].path),'task_id':_task_context['task_id']},
             task_status='RUNNING',computation_status='RUNNING',started_at=created_at,created_at=created_at,
+            require_rolling_test=self.require_rolling_test,
             timezone='Asia/Shanghai',artifact_path=str(run),factor_name=directory_name,
             data_cutoff=str(days[-1].date()),factor_output_cutoff=spec['valid'][1],files=[]))
         if published:
@@ -408,6 +424,10 @@ class QuantBackend:
         result['data_source']=record['source']
         result['created_at']=created_at
         result['factor_name']=directory_name
+        if self.require_rolling_test:
+            from .completion import POLICY
+            result.update(completion_policy=POLICY,research_status='WAITING_TEST',
+                completion_reason='PENDING',final_report_ready=False)
         if published:
             result.update(data_partitions=partitions,definition_sha256=definition_hash,
                 validation_exposure={'status':'EXPOSED','previous_5d_raw_momentum_exposure':True,
@@ -457,7 +477,8 @@ class QuantBackend:
         result['metrics']=calculate(run,result,factor,panels['open'],valid,evaluation=full,panels=panels)
         if published:
             from .report_versions import ROLLING_REASONS
-            answer=self.rolling.status() if self.rolling.available else {}
+            try:answer=self.rolling.status() if self.rolling.available else {}
+            except (OSError,EOFError,ValueError):answer={}
             reason='PENDING' if answer.get('authorized') else 'NOT_AUTHORIZED' if answer.get('status')=='OK' else 'EVALUATOR_UNAVAILABLE'
             pro=result['metrics']['professional']
             pro['test']=dict(status='NOT_EVALUATED',access='SEALED',evaluation_type=None,exposure=None,reason=reason,detail=ROLLING_REASONS[reason])
@@ -478,12 +499,15 @@ d=json.loads((r/'code/factor_definition.json').read_text(encoding='utf-8'))
 x=pd.read_csv(r/'data/input_slice.csv',dtype={'Stkcd':str},parse_dates=['Trddt'])
 p={k:x.pivot(index='Trddt',columns='Stkcd',values=v).sort_index().sort_index(axis=1) for k,v in
    [('open','Opnprc'),('high','Hiprc'),('low','Loprc'),('close','Clsprc'),('volume','Dnshrtrd')]}
-if d.get('kind') in ('approved_implementation','trusted_ir'):
+if d.get('kind') == 'isolated_python':
+ from paper_agent.algorithm_bundle import compute as isolated
+ f=isolated(d['bundle'],p)
+elif d.get('kind') in ('approved_implementation','trusted_ir'):
  from paper_agent.trusted_ir import evaluate
  f=evaluate(d['ir'],p,d['symbols'])
 else:
  f=compute(d['expression'],p) if d.get('expression') is not None else build_factor(d['factor_id'],p['close'],p['volume'],d['lookback'],d['standardization'])
-if d.get('expression') is not None or d.get('ir') is not None:
+if d.get('expression') is not None or d.get('ir') is not None or d.get('kind') == 'isolated_python':
  m=json.loads((r/'manifest.json').read_text(encoding='utf-8'))
  if m['parameters']['standardization']=='zscore': f=f.sub(f.mean(axis=1),axis=0).div(f.std(axis=1,ddof=1).replace(0,float('nan')),axis=0)
 pd.testing.assert_frame_equal(f,pd.read_csv(r/'data/factor_values.csv',index_col=0,parse_dates=True),check_names=False,check_freq=False,rtol=1e-10,atol=1e-12)
@@ -511,6 +535,9 @@ print('Factor reproduction verified; no holdout/market validity claim.')
             progress=lambda n,total,name:_task_context['emit']('RESEARCH_STAGE',dict(stage='chart_generation',status='RUNNING',
                 elapsed_seconds=round(time.monotonic()-started,3),completed=n,total=total,detail=name)))
         result.update(presentation)
+        if self.require_rolling_test:
+            from .completion import preserve_initial_report
+            preserve_initial_report(self.artifacts,run)
         if published:
             timings.update(end_to_end_compute_seconds=round(time.monotonic()-total_started,3),
                 input_matrix_bytes=sum(p.size*8 for p in panels.values()),factor_cells=int(factor.size),
@@ -535,6 +562,9 @@ print('Factor reproduction verified; no holdout/market validity claim.')
             'phases':['data_quality','factor_construction','factor_evaluation','evidence_review','factor_diagnostics','factor_export','report_export','chart_generation']}
         if published:
             answer=self._rolling_test(run,answer,rolling_reason,stage,_task_context)
+        if self.require_rolling_test:
+            from .completion import finish_study
+            answer=finish_study(self.artifacts,run,answer,self.rolling)
         return answer
 
     def _rolling_test(self, run, answer, reason, stage, _task_context):
@@ -542,7 +572,9 @@ print('Factor reproduction verified; no holdout/market validity claim.')
         from .report_versions import append_rolling_report, latest_report
         stage('rolling_test')
         if reason=='PENDING':
-            outcome=self.rolling.evaluate(answer['study_id'],run)
+            try:outcome=self.rolling.evaluate(answer['study_id'],run)
+            except (Denied,OSError,ValueError) as exc:
+                outcome=dict(status='NOT_EVALUATED',reason='FAILED',detail='TEST_RECEIPT_UNVERIFIED: '+type(exc).__name__)
         else:
             outcome=dict(status='NOT_EVALUATED',reason=reason)
         _task_context['emit']('ROLLING_TEST_OUTCOME',{k:outcome.get(k) for k in ('status','reason','evaluation_id','snapshot','certified_end','reused','detail')})
@@ -557,7 +589,11 @@ print('Factor reproduction verified; no holdout/market validity claim.')
                          receipt_evaluation_id=outcome.get('evaluation_id') if outcome.get('status')=='COMPLETED' else None)
             version=append_rolling_report(self.artifacts,run,outcome)
         stage(None)
-        latest=latest_report(self.artifacts,run,answer)
+        try:latest=latest_report(self.artifacts,run,answer,self.rolling)
+        except Denied:
+            if not self.require_rolling_test:raise
+            from .completion import status_fields
+            return status_fields(answer,'TEST_RECEIPT_UNVERIFIED')
         latest.setdefault('report_revision',1)
         # The computing task owns the original study directory; the newest report revision is referenced separately.
         latest['report_artifact_path']=latest.get('report_artifact_path',str(run));latest['artifact_path']=str(run)
@@ -565,6 +601,20 @@ print('Factor reproduction verified; no holdout/market validity claim.')
             snapshot=outcome.get('snapshot'),certified_end=outcome.get('certified_end'),reused=outcome.get('reused'),
             report_revision=(version or {}).get('revision',1))
         return latest
+
+    def algorithm_study(self, **kwargs):
+        from .algorithm_research import study
+        return study(self, **kwargs)
+
+    def autonomous_study(self, resource_id, bundle, hypothesis, reason, horizon, n_groups, standardization,
+                         _task_context, factor_name='paper_factor'):
+        from paper_agent.algorithm_bundle import validate
+        contract=validate(bundle)
+        definition=dict(kind='isolated_python',bundle=bundle,input_fields=contract['inputs'],
+            warmup_observations=contract['warmup'],expression=None,latex=contract['formula'],
+            hypothesis=hypothesis,generation_reason=reason,name=factor_name)
+        return self._study(resource_id,'approved',max(2,contract['warmup']),horizon,n_groups,
+                           standardization,_task_context,definition,'')
 
     def _approved_compute(self, definition, inputs):
         import numpy as np
@@ -640,8 +690,8 @@ print('Factor reproduction verified; no holdout/market validity claim.')
         name=factor_name or 'paper_factor'
         if not re.fullmatch(r'[a-z][a-z0-9_]{0,39}',name):
             raise ContractError('unsafe factor name')
-        if type(horizon) is not int or not 1<=horizon<=10:
-            raise ContractError('horizon must be 1..10 observation days')
+        if type(horizon) is not int or horizon < 1:
+            raise ContractError('horizon must be a positive number of observation days')
         wu=warmup(ir)
         if wu['uses_future']:
             raise ContractError('FUTURE_REFERENCE')
@@ -664,8 +714,8 @@ print('Factor reproduction verified; no holdout/market validity claim.')
         name=factor_name or 'approved_factor'
         if not re.fullmatch(r'[a-z][a-z0-9_]{0,39}',name):
             raise ContractError('unsafe factor name')
-        if type(horizon) is not int or not 1<=horizon<=10:
-            raise ContractError('horizon must be 1..10 observation days')
+        if type(horizon) is not int or horizon < 1:
+            raise ContractError('horizon must be a positive number of observation days')
         c=entry['contract']
         definition={'kind':'approved_implementation','implementation_id':implementation_id,'source_sha256':entry['source_sha256'],
             'input_fields':sorted({i['field'] for i in c['inputs']}),'symbols':{i['symbol']:i['field'] for i in c['inputs']},
@@ -689,7 +739,7 @@ print('Factor reproduction verified; no holdout/market validity claim.')
             registered=next((s for s in self.report_catalog if s['study_id']==study_id and s['resource_id']==resource_id),None)
             if exc.code!='STUDY_NOT_IN_SESSION' or registered is None:raise
             run=self.artifacts.checked_run(registered['artifact_path'])
-            m=parse_json((run/'manifest.json').read_text(encoding='utf-8'))
+            m=parse_json((run/'manifest.json').read_text(encoding='utf-8'),max_bytes=STUDY_JSON_MAX_BYTES)
             if m['task_id']+':'+m['run_id']!=study_id:raise Denied('REPORT_CATALOG_STUDY_MISMATCH')
             data=self.artifacts.read_analysis(run,registered)
             evidence=registered|{k:data[k] for k in ('report_path','report_status')}
@@ -706,7 +756,16 @@ print('Factor reproduction verified; no holdout/market validity claim.')
             recovered=self._recover_rolling_report(run,study_id,_task_context)
             refresh_info=self._refresh_rolling(run,study_id,_task_context)
         from .report_versions import latest_report, report_access
-        out=latest_report(self.artifacts,run,result)
+        try:out=latest_report(self.artifacts,run,result,self.rolling)
+        except Denied as exc:
+            if exc.code!='REPORT_LEGACY_TEST_UNVERIFIED':raise
+            from .completion import status_fields
+            return status_fields(result,'LEGACY_TEST_RECEIPT_UNVERIFIED')
+        if json.loads((run/'manifest.json').read_text(encoding='utf-8')).get('require_rolling_test'):
+            from .completion import finish_study
+            # Reading never publishes or evaluates. A requested refresh may finish
+            # publication from an already verified receipt after an interruption.
+            out=finish_study(self.artifacts,run,out,self.rolling,publish=refresh)
         out['report_access']=report_access(run,out,refresh_info,recovered,
                                            evaluator=getattr(self.rolling,'available',False))
         if invalid:
@@ -753,8 +812,10 @@ print('Factor reproduction verified; no holdout/market validity claim.')
         from .report_versions import append_rolling_report, pending_receipts
         if getattr(self.rolling,'receipt_dir',None) is None:return None
         done=None
+        from .rolling_client import EVALUATION_ID
         for eid in pending_receipts(run):
             try:
+                if not isinstance(eid,str) or not EVALUATION_ID.fullmatch(eid):raise Denied('ROLLING_RECEIPT_ID')
                 receipt=self.rolling.load_receipt(Path(self.rolling.receipt_dir)/(eid+'.json'),study_id)
                 version=append_rolling_report(self.artifacts,run,dict(status='COMPLETED',receipt=receipt,evaluation_id=eid,reused=True))
             except (ContractError,Denied,OSError,KeyError,ValueError) as exc:
@@ -783,7 +844,7 @@ print('Factor reproduction verified; no holdout/market validity claim.')
         old,evidence=self.artifacts.locate(study_id,_task_context)
         result=self.artifacts.read_analysis(old,evidence)
         if result['resource_id']!=resource_id:raise Denied('STUDY_RESOURCE_MISMATCH')
-        manifest=parse_json((old/'manifest.json').read_text(encoding='utf-8'))
+        manifest=parse_json((old/'manifest.json').read_text(encoding='utf-8'),max_bytes=STUDY_JSON_MAX_BYTES)
         if result.get('data_partitions'):
             if result.get('delivery_status')!='VERIFIED':raise Denied('PUBLISHED_EXPORT_REPAIR_REQUIRES_REVIEW')
             for item in result['factor_export']['files']:
@@ -813,7 +874,7 @@ print('Factor reproduction verified; no holdout/market validity claim.')
         for name in ('data/factor_values.csv','data/input_slice.csv','data/ic_rankic.csv','data/group_returns_gross.csv',
                      'data/frozen_spec.json','code/factor_definition.json','code/reproduce.py'):
             with (run/name).open('xb') as out:out.write(checked(name))
-        result.update(study_id=new_id,implementation_version=VERSION,created_at=parse_json((run/'manifest.json').read_text())['created_at'])
+        result.update(study_id=new_id,implementation_version=VERSION,created_at=parse_json((run/'manifest.json').read_text(),max_bytes=STUDY_JSON_MAX_BYTES)['created_at'])
         definition=parse_json(checked('code/factor_definition.json').decode())
         try:result.update(export(run,f,definition,result))
         except Exception as exc:
@@ -876,6 +937,10 @@ print('Factor reproduction verified; no holdout/market validity claim.')
         common.update(report_revision={'type':'integer','minimum':1},report_artifact_path={'type':'string'},
             report_manifest_sha256={'type':'string','pattern':'^[0-9a-f]{64}$'},
             test_monthly_label_status={'type':'array','maxItems':12,'items':month_status})
+        common.update(completion_policy={'const':'controlled_2026_test'},
+            research_status={'enum':['WAITING_TEST','BLOCKED_TEST','COMPLETED']},
+            completion_reason={'type':'string'},final_report_ready={'type':'boolean'})
+        common.update(tool_result_compacted={'type':'object'})   # result_fit: what was left out of an oversized result
         schema=object_schema(common,required=['mode','implementation_version'])
         def tool(name,description,args,handler,writes=(),required=None,definitions=None):
             inputs=object_schema(args,required=required)
@@ -884,21 +949,28 @@ print('Factor reproduction verified; no holdout/market validity claim.')
                             resource_mode='catalog' if not args else 'single')
         read_args=base|{'study_id':study_id}
         from .factor_expression import SCHEMA as EXPRESSION_SCHEMA
+        from .algorithm_research import CONTRACT_SCHEMA as ALGORITHM_CONTRACT
         return ToolRegistry([
             tool('list_research_resources','查询已批准的研究样本与口径；不代表全服务器资源。',{},self.list_resources),
             tool('qrtk_data_quality','用受审 qrtk 检查已登记日频数据，不猜测交易或复权规则。',base,self.quality),
             tool('qrtk_factor_study','仅计算严格固定的反转或放量滞涨公式。volume_stall使用价格收益绝对值，不是有方向的价格反转，也不能代替量价组合研究；组合/新定义必须使用qrtk_expression_study。输出默认PKL/指标/报告。',study_base|{
-                'factor_id':{'enum':['reversal','volume_stall']},'lookback':{'type':'integer','minimum':2,'maximum':20},
-                'horizon':{'type':'integer','minimum':1,'maximum':10},'n_groups':{'type':'integer','minimum':2,'maximum':5},
+                'factor_id':{'enum':['reversal','volume_stall']},'lookback':{'type':'integer','minimum':2},
+                'horizon':{'type':'integer','minimum':1},'n_groups':{'type':'integer','minimum':2},
                 'standardization':{'enum':['raw','zscore']},'parent_study_id':{'type':'string','pattern':'^$|^[0-9a-f]{32}:[0-9a-f]{16}$'}},self.study,('research_runs',),
                 required=['resource_id','factor_id','lookback','horizon','n_groups','standardization']),
-            tool('qrtk_expression_study','组合因子与新因子的唯一受控入口：把价量变化、反转等基础量组合为一个DSL输出，不用多个固定因子的并列结果冒充组合。window1–60，累计历史120，horizon1–10，分组2–5。对发布Train自动配对Validation，冻结定义、计算全轴、默认PKL和报告。无Python执行。',study_base|{
+            tool('qrtk_expression_study','可由表达式准确表达的因子入口：把价量变化、反转等基础量组合为一个DSL输出，不用多个固定因子的并列结果冒充组合。历史窗口与预测期为正整数，按真实数据长度检查，不设固定日数上限；分组不少于2。缺少算子时用qrtk_algorithm_study保留原定义构造隔离算法。对发布Train自动配对Validation，冻结定义、计算全轴、默认PKL和报告。无Python执行。',study_base|{
                 'factor_name':{'type':'string','pattern':'^[a-z][a-z0-9_]{0,39}$','description':'可选简短英文因子名，例如 volume_stall_5d；只用于目录与标题，不改变公式'},
                 'expression':EXPRESSION_SCHEMA,'hypothesis':{'type':'string','minLength':1,'maxLength':600},
-                'reason':{'type':'string','minLength':1,'maxLength':600},'horizon':{'type':'integer','minimum':1,'maximum':10},
-                'n_groups':{'type':'integer','minimum':2,'maximum':5},'standardization':{'enum':['raw','zscore']},
+                'reason':{'type':'string','minLength':1,'maxLength':600},'horizon':{'type':'integer','minimum':1},
+                'n_groups':{'type':'integer','minimum':2},'standardization':{'enum':['raw','zscore']},
                 'parent_study_id':{'type':'string','pattern':'^$|^[0-9a-f]{32}:[0-9a-f]{16}$'}},self.expression_study,('research_runs',),
                 required=['resource_id','expression','hypothesis','reason','horizon','n_groups','standardization']),
+            tool('qrtk_algorithm_study','通用自定义因子：表达式缺少算子、条件、日历聚合或复杂算法时使用。contract只描述原始因子数值计算，返回同一日期×股票面板；不包含标签、标准化、分组、报告或文件输出，它们由程序按外层参数完成。日期偏移按发布交易日轴，不删除缺失日期。长窗口delay/returns本身已由表达式工具支持，无需为窗口长度改用此工具。程序自动编写Python、自检修复、隔离执行、冻结同一代码用于Train/Validation/受控2026，输出PKL和完整报告。不可填任意源码、路径或命令；仅使用发布字段；无需更改窗口或预测期迁就DSL。',study_base|{
+                'contract':ALGORITHM_CONTRACT,'factor_name':{'type':'string','pattern':'^[a-z][a-z0-9_]{0,39}$'},
+                'hypothesis':{'type':'string','minLength':1,'maxLength':600},'reason':{'type':'string','minLength':1,'maxLength':600},
+                'horizon':{'type':'integer','minimum':1},'n_groups':{'type':'integer','minimum':2},
+                'standardization':{'enum':['raw','zscore']}},self.algorithm_study,('research_runs',),
+                required=['resource_id','contract','hypothesis','reason','horizon','n_groups','standardization']),
             tool('qrtk_read_study','查询本会话研究或操作者明确共享的报告。默认refresh=false：只读取已有最新报告，不请求评价、不写任何文件。'
                  '仅当用户明确要求更新到最新2026数据（如“刷新”“更新到最新”“最新行情的2026表现”）时refresh=true：请求受控评价器在最新快照上评价'
                  '（同快照复用已签发回执，不重复评价），并用已签发但未生成报告的回执补完报告；不重算Train/Validation、不改变定义，不授予新行情或Test权限。'

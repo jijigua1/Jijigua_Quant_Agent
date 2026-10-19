@@ -319,6 +319,6 @@ def render(run,result,factor,series,goal,hypothesis,definition,progress=None):
     (run/'reports/report.md').write_text(md,encoding='utf-8')
     if professional and professional['report_revision']==1:
         version=dict(revision=1,study_id=result['study_id'],html=str(run/'reports/report.html'),markdown=str(run/'reports/report.md'),
-            html_sha256=__import__('hashlib').sha256(html.encode()).hexdigest())
+            html_sha256=__import__('hashlib').sha256((run/'reports/report.html').read_bytes()).hexdigest())
         with (run/'reports/report_versions.json').open('x',encoding='utf-8') as f:json.dump([version],f,ensure_ascii=False)
     return dict(report_path=str(run/'reports/report.md'),html_path=str(run/'reports/report.html'),figure_paths=[str(run/f) for f in figures],report_status='incomplete')

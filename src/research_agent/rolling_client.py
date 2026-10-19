@@ -6,11 +6,15 @@ copy is a single-link regular file not writable by this process' user, and its b
 import hashlib
 import json
 import os
+import re
 import socket
 import stat
 from pathlib import Path
 
 from .security import Denied
+
+# the broker's evaluation ids: uuid4().hex or a sha256 prefix of 32 characters (rolling_test/evaluator.py)
+EVALUATION_ID = re.compile(r'[0-9a-f]{32}')
 
 ENV_FD = 'QRA_ROLLING_FD'
 ENV_RECEIPTS = 'QRA_ROLLING_RECEIPTS'
@@ -76,8 +80,11 @@ class RollingClient:
 
 
 def registered_receipt(receipt_dir, evaluation_id):
-    """Re-read a registered receipt for report verification (latest_report)."""
-    path = Path(receipt_dir) / (evaluation_id + '.json')
-    if path.is_symlink() or not path.is_file():
+    """Re-read a registered receipt by its broker id (32 lower-case hex) inside the registry directory only."""
+    if not isinstance(evaluation_id, str) or not EVALUATION_ID.fullmatch(evaluation_id):
+        raise Denied('ROLLING_RECEIPT_ID')
+    directory = Path(receipt_dir)
+    path = directory / (evaluation_id + '.json')
+    if path.parent != directory or path.is_symlink() or not path.is_file() or path.stat().st_nlink != 1:
         raise Denied('ROLLING_RECEIPT_NOT_REGISTERED')
     return path.read_bytes()

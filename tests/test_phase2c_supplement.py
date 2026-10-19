@@ -62,7 +62,7 @@ def test_terminal_cjk_wrap_preserves_path_and_controls():
     from research_agent.terminal import wrapped
     text='中文输入与输出'*12;lines=wrapped(text,24).splitlines()
     assert ''.join(lines)==text and all(len(s)<=12 for s in lines)
-    path='/srv/jijigua-quant-agent/research_runs/2026-10-12/12-21-05_volume_stall_5d/reports/report.html'
+    path='/hy-tmp/public-agent/research_runs/2026-10-12/12-21-05_volume_stall_5d/reports/report.html'
     assert wrapped(path,24)==path and '\x1b' not in wrapped('\x1b[31mevil',24)
 
 def test_expression_name_cannot_grant_paths_or_change_math(research,tmp_path):

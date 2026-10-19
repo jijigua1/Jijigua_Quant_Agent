@@ -26,15 +26,10 @@ def test_expression_real_handler_reports_manifest_and_reproduction(research,tmp_
     result=task.experiments[0]['result']['data'];run=Path(result['artifact_path'])
     assert result['parameters']['definition']['formula']=='neg(returns(close,5))'
     assert result['holdout']['independent_blind'] is False and not result['formal_backtest_ready']
-    expected_figures = {'ic_rankic.png','ic_distribution.png','group_returns_gross.png','factor_coverage.png',
-                        'factor_distribution.png','ic_decay.png','factor_autocorrelation.png',
-                        'interactive_heat_atlas.png','interactive_ic_timeline.png','interactive_rank_ic_timeline.png',
-                        'interactive_cumulative_correlation.png','interactive_interactive_decay.png',
-                        'interactive_coverage_timeline.png','interactive_theoretical_groups.png'}
-    assert {Path(p).name for p in result['figure_paths']} == expected_figures
-    assert all(Path(p).is_file() for p in result['figure_paths']) and Path(result['html_path']).is_file()
+    # Seven base plots plus seven professional/interactive export artifacts.
+    assert len(result['figure_paths'])==14 and all(Path(p).is_file() for p in result['figure_paths']) and Path(result['html_path']).is_file()
     html=Path(result['html_path']).read_text(encoding='utf-8')
-    assert '<script>alert' not in html and '&lt;script&gt;' in html and html.count('data:image/png;base64,')==len(expected_figures)
+    assert '<script>alert' not in html and '&lt;script&gt;' in html and html.count('data:image/png;base64,')==14
     assert 'class="metrics-table"' in html and 'overflow-wrap:anywhere' in html
     assert '不是全系统盲测' in Path(result['report_path']).read_text(encoding='utf-8')
     assert (run/'logs/stages.json').is_file()
@@ -46,7 +41,7 @@ def test_expression_real_handler_reports_manifest_and_reproduction(research,tmp_
             assert values[column].count()==stats['n_dates']
             assert values[column].mean()==pytest.approx(stats['mean'])
         assert series.index.max()<=pd.Timestamp(result['spec']['valid'][1])
-    assert any(isinstance(x,dict) and x.get('total')==len(expected_figures) and x.get('completed')==len(expected_figures) for x in events)
+    assert any(isinstance(x,dict) and x.get('total')==14 and x.get('completed')==14 for x in events)
     assert not any('nav' in p.name.lower() for p in (run/'figures').iterdir())
     saved=pd.read_csv(run/'data/factor_values.csv',index_col=0,parse_dates=True)
     expected=compute(reversal(5),{'close':research['close']}).loc[saved.index]

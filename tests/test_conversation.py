@@ -146,7 +146,8 @@ def test_session_context_and_call_budget_are_bounded(tmp_path):
     value = app.store.session(app.session_id)
     assert len(canonical([x.content for x in app.context(value)]).encode()) < 16000
     assert len(app.store.session_turns(app.session_id)) == 10
-    value["model_calls"] = 100
+    from research_agent.conversation import SESSION_CALLS
+    value["model_calls"] = SESSION_CALLS
     app.store.save_session(value)
     with pytest.raises(Denied, match="SESSION_BUDGET_EXHAUSTED"):
         app.turn("继续")
@@ -318,3 +319,23 @@ def test_research_tool_failure_keeps_distinct_status_in_conversation(tmp_path):
     turn = app.store.session_turns(app.session_id)[0]
     assert turn["status"] == "TOOL_ERROR" and turn["error"]["code"] == "TOOL_EXECUTION_FAILED"
     assert app.store.load(turn["research_task_id"]).status == "TOOL_ERROR"
+
+
+def test_skill_routing_allows_omitted_optional_display_reply(tmp_path):
+    value = ModelResponse(canonical(dict(action="skill", skill_id="mock_research",
+        research_goal="比较模拟3期和5期指标", reason="执行研究")))
+    app = build_chat(tmp_path, provider=Scripted([value]))
+    app.turn("研究模拟指标")
+    turn = app.store.session_turns(app.session_id)[0]
+    assert app.store.load(turn["research_task_id"]).status == "COMPLETED"
+
+
+@pytest.mark.parametrize("action", ["reply", "clarify", "propose"])
+def test_user_facing_decision_requires_reply(tmp_path, action):
+    value = ModelResponse(canonical(dict(action=action, skill_id="",
+        research_goal="", reason="缺失必要显示内容")))
+    app = build_chat(tmp_path, provider=Scripted([value]))
+    app.turn("研究")
+    turn = app.store.session_turns(app.session_id)[0]
+    assert turn["status"] == "MODEL_ERROR"
+    assert turn["research_task_id"] is None

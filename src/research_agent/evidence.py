@@ -36,12 +36,15 @@ def report_summary(data):
 def summary(data):
     if data.get('report_revision'):
         return {k:data[k] for k in ('mode','resource_id','study_id','data_sha256','artifact_path',
-                                   'html_path','report_path','factor_path','factor_name') if k in data} | {'current_report':report_summary(data)}
+                                   'html_path','report_path','factor_path','factor_name','completion_policy',
+                                   'research_status','completion_reason','final_report_ready','tool_result_compacted') if k in data} | {'current_report':report_summary(data)}
     keys={'mode','resource_id','data_sha256','study_id','analysis_scope','n_dates','n_codes','row_count',
         'frequency','format','source','fields','metadata','profiles',
         'observed_start','observed_end','formal_backtest_ready','limitations','artifact_path','report_path',
         'html_path','figure_paths','report_status','status','missing','holdout','resources','adjustment',
-        'available_time','null_counts','factor_value','lookback','factor_path','delivery_status','created_at','factor_name','test_request'}
+        'completion_policy','research_status','completion_reason','final_report_ready',
+        'available_time','null_counts','factor_value','lookback','factor_path','delivery_status','created_at','factor_name','test_request',
+        'tool_result_compacted'}
     out={k:v for k,v in data.items() if k in keys}
     if 'paper_status' in data:out['paper_status']=data['paper_status']
     if isinstance(data.get('papers'),list):

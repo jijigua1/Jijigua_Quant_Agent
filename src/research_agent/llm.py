@@ -130,13 +130,14 @@ class StreamEvent:
 
 class ModelError(RuntimeError):
     def __init__(self, code: str, retryable: bool = False, *, http_status=None, retry_after=None,
-                 usage=None, validation_issue=None):
+                 usage=None, validation_issue=None, provider_detail=None):
         super().__init__(code)
         self.code = code
         self.retryable = retryable
         self.http_status = http_status if type(http_status) is int and 100 <= http_status <= 599 else None
         self.retry_after = retry_after if type(retry_after) in (int, float) and 0 <= retry_after <= 60 else None
         self.usage = usage if isinstance(usage, Usage) else None
+        self.provider_detail = provider_detail[:1000] if isinstance(provider_detail, str) else None
         self.validation_issue = validation_issue if validation_issue in {"invalid JSON", "schema violation: required",
             "schema violation: additionalProperties", "schema violation: enum", "schema violation: type", "schema violation: maxLength"} else None
 
@@ -242,5 +243,13 @@ def check_response(response: ModelResponse, request: ModelRequest):
             validate(parse_json(response.content), request.output_schema)
         except ContractError as exc:
             issue = str(exc)
+            detail = None
+            if issue == 'schema violation: required':
+                # Only disclose trusted schema keys, never rejected values.
+                value = parse_json(response.content)
+                if isinstance(value, dict):
+                    missing = [key for key in request.output_schema.get('required', []) if key not in value]
+                    if missing:
+                        detail = 'Missing required fields: ' + ', '.join(missing)
             raise ModelError("INVALID_STRUCTURED_OUTPUT", issue in {"invalid JSON", "schema violation: required", "schema violation: maxLength"},
-                             usage=response.usage, validation_issue=issue) from None
+                             usage=response.usage, validation_issue=issue, provider_detail=detail) from None

@@ -1,3 +1,10 @@
+## 2026-10-20 — deployed ver1.0 preservation
+
+- Import deployed runtime, terminal uploads and autonomous Python integration by read-only copy; do not resume the abandoned local I5 candidate.
+- Preserve per-file original/public hashes; redact private paths, exclude credentials, private papers, market data and conversations.
+- Add exclusive offline staging and exact owner-archive verification; document external data/state dependencies, identity permissions and rollback. Legacy installers remain historical and must not be used for this release.
+- Product version is ver1.0; distribution metadata remains 0.8.2. Public dependency security pins are retained separately from the exact deployed environment record.
+
 # Changelog
 
 ## Unreleased — 开源归档候选（2026-10-15）

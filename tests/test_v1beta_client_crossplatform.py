@@ -17,6 +17,8 @@ TOOLS = Path(__file__).resolve().parents[1] / 'tools' / 'quant_paper'
 sys.path.insert(0, str(TOOLS))
 import quant_paper as qp  # noqa: E402
 
+pytestmark = pytest.mark.skipif(not hasattr(qp, 'expand'), reason='Historical client protocol is absent from deployed ver1.0; formal client tested in test_portable_paper_upload.py')
+
 FIX = Path(__file__).parent / 'fixtures_v1beta'
 
 
@@ -27,8 +29,8 @@ def client(tmp_path, monkeypatch):
     key = tmp_path / 'id_test'
     key.write_text('not a real key')
     monkeypatch.setattr(qp.subprocess, 'run', lambda args, **kw: subprocess.CompletedProcess(args, 0, '', ''))
-    qp.main(['setup', '--host', 'example.test', '--port', '2222', '--user', 'root', '--identity', str(key),
-             '--research-root', '/srv/jijigua-quant-agent/v1rc/research_runs'])
+    qp.main(['setup', '--host', 'example.test', '--port', '27182', '--user', 'root', '--identity', str(key),
+             '--research-root', '/var/lib/jijigua-quant-agent/v1rc/research_runs'])
     calls = []
     return calls, monkeypatch, tmp_path
 
@@ -90,7 +92,7 @@ def test_chat_checks_the_connection_then_opens_one_tty_session_without_the_key(c
     fake(calls, monkeypatch, lambda a: subprocess.CompletedProcess(a, 0, '', ''))
     interactive = []
     monkeypatch.setattr(qp.subprocess, 'call', lambda args: (interactive.append(args), 0)[1])
-    monkeypatch.setenv('QRA_DEEPSEEK_API_KEY', 'REDACTED_API_KEY')
+    monkeypatch.setenv('QRA_DEEPSEEK_API_KEY', 'synthetic-not-a-key')
     assert qp.agent_main(['chat', '--resume', 'a1b2c3']) == 0
     assert calls[0][-1] == 'true'                                             # captured preflight first
     args = interactive[0]
@@ -120,8 +122,8 @@ def test_a_failed_preflight_explains_itself_in_chinese(client, monkeypatch):
 def test_report_download_stays_inside_the_research_root_and_picks_the_newest_success(client, monkeypatch):
     calls, monkeypatch, tmp = client
     monkeypatch.setattr(qp, 'local_reports_dir', lambda: tmp / 'Downloads' / 'QuantAgentReports')
-    root = '/srv/jijigua-quant-agent/v1rc/research_runs'
-    for bad in ('/etc/passwd', root + '/../secret.html', '/srv/jijigua-quant-agent/v1beta/research_runs/x/reports/report.html'):
+    root = '/var/lib/jijigua-quant-agent/v1rc/research_runs'
+    for bad in ('/etc/passwd', root + '/../secret.html', '/var/lib/jijigua-quant-agent/v1beta/research_runs/x/reports/report.html'):
         with pytest.raises(SystemExit):
             qp.agent_main(['report', bad, '--no-open'])
     versions = [dict(revision=1, html=root + '/2026-10-14/20-19-52_m/reports/report.html'),
@@ -144,7 +146,7 @@ def test_setup_refuses_server_paths_rewritten_by_git_bash(tmp_path, monkeypatch)
     monkeypatch.setenv('APPDATA', str(tmp_path / 'appdata'))
     monkeypatch.setattr(qp, 'tool', lambda name: '/usr/bin/' + name)
     with pytest.raises(SystemExit) as exc:
-        qp.main(['setup', '--host', 'h', '--staging-dir', 'C:/Program Files/Git/srv/jijigua-quant-agent/v1rc_staging'])
+        qp.main(['setup', '--host', 'h', '--staging-dir', 'C:/Program Files/Git/var/lib/jijigua-quant-agent/v1rc_staging'])
     assert '被改写' in str(exc.value)
 
 

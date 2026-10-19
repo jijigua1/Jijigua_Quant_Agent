@@ -83,6 +83,10 @@ class ToolRegistry:
                 raise Denied('TRUSTED_TASK_CONTEXT_REQUIRED')
             context=dict(task_context,authorized_resources=tuple(r for r in grant.resources if r in policy.resources))
             result = tool.handler(**call.arguments, _task_context=context)
+            if isinstance(result, dict):
+                # a research result can outgrow the JSON contract (live C6R4-I1: 72,241 bytes after a real 2026 Test)
+                from .result_fit import NOTE, fit
+                result = fit(result, allows_note=NOTE in (tool.output_schema.get('properties') or {}))
         else:
             result = tool.handler(**call.arguments)
         validate(result, tool.output_schema)

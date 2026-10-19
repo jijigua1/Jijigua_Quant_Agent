@@ -1,3 +1,5 @@
+> Updated from a read-only snapshot of deployed **ver1.0** on 2026-10-20. See [recovery runbook](docs/deployment/VER1_0_RECOVERY_CN.md). Private data, identities, budget state and signing keys are not in this public repository. Historical sections below retain their original acceptance scope.
+
 # Jijigua_Quant_Agent
 
 **A natural-language quantitative research assistant connecting paper evidence, controlled computation, statistical evaluation and versioned reports.**

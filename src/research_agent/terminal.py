@@ -24,7 +24,7 @@ def wrapped(text,width=None):
     lines=[]
     for line in safe_text(text).splitlines():
         # Paths stay intact for copying; terminals perform their own visual wrapping.
-        if any(prefix in line for prefix in ('/hy-tmp/', '/home/', '/srv/')):lines.append(line);continue
+        if '/hy-tmp/' in line or '/home/' in line:lines.append(line);continue
         part='';size=0
         for ch in line:
             n=0 if unicodedata.combining(ch) else 2 if unicodedata.east_asian_width(ch) in {'W','F'} else 1

@@ -22,6 +22,23 @@ from .security import BudgetExhausted, Denied
 PIPELINE = 'paper-pipeline/1'
 # plans are re-derived (deterministically, no model call) when the planner or the understanding they came from changes
 PLANNER_REV = 'planner/4-reconcile-parameters-numbered-factors'
+_PROGRAM = None
+
+
+def program_sha256():
+    """Fingerprint of the program that verifies readings and builds plans (paper_agent, paper_research, this module and the
+    DSL validator). Cached readings and plans made by another program are never reused as they are (live recheck J1)."""
+    global _PROGRAM
+    if _PROGRAM is None:
+        import hashlib
+        src = Path(__file__).resolve().parents[1]
+        files = sorted([*(src / 'paper_agent').rglob('*.py'), *(src / 'paper_research').rglob('*.py'),
+                        src / 'research_agent' / 'paper_tools.py', src / 'research_agent' / 'factor_expression.py'])
+        h = hashlib.sha256()
+        for f in files:
+            h.update(f.relative_to(src).as_posix().encode() + b'\0' + f.read_bytes() + b'\0')
+        _PROGRAM = h.hexdigest()
+    return _PROGRAM
 from paper_agent.planner import ASSET_PHRASE  # noqa: E402
 
 
@@ -87,6 +104,7 @@ BLOCK_REASONS = {
     'CUMULATIVE_READ_AS_SINGLE_PERIOD': '论文是多期累计收益，公式只用了当期单期收益。',
     'LAG_READ_AS_LOOKBACK': '论文是某一期的单期收益，定义却写成了累计收益。',
     'LOOKBACK_WINDOW_MISMATCH': '定义的回看长度与原文不一致。',
+    'WINDOW_LENGTH_CONTRADICTS_PAPER': '公式窗口的期数与原文给出的期间长度不一致（例如原文“12个月”，公式取了13期）；纠错重读后仍不一致，不执行。',
     'LOG_RETURN_READ_AS_SIMPLE': '论文使用对数收益，定义按简单收益计算。',
     'EXPONENTIAL_READ_AS_MEAN': '论文是指数平滑（EMA），定义却是简单平均。',
     'EXPONENTIAL_SMOOTHING_MISSING': '论文定义使用指数平滑，公式中没有。',
@@ -144,8 +162,53 @@ def user_parameters(text):
     out = {}
     for name, value in re.findall(r'(?<![A-Za-z0-9_\\])(\\?[A-Za-z][A-Za-z0-9_{}]{0,15}|[α-ωΑ-Ω])\s*[=＝]\s*(\d{1,4})(?![\d.])', text or ''):
         if 1 <= int(value) <= 5000 and len(out) < 6:
-            out[name] = int(value)
+            if not _evaluation_name(name, text):
+                out[name] = int(value)
     return out
+
+
+def _evaluation_name(name, text):
+    key=name.lower()
+    if key in ('horizon','n_groups','label_lag'):
+        return key
+    if key=='lag' and re.search(r'(?:预测|收益|评估|评价|回测|horizon|forward|label).{0,100}\blag\s*[=＝]',text or '',re.I):
+        return 'label_lag'
+    return None
+
+
+def user_evaluation_parameters(text):
+    out={}
+    for name,value in re.findall(r'(?<![A-Za-z0-9_])([A-Za-z][A-Za-z0-9_]*)\s*[=＝]\s*(\d+)(?![\d.])',text or ''):
+        key=_evaluation_name(name,text)
+        if key:
+            out[key]=int(value)
+    return out
+
+
+def apply_evaluation_parameters(plan, values):
+    if not values:
+        return plan
+    import copy
+    from paper_agent.ledger import sha256_obj
+    plan=copy.deepcopy(plan)
+    if values.get('label_lag',1)!=1 or values.get('horizon',1)<1 or values.get('n_groups',5)<2:
+        plan['status']='BLOCKED'
+        plan['hard_stops']=list(plan.get('hard_stops') or [])+[dict(code='EVALUATION_PARAMETERS_INVALID',
+            detail='评价参数单独校验：当前标签从下一观测日开盘起算（label_lag=1），horizon必须为正整数，n_groups至少为2。该错误不是论文因子算子缺失。')]
+        return plan
+    choices=plan.get('choices') or {}
+    plan['choices']=choices
+    if 'horizon' in values:choices['horizon']=dict(n=values['horizon'],unit='trading_day')
+    if 'n_groups' in values:choices['n_groups']=values['n_groups']
+    choices['label_lag']=1
+    plan['definition_sha256']=sha256_obj(dict(original=plan['definition_sha256'],evaluation=values))
+    plan.setdefault('notes',[]).append('用户指定评价参数：'+', '.join(f'{k}={v}' for k,v in sorted(values.items())))
+    return plan
+
+
+def user_rereads(text):
+    """The user's own words ask for a fresh reading of the paper (“重新阅读/重新解读这篇论文”, “re-read”)."""
+    return bool(re.search(r'重新(?:阅读|解读|理解|读取|读一遍|读)|重读|re-?read', text or '', re.I))
 
 
 def named_factor(names, description):
@@ -179,13 +242,17 @@ def blocked_text(paper):
         detail = str(h.get('detail') or '')[:300]
         source = f"〔问题来源：{h['source_cn']}〕" if h.get('source_cn') else ''
         lines.append(f'· {code}{what}{source}：{reason}' + (f' 明细：{detail}' if detail else ''))
+    # what each kind of blocking source means for the user and what they can do, once per kind (C6R4)
+    from paper_agent.reconcile import SOURCE_CN, SOURCE_HINT
+    kinds = [k for k in dict.fromkeys(h.get('source') for h in (paper.get('hard_stops') or [])[:6]) if k in SOURCE_HINT]
+    hints = ''.join(f'\n说明（{SOURCE_CN[k].split("（")[0]}）：{SOURCE_HINT[k]}' for k in kinds)
     others = [f for f in (paper.get('factors') or []) if f != paper.get('factor')]
     head = ''
     if paper.get('asset_blocked') and paper.get('research_object'):
         # the research object comes first: with options/futures/... data absent, fixing a formula would not make it researchable
         head = ('· 研究资产不匹配：论文研究对象为' + str(paper['research_object']) + '，已发布数据只有A股个股日频行情，'
                 '不能忠实研究这篇论文（即使公式可以解析）。\n')
-    text = '程序阻断原因（论文《' + str(paper.get('name', '')) + '》，因子“' + str(paper.get('factor', '')) + '”）：\n' + head + '\n'.join(lines)
+    text = '程序阻断原因（论文《' + str(paper.get('name', '')) + '》，因子“' + str(paper.get('factor', '')) + '”）：\n' + head + '\n'.join(lines) + hints
     if paper.get('research_object') and not head:
         text += '\n论文研究对象（程序从全文识别）：' + str(paper['research_object'])
     if others:
@@ -302,6 +369,7 @@ def paper_definition_record(entry, evidence, understanding, u_factor, plan):
     return dict(version='paper_definition/1', paper=dict(name=entry['name'], title=entry.get('title', ''), sha256=entry['sha256'],
                                                           version=entry.get('version')),
                 factor=plan['factor'], mode=plan['mode'], route=plan['route'], definition_sha256=plan['definition_sha256'],
+                canonical_definition_sha256=plan.get('canonical_definition_sha256'),
                 faithful=plan['mode'] == 'PAPER_ORIGINAL',
                 asset=dict(decision=assets.get('decision'), summary_cn=assets.get('summary_cn'),
                            substituted=bool(plan.get('asset_consent_required')),
@@ -381,6 +449,43 @@ class PaperPipeline:
         from paper_agent.understanding import VERSION as UNDERSTANDING_VERSION
         if understanding and (_unit_unstated(understanding) or understanding.get('version') != UNDERSTANDING_VERSION):
             understanding = None                 # read by an older reader (no time-index semantics / research object): re-read
+        # values the USER typed belong to the session that typed them (live J1 23:25: an earlier session's X=14 was reused)
+        by_session = ledger.state.setdefault('user_parameters_by_session', {})
+        session_params = dict(by_session.get(str(_task_context.get('session_id') or '')) or {})
+        # parameter values the USER typed in THIS session (never the model's tool arguments), shown as user choices
+        evaluation = ledger.state.setdefault('evaluation_parameters_by_session', {}).setdefault(_task_context.get('session_id'), {})
+        evaluation.update(user_evaluation_parameters(_task_context.get('user_text') or ''))
+        typed = user_parameters(_task_context.get('user_text') or '')
+        if typed:
+            session_params.update(typed)
+            by_session[str(_task_context.get('session_id') or '')] = session_params
+            ledger.save()
+            ledger.event('USER_PARAMETERS', {'values': typed, 'session_id': _task_context.get('session_id')})
+        from paper_agent.definitions import DefinitionRegistry
+        registry = DefinitionRegistry(ledger.dir)
+        # mode 3 of 3 (first reading / frozen reuse / re-read on the user's request): only the user's own words select it
+        reread = user_rereads(_task_context.get('user_text') or '')
+        if reread:
+            understanding = None
+            ledger.event('USER_REREAD_REQUESTED', {'session_id': _task_context.get('session_id')})
+        sid = str(_task_context.get('session_id') or '')
+        # frozen reuse serves a session's first request about this paper; later turns may edit what was shown
+        edited = any(ledger.state.get('user_versions_by_session', {}).get(sid, {}).values()) \
+            or bool(ledger.state.get('plans_shown_by_session', {}).get(sid))
+        frozen = None if reread or edited else registry.reusable(paper_sha256=entry['sha256'], requested_factor=factor or '',
+                                                                  user_params=session_params)
+        if frozen and plan_sha256 and frozen.get('plan_sha256') != plan_sha256:
+            frozen = None       # the user is confirming another plan (e.g. one from a re-read): never swap in the frozen one
+        reused = self._reuse(registry, frozen, ledger, evidence, entry, factor, session_params, _task_context) if frozen else None
+        if reused:
+            understanding = reused[0]            # the frozen definition's own verified reading: no model call
+        if understanding and understanding.get('program_sha256') != program_sha256() and understanding.get('reading'):
+            # the same model reading, checked again by the CURRENT program (no model call; this session's typed values)
+            from paper_agent.understanding import reverify
+            understanding = reverify(understanding, evidence, session_params)
+            understanding['program_sha256'] = program_sha256()
+            ledger.write_artifact('understanding.json', understanding)
+            ledger.event('READING_REVERIFIED', {'program_sha256': program_sha256()})
         if not understanding:
             if client is None:
                 raise Denied('MODEL_UNAVAILABLE_FOR_PAPER_UNDERSTANDING')
@@ -394,24 +499,20 @@ class PaperPipeline:
                 raise BudgetExhausted('paper_model_calls') from None
             except ModelFailure as exc:
                 raise ContractError(understanding_failure(exc)) from None
+            understanding['program_sha256'] = program_sha256()
             ledger.write_artifact('understanding.json', understanding)
             stage('paper_understanding', 'COMPLETED')
-        # parameter values the USER typed (never the model's tool arguments), kept for this paper and shown as user choices
-        typed = user_parameters(_task_context.get('user_text') or '')
-        if typed:
-            ledger.state.setdefault('user_parameters', {}).update(typed)
-            ledger.save()
-            ledger.event('USER_PARAMETERS', {'values': typed})
-        if ledger.state.get('user_parameters') and understanding.get('reading'):
+        if not reused and understanding.get('reading') and (understanding.get('user_parameters') or {}) != session_params:
+            # the stored reading carries another session's values (or none): verify it again with exactly this session's
             from paper_agent.understanding import reverify
-            understanding = reverify(understanding, evidence, ledger.state['user_parameters'])
+            understanding = reverify(understanding, evidence, session_params)
         names = [f['name'] for f in understanding['factors']]
         if not factor and len(names) > 1:
             factor = named_factor(names, paper) or factor
         from paper_agent.planner import PlanError
         try:
             try:
-                plan = self._plan(ledger, evidence, understanding, factor)
+                plan = reused[1] if reused else self._plan(ledger, evidence, understanding, factor)
             except PlanError as exc:
                 # the cached reading focused on another factor of this paper (Alpha#1 read, Alpha#12 asked): read once more,
                 # this time for the factor the user named; a factor still not found is reported, never substituted
@@ -423,11 +524,12 @@ class PaperPipeline:
                 stage('paper_understanding')
                 try:
                     understanding = understand(evidence, client, ledger, focus=factor,
-                                               user_params=ledger.state.get('user_parameters') or None)
+                                               user_params=session_params or None)
                 except BudgetExceeded:
                     raise BudgetExhausted('paper_model_calls') from None
                 except ModelFailure as exc2:
                     raise ContractError(understanding_failure(exc2)) from None
+                understanding['program_sha256'] = program_sha256()
                 ledger.write_artifact('understanding.json', understanding)
                 stage('paper_understanding', 'COMPLETED')
                 names = [f['name'] for f in understanding['factors']]
@@ -436,25 +538,63 @@ class PaperPipeline:
             return {'mode': 'catalog', 'implementation_version': '0.4.0', 'analysis_scope': 'paper_factor_choice',
                     'paper_status': exc.code, 'paper': dict(name=entry['name'], title=entry.get('title', ''), requested_factor=factor,
                                                             factors=names, usage=ledger.state['usage'])}
+        plan, understanding, edited_now = self._user_version(ledger, evidence, understanding, plan, factor, client, _task_context, sid)
+        from paper_agent.autonomous_route import propose as propose_algorithm, eligible as algorithm_eligible
+        if client is not None and algorithm_eligible(plan):
+            from paper_agent.canonical import factor_key
+            from .definition_gate import user_consent
+            requests = ledger.state.setdefault('autonomous_requests_by_session', {}).setdefault(sid, {})
+            request_key = factor_key(plan['factor'], '')
+            user_text = (_task_context.get('user_text') or '').strip()
+            if user_text and not _task_context.get('definition_confirmed') and user_consent(user_text) not in ('accept', 'reject'):
+                requests[request_key] = user_text[:2000]
+                ledger.save()
+            plan = propose_algorithm(plan, understanding, evidence, self.backend.paper_data_profile(), client, ledger,
+                                     user_request=requests.get(request_key, ''))
+        plan = apply_evaluation_parameters(plan, evaluation)
+        canon, canon_sha = self._canonical(ledger, plan, understanding, entry, factor)
+        uv = next((f.get('user_version') for f in understanding['factors'] if f['name'] == plan['factor']), None)
+        if uv:
+            canon['user_version'] = uv          # a user's version: shown as such, never reused by another session
+            canon['display']['user_version'] = uv
+        registry.propose(canon, plan_status=plan['status'], user_params=session_params,
+                         session_id=_task_context.get('session_id'),
+                         sources={'understanding': understanding, 'plan': plan, 'task': ledger.read_artifact('research_task.json')})
+        plan['canonical_definition_sha256'] = canon_sha
         if plan['status'] == 'BLOCKED':
             return self._blocked(entry, plan, names, ledger, understanding)
         if plan_sha256 and plan_sha256 != plan['definition_sha256']:
             raise Denied('PAPER_PLAN_CHANGED_SINCE_CONFIRMATION')
-        decided = ledger.state.get('accepted_plan_sha256') == plan['definition_sha256']
-        if plan['status'] == 'AWAITING_USER_DECISION' and not decided:
+        # an approval belongs to exactly this canonical definition and covers the asset phrase when one is required;
+        # approvals recorded by an older program (ledger 'accepted_plan_sha256') are not carried over
+        if _task_context.get('definition_confirmed') and not plan_sha256:
+            # a confirmation of words only (no plan SHA) never runs anything (K3: it re-ran the frozen definition)
+            raise Denied('PAPER_CONFIRMATION_WITHOUT_DEFINITION')
+        approval = registry.approved(canon_sha, asset_consent_required=bool(plan.get('asset_consent_required')))
+        fresh = bool(_task_context.get('definition_confirmed')) and plan_sha256 == plan['definition_sha256']
+        # a non-IR algorithm is model prose: it runs only on a confirmation given in THIS conversation for exactly the shown
+        # plan; an approval recorded earlier (another session, an older registry) never stands in for it (C7 audit F03)
+        algorithm = plan.get('route') in ('algorithm','autonomous_python') or 'algorithm' in (canon.get('math') or {})
+        if (edited_now or algorithm) and not fresh:
+            approval = None                      # after an edit / undo / restore, or for an algorithm: shown before it runs
+        if (plan['status'] == 'AWAITING_USER_DECISION' or edited_now or algorithm) and not approval:
             if _task_context.get('definition_confirmed') and plan_sha256 == plan['definition_sha256']:
-                ledger.state['accepted_plan_sha256'] = plan['definition_sha256']
+                registry.approve(canon_sha, session_id=_task_context.get('session_id'), task_id=_task_context['task_id'],
+                                 substitutions=plan['substitutions'], asset_phrase=bool(plan.get('asset_consent_required')))
                 ledger.state.setdefault('decisions', []).append(dict(decision='accepted', plan=plan['definition_sha256'],
-                                                                     task_id=_task_context['task_id'], time=time.time()))
+                                                                     definition=canon_sha, task_id=_task_context['task_id'],
+                                                                     time=time.time()))
                 ledger.save()
             else:
                 raise DefinitionDecisionRequired(self._decision(entry, plan, names, _task_context))
+        registry.freeze(canon_sha, needs_approval=plan['status'] == 'AWAITING_USER_DECISION')
         args = dict(paper=entry['sha256'], factor=plan['factor'], plan_sha256=plan['definition_sha256'])
         name = _slug(plan['factor'])
         u_factor = next(f for f in understanding['factors'] if f['name'] == plan['factor'])
         hypothesis = ((u_factor.get('verbal_definition') or {}).get('value') or plan['factor'])[:550]
         reason = f"paper {entry['name']!r} ({entry['sha256'][:12]}); {plan['mode']}; definition {plan['definition_sha256'][:12]}"[:590]
         horizon = int(plan['choices']['horizon']['n'])
+        n_groups = int(plan['choices'].get('n_groups',5))
         train = next(iter(self.backend.validation_pairs))
         provenance = {'paper_agent_plan.json': json.dumps(plan, ensure_ascii=False, indent=1, default=str),
                       'paper_agent_understanding.json': json.dumps(understanding, ensure_ascii=False, indent=1, default=str)}
@@ -465,24 +605,39 @@ class PaperPipeline:
             from .factor_expression import inspect
             definition = inspect(plan['dsl']['expression']) | {'hypothesis': hypothesis, 'generation_reason': reason, 'name': name}
             stage('paper_dsl_study')
-            result = self.backend._study(train, 'expression', max(2, definition['warmup_observations']), horizon, 5, 'raw',
+            result = self.backend._study(train, 'expression', max(2, definition['warmup_observations']), horizon, n_groups, 'raw',
                                          context, definition)
         elif plan['route'] == 'trusted_ir':
             # The reviewed IR executor computes the frozen definition; no model-written code exists or runs.
             from paper_research.candidate import contract_from_task
             from paper_agent.study_bridge import ir_latex
-            contract = contract_from_task(ledger.read_artifact('research_task.json'))
+            contract = contract_from_task(ledger.read_artifact('research_task.json'), trusted_ir=True)
             stage('paper_trusted_ir_study')
             result = self.backend.trusted_ir_study(train, contract['ir'], {i['symbol']: i['field'] for i in contract['inputs']},
-                                                   hypothesis, reason, horizon, 5, 'raw', context, factor_name=name,
+                                                   hypothesis, reason, horizon, n_groups, 'raw', context, factor_name=name,
                                                    latex=ir_latex(contract['ir']))
+        elif plan['route'] == 'autonomous_python':
+            from paper_agent.autonomous_route import build as build_algorithm
+            stage('autonomous_algorithm_design_and_test')
+            bundle = build_algorithm(plan, client, ledger)
+            result = self.backend.autonomous_study(train,bundle,hypothesis,reason,horizon,n_groups,'raw',context,factor_name=name)
         else:
             impl = self._implementation(ledger, plan, client, args, entry, _task_context)
             from paper_agent.study_bridge import ir_latex
             ir = impl['contract'].get('ir')
-            result = self.backend.approved_study(train, impl['implementation_id'], hypothesis, reason, horizon, 5, 'raw', context,
+            result = self.backend.approved_study(train, impl['implementation_id'], hypothesis, reason, horizon, n_groups, 'raw', context,
                                                  factor_name=name, latex=ir_latex(ir) if ir else r'f_{t,i}=\mathrm{Algorithm}')
+        execution = {'study_id': result.get('study_id'), 'artifact_path': result.get('artifact_path'),
+                     'data_sha256': result.get('data_sha256'), 'horizon': horizon, 'label_lag': (plan.get('choices') or {}).get('label_lag', 1),
+                     'evaluation_version': (((result.get('metrics') or {}).get('professional') or {}).get('evaluation_version'))}
+        execution['execution_sha256'] = hashlib.sha256(json.dumps(dict(execution, definition=canon_sha), sort_keys=True,
+                                                                  default=str).encode()).hexdigest()
+        stored = registry.executed(canon_sha, execution)
         result['paper'] = dict(name=entry['name'], version=entry['version'], sha256=entry['sha256'], title=entry.get('title', ''),
+                               definition=dict(sha256=canon_sha, status=stored['status'], reused=bool(reused), reread=reread,
+                                               reread_matches_earlier=reread and len(stored.get('executions') or []) > 1,
+                                               approved_at=(stored.get('approvals') or [{}])[0].get('time'),
+                                               executions=len(stored.get('executions') or [])),
                                factor=plan['factor'], other_factors=[n for n in names if n != plan['factor']],
                                mode=plan['mode'], route=plan['route'], substitutions=plan['substitutions'],
                                plan_sha256=plan['definition_sha256'], usage=ledger.state['usage'])
@@ -491,6 +646,88 @@ class PaperPipeline:
         return result
 
     # ------------------------------------------------------------------ helpers
+    def _user_version(self, ledger, evidence, understanding, plan, factor, client, ctx, sid):
+        """(plan, understanding) of this session's current version of the factor: the paper's (v1) or the user's latest
+        edit. A message after a plan was shown is read for an edit / undo / restore (one small model call); consent,
+        a confirmed run and a re-read are never read as edits."""
+        from paper_agent import user_edit
+        from paper_agent.canonical import factor_key
+        from .definition_gate import user_consent
+        # the paper's own factor name, never the model's tool argument (K3 rerun: "MACD 8/17 horizon 5", "MACD(12,26,9,1)"
+        # gave five keys, every edit looked like a first request and the approved paper definition ran again)
+        key = factor_key(plan['factor'], '')
+        versions = ledger.state.setdefault('user_versions_by_session', {}).setdefault(sid, {}).setdefault(key, [])
+        seen = ledger.state.setdefault('plans_shown_by_session', {}).setdefault(sid, [])
+        text = ctx.get('user_text') or ''
+        if key in seen and client is not None and text.strip() and not ctx.get('definition_confirmed') \
+                and user_consent(text) != 'accept' and not user_rereads(text):
+            fac = next(f for f in understanding['factors'] if f['name'] == plan['factor'])
+            current = versions[-1] if versions else {}
+            obj = user_edit.interpret(
+                client, ledger, factor=plan['factor'], paper_formula=fac['formula'].get('latex'),
+                paper_meanings=[f"{s['symbol']}: {s.get('meaning') or ''}"[:160] for s in fac.get('symbols') or []][:8],
+                blockers=[str(h.get('detail') or h.get('code'))[:200] for h in plan.get('hard_stops') or []][:4],
+                current_formula=current.get('formula_latex') or (plan.get('ir_execution') or fac['formula'].get('latex')),
+                current_horizon=current.get('horizon_days') or ((plan.get('choices') or {}).get('horizon') or {}).get('n'), text=text)
+            intent = obj.get('intent')
+            h = obj.get('horizon_days') if type(obj.get('horizon_days')) is int and obj.get('horizon_days') >= 1 else None
+            if intent == 'edit' and (obj.get('formula_latex') or h):
+                versions.append({'formula_latex': obj.get('formula_latex') or current.get('formula_latex') or '',
+                                 'horizon_days': h or current.get('horizon_days'),
+                                 'changes_cn': (obj.get('changes_cn') or '')[:300], 'user_text': text[:300]})
+            elif intent == 'undo' and versions:
+                versions.pop()
+            elif intent == 'restore':
+                versions.clear()
+            elif intent == 'unsupported':
+                # said and blocked, never run in another form (e.g. "weekly" rewritten in daily rows)
+                ledger.event('USER_EDIT', {'session_id': sid, 'factor': key, 'intent': intent, 'version': len(versions) + 1})
+                ledger.save()
+                return dict(plan, status='BLOCKED', hard_stops=list(plan.get('hard_stops') or []) + [
+                    {'code': 'USER_EDIT_NOT_SUPPORTED', 'detail': '修改无法执行：' + (obj.get('changes_cn') or '')[:300]
+                     + '（已发布数据为A股日频；当前方案未改变，可继续修改或撤销）'}]), understanding, True
+            ledger.event('USER_EDIT', {'session_id': sid, 'factor': key, 'intent': intent, 'version': len(versions) + 1})
+            changed = True       # a later message about this factor that is not a confirmation: show the version, never re-run it
+        else:
+            changed = False
+        if key not in seen:
+            seen.append(key)
+        ledger.save()
+        if not versions:
+            return plan, understanding, changed
+        u = user_edit.apply(understanding, plan['factor'], versions[-1], len(versions) + 1)
+        return self._plan(ledger, evidence, u, plan['factor']), u, changed
+
+    def _canonical(self, ledger, plan, understanding, entry, factor):
+        from paper_agent.canonical import definition
+        return definition(plan, ledger.read_artifact('research_task.json') if plan.get('task_id') else None, understanding,
+                          paper=entry, requested_factor=factor or '', program=program_sha256())
+
+    def _reuse(self, registry, rec, ledger, evidence, entry, factor, session_params, _task_context):
+        """(understanding, plan) of a frozen definition, re-planned from its own stored reading by the CURRENT program
+        (no model call). A different canonical SHA means the program now reads that definition differently: the old record
+        is SUPERSEDED and the request goes through the normal reading and decision."""
+        src = registry.sources(rec['definition_sha256'])
+        if not src or not src.get('understanding'):
+            return None
+        understanding = src['understanding']
+        if understanding.get('reading') and ((understanding.get('user_parameters') or {}) != session_params
+                                             or understanding.get('program_sha256') != program_sha256()):
+            from paper_agent.understanding import reverify
+            understanding = reverify(understanding, evidence, session_params)
+            understanding['program_sha256'] = program_sha256()
+        from paper_agent.planner import PlanError
+        try:
+            plan = self._plan(ledger, evidence, understanding, (rec.get('display') or {}).get('factor') or factor)
+        except PlanError:
+            return None
+        _, sha = self._canonical(ledger, plan, understanding, entry, factor)
+        if sha != rec['definition_sha256']:
+            registry.supersede(rec['definition_sha256'], sha, 'the current program reads the stored definition differently')
+            return None
+        ledger.event('DEFINITION_REUSED', {'definition_sha256': sha, 'session_id': _task_context.get('session_id')})
+        return understanding, plan
+
     def _rationale(self, ledger, evidence, plan, u_factor, entry, client, horizon):
         """Ex-ante economic rationale from passages already parsed for this paper; cached per frozen plan."""
         from .economic_rationale import VERSION, generate, unavailable
@@ -518,7 +755,7 @@ class PaperPipeline:
 
     def _plan(self, ledger, evidence, understanding, factor):
         from paper_agent.ledger import sha256_obj
-        basis = sha256_obj({'understanding': understanding, 'planner': PLANNER_REV})
+        basis = sha256_obj({'understanding': understanding, 'planner': PLANNER_REV, 'program': program_sha256()})
         cached = ledger.read_artifact('plan.json')
         same_number = set(re.findall(r'#\s*(\d+)', factor or '')) <= set(re.findall(r'#\s*(\d+)', (cached or {}).get('factor') or ''))
         if cached and cached.get('basis_sha256') == basis and same_number and (

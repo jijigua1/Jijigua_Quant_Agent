@@ -148,7 +148,8 @@ def test_a_failed_later_attempt_does_not_hide_an_earlier_success(study):
     original = Path(result['factor_path']).parents[1]
     from research_agent.report_versions import append_rolling_report, latest_report
     append_rolling_report(backend.artifacts, original, dict(status='NOT_EVALUATED', reason='FAILED', detail='EVALUATOR_ERROR'))
-    out = latest_report(backend.artifacts, original, json.loads((original / 'data/analysis.json').read_text(encoding='utf-8')))
+    out = latest_report(backend.artifacts, original, json.loads((original / 'data/analysis.json').read_text(encoding='utf-8')),
+                        backend.rolling)
     assert out['report_revision'] == 2 and out['metrics']['professional']['test']['status'] == 'COMPLETED'
 
 

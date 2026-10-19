@@ -116,7 +116,7 @@ def test_no_legal_alternative_ends_blocked_unsupported_without_fabricating(short
 
 @pytest.mark.parametrize("alternative,cause", [
     (study(window=60, skip=5), "INSUFFICIENT_RESEARCH_SAMPLE"),  # warm-up 65 + horizon 5 exceeds 65 observed days
-    (study(horizon=20), "INVALID_PARAMETERS"),                    # horizon above the Tool contract
+    (study(horizon=0), "INVALID_PARAMETERS"),                    # nonpositive horizon remains invalid
 ])
 def test_alternative_failing_schema_or_data_check_is_not_proposed(short, tmp_path, alternative, cause):
     app = engine(short, tmp_path, LiveShape(alternative=alternative))
@@ -171,7 +171,7 @@ def test_live_dialogue_shape_confirm_runs_the_saved_arguments(short, tmp_path):
     saved = app.store.session(app.session_id)["pending_definition"]
     assert "delay(returns(close,20),5)" in reply and "回复“同意”" in reply and not studies(app)
     provider.alternative = study(horizon=3)  # whatever the model would now say is ignored
-    final = app.turn("可以，先完成20日探索版本。")
+    final = app.turn("同意")
     (index, experiment), = studies(app)
     assert index == 2 and experiment["parameters"] == saved["arguments"]
     assert fingerprint(definitional_arguments(experiment["parameters"])) == saved["definition_sha256"]

@@ -116,7 +116,8 @@ def test_an_invalid_definition_is_marked_without_changing_history(macd_study, tm
     assert '研究定义无效' in html and '回看期累计收益被执行成了滞后单期收益' in html
     from research_agent.invalidations import lookup
     from research_agent.report_versions import latest_report
-    latest = latest_report(backend.artifacts, original, json.loads((original / 'data/analysis.json').read_text(encoding='utf-8')))
+    latest = latest_report(backend.artifacts, original, json.loads((original / 'data/analysis.json').read_text(encoding='utf-8')),
+                           backend.rolling)
     assert latest['report_revision'] == 3 and latest['html_path'] == versions[-1]['html']
     assert lookup(fx['workspace'], result['study_id'])['code'] == 'DEFINITION_LOOKBACK_READ_AS_LAG'
     # a tampered register is detected

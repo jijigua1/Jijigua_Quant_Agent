@@ -56,8 +56,9 @@ class Broker:
 
     # ------------------------------------------------------------------ Agent-owned files, read defensively as root
     def _study_dir(self, artifact_path, study_id):
-        root = Path(self.c['research_root'])
         path = Path(artifact_path)
+        roots=[Path(self.c['research_root']), *(Path(p) for p in self.c.get('legacy_research_roots',()))]
+        root=next((p for p in roots if path.is_relative_to(p)),roots[0])
         if not path.is_absolute() or '..' in path.parts:
             raise Refused('STUDY_PATH_DENIED')
         try:
@@ -124,7 +125,7 @@ class Broker:
         return header.split(',')[1:], rows
 
     # ------------------------------------------------------------------ snapshot
-    def snapshot(self):
+    def snapshot(self, warmup=330):
         if self.synthetic:
             return self.c['synthetic_snapshot']
         from .publish import publish, source_spec
@@ -143,7 +144,7 @@ class Broker:
             listing = _listing_candidate
         row = publish(source_root=self.c['source_root'], private_root=self.c['snapshot_root'],
                       staging_root=self.c['staging_root'], expected_codes=codes, approval_ref=self.c['approval_ref'],
-                      implementation=self.c.get('implementation', {}), today=today, source=source, listing=listing)
+                      implementation=self.c.get('implementation', {}), today=today, source=source, listing=listing, warmup=warmup)
         if not row['reused']:
             self.audit('SNAPSHOT_PUBLISHED', {k: row[k] for k in ('version', 'manifest_sha256', 'certified_end', 'source_fingerprint', 'dropped_incomplete')})
         return {k: row[k] for k in ('version', 'manifest_sha256', 'certified_end')}
@@ -185,7 +186,8 @@ class Broker:
             return dict(status=NOT, reason='UNSUPPORTED_STUDY', detail=str(exc)[:200])
         if frozen['synthetic'] != self.synthetic:
             return dict(status=NOT, reason='SYNTHETIC_REAL_MIXING_DENIED')
-        snap = self.snapshot()
+        history = max(330, frozen['definition']['warmup'] + OVERLAP_DAYS)
+        snap = self.snapshot(warmup=history)
         valid_end = analysis['spec']['valid'][1]
         snapshot_dates = self.c.get('synthetic_overlap_dates') if self.synthetic else None
         if snapshot_dates is None:

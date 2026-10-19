@@ -1,0 +1,4 @@
+{
+  "reason": "Host path redaction only; preserve every security binding to copied files",
+  "changes": []
+}

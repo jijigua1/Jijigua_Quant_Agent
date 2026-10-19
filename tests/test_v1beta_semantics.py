@@ -34,8 +34,8 @@ PROFILE = {"fields": ["open", "high", "low", "close", "volume", "amount"], "trai
 
 
 def load(name):
-    if not (FIX / f"{name}.json.gz").is_file():
-        pytest.skip('Licensed paper replay omitted from public archive; not a numerical pass')
+    if not Path(FIX / f"{name}.json.gz").is_file():
+        pytest.skip("Private recorded evidence fixture omitted from public repository")
     d = json.load(gzip.open(FIX / f"{name}.json.gz", "rt", encoding="utf-8"))
     ev = PaperEvidence(d["doc"], d["spec"], d["passages"])
     last = max(i for i, r in enumerate(d["replies"]) if r["purpose"] == "paper_understanding")
@@ -186,13 +186,24 @@ def test_macd_real_reply_is_an_ema_on_the_trusted_executor(tmp_path):
     assert [s["kind"] for s in p["substitutions"]].count("recursion_truncation") == 2
 
 
-@pytest.mark.parametrize("name", ["gh", "amihud"])
+@pytest.mark.parametrize("name", ["gh"])
 def test_equity_papers_are_not_newly_blocked(name, tmp_path):
     ev, u, client = read(name, tmp_path)
     f = u["factors"][0]
     assert not codes(f), f["conflicts"]
     p, _, _ = plan(ev, u, PROFILE, factor=f["name"])
     assert p["status"] == "AWAITING_USER_DECISION" and not p["asset_consent_required"] and p["route"] == "trusted_ir"
+
+
+def test_amihud_nominal_250_day_window_is_blocked_not_substituted(tmp_path):
+    # C6R4 (records/TEST_CHANGES_CN.md): the recorded reading replaces D_iy ("days with data in year y") by a fixed 250-day
+    # mean; that is a different definition, so the paper is blocked with the calendar-window reason instead of running.
+    ev, u, client = read("amihud", tmp_path)
+    f = u["factors"][0]
+    assert "CALENDAR_WINDOW_UNSUPPORTED" in codes(f), f["conflicts"]
+    p, _, _ = plan(ev, u, PROFILE, factor=f["name"])
+    assert p["status"] == "BLOCKED" and p["hard_stops"][0]["code"] == "CALENDAR_WINDOW_UNSUPPORTED"
+    assert p["hard_stops"][0]["source"] == "unsupported_notation"
 
 
 def test_heston_options_paper_is_blocked(tmp_path):

@@ -4,7 +4,22 @@
 
 [English](README_EN.md) · [文档导航](docs/README.md) · [研发历史](docs/history/TIMELINE.md) · [事故档案](docs/history/INCIDENTS.md) · [可复现演示](docs/guides/REPRODUCIBILITY.md)
 
-> 当前为**AGPL-3.0-only开源归档版**，已获所有者公开批准。源码来自2026-10-15采集的一致研发快照；产品内部称v1.0 Beta，Python发行元数据仍为0.8.2。这不是新的生产发布。候选包含部分预发布加固，不能将其全部称为已部署能力。[来源与版本](docs/release/SNAPSHOT_STATUS.md)
+> 当前代码依据 **2026-10-20 只读采集的已部署 ver1.0** 更新，AGPL-3.0-only。生产声明清单 SHA256：`dff173f90c610cc84bda862f56f7465408e5399415541eea787254d1260ea25b`。公开包替换了私有主机路径；原始文件逐项指纹见 [来源记录](provenance/VER1_0_SOURCE.json)。Python 包元数据仍为 0.8.2，它不是产品版本号。
+
+## version 1.0 恢复部署
+
+先看 **[完整恢复操作手册](docs/deployment/VER1_0_RECOVERY_CN.md)**。不要直接执行历史 `deploy/install_v1.sh` 或 `configure_v1.py`，它们仍针对旧布局。
+
+```bash
+git clone https://github.com/jijigua1/Jijigua_Quant_Agent.git
+cd Jijigua_Quant_Agent
+python tools/recovery_bundle.py verify
+python tools/recovery_bundle.py stage --output ../quant-agent-ver1.0-stage
+```
+
+这会核验并生成独立代码目录，不安装、重置数据或切换全局命令。恢复原有论文、会话和签名回执还需要操作者自己的私有备份与行情发布；GitHub 不包含这些数据或任何密钥。精确恢复原始服务器字节的方法也在手册中。
+
+正式流程：论文 → 理解与定义 → 用户确认 → Train（2020–2023）→ Validation（2024–2025）→ 2026 Rolling Test → 同一研究目录的 `reports/report.html`。自主 Python 路径使用 Linux 隔离执行；数据、授权和可信回执检查继续适用。实际可用性取决于论文定义、所需数据及验收结果。
 
 ## 为什么做这个项目
 
@@ -18,8 +33,8 @@
 |---|---|---|
 | 对话 | Provider抽象、官方DeepSeek工具协议、会话与任务分离、预算 | 离线Mock是固定工程例子，不是自然语言理解 |
 | 论文 | 本地PDF/HTML/DOCX/文本解析、页码与bbox、引文检索、AI主张核验 | PDF不可靠时不能猜公式；文本模型不能看保存的页面截图 |
-| 定义 | 19算子DSL、LaTeX/IR、参数及资产确认、定义指纹 | 论文自由参数必须由用户选择，替代研究需确认 |
-| 执行 | 固定因子、可信IR参考与向量化执行器；候选代码审核/注册 | AST不是沙箱；获批源码在非root进程执行，不能用于不可信多租户服务 |
+| 定义 | 受控DSL、LaTeX/IR、参数及资产确认、定义指纹 | 论文自由参数必须由用户选择，替代研究需确认 |
+| 执行 | 固定因子、可信IR及自主Python实现、独立参考对照与修正 | 自主代码仅在Linux非root受限进程执行；合成验证不是通用数学证明 |
 | 数据 | 资源白名单、独立Train/Validation读取、静态PKL解析组件 | 不附带内部行情；不得给模型任意路径或完整历史PKL |
 | 评价 | IC/RankIC、HAC、年/月、覆盖、分组、自相关与衰减 | 月度HAC因样本不足显示N/A；IR未年化 |
 | 独立Test | 独立身份、root broker、冻结定义、签名回执、次数与曝光记录 | 不是普通数据Resource；公开下载后不会自动拥有2026数据或授权 |
@@ -36,13 +51,13 @@ flowchart LR
     A <--> M[官方DeepSeek · 理解/规划/解释]
     A --> P[论文解析与原文证据]
     P --> D[参数/资产确认 · 冻结定义]
-    D --> E[白名单DSL / 可信IR / 已审核实现]
+    D --> E[受控DSL / 可信IR / 隔离自主Python]
     R[受审Train / Validation发布] --> E
     E --> F[因子PKL · 确定性统计]
     D --> B[授权broker · 独立Test评估]
     T[私有Test · 独立身份] --> B
     B --> F
-    F --> H[版本化HTML/Markdown报告与账本]
+    F --> H[唯一完整HTML / 内部审计版本与账本]
 ```
 
 详细内容：[系统架构](docs/architecture/SYSTEM.md)、[安全边界](docs/architecture/SECURITY.md)、[数学合同](docs/architecture/MATHEMATICS.md)、[论文可靠性](docs/architecture/PAPER_RELIABILITY.md)、[逐模块目录](docs/architecture/MODULE_CATALOG.md)。

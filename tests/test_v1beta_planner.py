@@ -12,8 +12,9 @@ from pathlib import Path
 import pytest
 
 FIX = Path(__file__).parent / 'fixtures_v1beta'
-LIVE = json.loads((FIX / 'live_model_outputs.json').read_text(encoding='utf-8')) if (FIX / 'live_model_outputs.json').is_file() else {}
-pytestmark = pytest.mark.skipif(not LIVE, reason='Private paper/model replay omitted; not claimed passed')
+if not (FIX/'live_model_outputs.json').is_file():
+    pytest.skip('Private model replay omitted',allow_module_level=True)
+LIVE = json.loads((FIX / 'live_model_outputs.json').read_text(encoding='utf-8'))
 REPAIRED = r"ILLIQ_{i,t} = \operatorname{mean}_{k=0}^{249}(\frac{|R_{i,t-k}|}{VOLD_{i,t-k}})"
 PROFILE = {'fields': ['open', 'high', 'low', 'close', 'volume', 'amount'], 'train_rows_estimate': 1001,
            'status': 'PROFILED_EXPLORATORY_ONLY', 'adjustment': 'none (raw unadjusted market prices)',
@@ -57,6 +58,7 @@ def codes(p):
     return {h['code'] for h in p['hard_stops']}
 
 
+@pytest.mark.usefixtures("amihud_250_carrier")
 def test_daily_plan_question_comes_first_and_states_the_real_lookback(evidence):
     from paper_agent.planner import decision_text
     p = make_plan(evidence)
@@ -66,6 +68,7 @@ def test_daily_plan_question_comes_first_and_states_the_real_lookback(evidence):
     assert second.startswith('实际执行（按交易日行计）：') and str(p['warmup_rows']) in second
 
 
+@pytest.mark.usefixtures("amihud_250_carrier")
 def test_trading_day_repair_of_a_weekly_paper_is_not_converted_twice(evidence):
     daily, weekly = make_plan(evidence), make_plan(evidence, freq='weekly (main empirical study)')
     assert weekly['warmup_rows'] == daily['warmup_rows'] < 300                  # was 5x (1250 rows) before the fix
@@ -73,6 +76,7 @@ def test_trading_day_repair_of_a_weekly_paper_is_not_converted_twice(evidence):
     assert any(s['item'] == 'frequency' and 'restated in trading days' in s['ours'] for s in weekly['substitutions'])
 
 
+@pytest.mark.usefixtures("amihud_250_carrier")
 def test_paper_period_window_is_converted_and_an_unfittable_lookback_stops_before_any_gate(evidence):
     p = make_plan(evidence, freq='weekly', unit='paper_period')
     assert p['status'] == 'BLOCKED' and 'LOOKBACK_EXCEEDS_SAMPLE' in codes(p)   # 250 weeks of history > Train
@@ -80,6 +84,7 @@ def test_paper_period_window_is_converted_and_an_unfittable_lookback_stops_befor
     assert 'LOOKBACK_EXCEEDS_SAMPLE' in codes(small)
 
 
+@pytest.mark.usefixtures("amihud_250_carrier")
 def test_frequency_text_follows_what_the_task_executes(evidence):
     p = make_plan(evidence, freq='weekly', unit='paper_period', pdf_weekly=False, profile=dict(PROFILE, train_rows_estimate=5000))
     assert 'time_unit_rows' not in p['choices'] and p['warmup_rows'] < 300      # the PDF reads daily: nothing scaled ...
@@ -87,12 +92,14 @@ def test_frequency_text_follows_what_the_task_executes(evidence):
         "the paper's data statement reads daily: lags and windows run on daily rows unchanged, factor evaluated every day"]
 
 
+@pytest.mark.usefixtures("amihud_250_carrier")
 def test_unstated_window_unit_on_a_non_daily_paper_blocks(evidence):
     p = make_plan(evidence, freq='weekly', unit=None)
     assert p['status'] == 'BLOCKED' and 'WINDOW_UNIT_AMBIGUOUS' in codes(p)
     assert make_plan(evidence, unit=None)['status'] == 'AWAITING_USER_DECISION'  # daily: unit cannot be ambiguous
 
 
+@pytest.mark.usefixtures("amihud_250_carrier")
 def test_other_instruments_are_never_substituted_by_stock_prices(evidence):
     p = make_plan(evidence, meaning='Monthly return of a one-month at-the-money straddle held to expiration')
     assert p['status'] == 'BLOCKED' and 'INSTRUMENT_NOT_AVAILABLE' in codes(p)

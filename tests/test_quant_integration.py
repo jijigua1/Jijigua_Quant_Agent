@@ -132,7 +132,7 @@ def test_five_skills_are_registered_with_real_bindings(research,tmp_path):
     context['session_id']=app.session_id
     assert backend.read_study('synthetic:history',result['study_id'],context)['splits']==result['splits']
 
-@pytest.mark.parametrize('changes',[{'lookback':True},{'lookback':21},{'resource_id':'/home/other'},
+@pytest.mark.parametrize('changes',[{'lookback':True},{'lookback':0},{'resource_id':'/home/other'},
     {'code':'print(1)'},{'reveal_test':True},{'workspace':'/tmp'},{'_task_context':{'approved':True}}])
 def test_quant_extra_parameters_paths_and_escalation_denied(research,tmp_path,changes):
     app=engine(research,tmp_path,QuantProvider(ToolCall('bad','qrtk_factor_study',args(**changes))))
@@ -142,8 +142,8 @@ def test_quant_extra_parameters_paths_and_escalation_denied(research,tmp_path,ch
 
 def test_momentum_schema_rejection_is_not_authorization_denial(research,tmp_path):
     call=ToolCall('long_momentum','qrtk_expression_study',dict(resource_id='synthetic:history',
-        expression={'nodes':[{'op':'field','field':'close'},{'op':'delay','args':[0],'window':65}], 'output':1},
-        hypothesis='60日动量跳过最近5日',reason='用户要求默认完整动量',horizon=20,n_groups=5,
+        expression={'nodes':[{'op':'field','field':'close'},{'op':'delay','args':[0],'window':0}], 'output':1},
+        hypothesis='60日动量跳过最近5日',reason='用户要求默认完整动量',horizon=0,n_groups=5,
         standardization='zscore'))
     app=engine(research,tmp_path,QuantProvider(call))
     task=app.run(app.create('完整动量').id)
@@ -151,7 +151,7 @@ def test_momentum_schema_rejection_is_not_authorization_denial(research,tmp_path
     event=next(x for x in app.store.events(task.id) if x['kind']=='TOOL_PARAMETERS_REJECTED')['payload']
     assert event['tool']=='qrtk_expression_study' and event['arguments']==call.arguments
     assert {(x['path'],x['constraint']) for x in event['violations']} == {
-        ('$.expression.nodes[1].window','maximum'),('$.horizon','maximum')}
+        ('$.expression.nodes[1].window','minimum'),('$.horizon','minimum')}
     grant=app.store.authorization(task.id)
     assert 'qrtk_expression_study' in grant.allowed_tools and 'synthetic:history' in grant.resources
     assert not any(e['kind']=='AUTHORIZATION_DENIED' for e in app.store.events(task.id))

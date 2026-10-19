@@ -8,9 +8,8 @@ import pandas as pd
 import numpy as np
 import pytest
 
-if not (Path(__file__).parent/'fixtures/pyx_ledger.py').exists():
-    pytest.skip('External Pyx implementation omitted: redistribution permission unverified',allow_module_level=True)
-
+if not (Path(__file__).parent/'fixtures/pyx_ledger.py').is_file():
+    pytest.skip('Third-party fixture redistribution rights not established',allow_module_level=True)
 spec=importlib.util.spec_from_file_location('reviewed_pyx',Path(__file__).parent/'fixtures/pyx_ledger.py')
 pyx=importlib.util.module_from_spec(spec);spec.loader.exec_module(pyx)
 

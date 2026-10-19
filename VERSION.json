@@ -1,0 +1,7 @@
+{
+  "product_version": "ver1.0",
+  "captured_on": "2026-10-20",
+  "production_manifest_sha256": "dff173f90c610cc84bda862f56f7465408e5399415541eea787254d1260ea25b",
+  "distribution_metadata_version": "0.8.2",
+  "packaging": "Public portable code; owner-held private state/data required for full recovery"
+}

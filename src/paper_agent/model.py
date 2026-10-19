@@ -79,7 +79,9 @@ def _bracket_repair(text, max_fixes=3):
 
     for _ in range(max_fixes + 1):
         try:
-            return json.loads(doc), fixes
+            obj = json.loads(doc)
+            # the guarantee: every string of the repaired object is in the reply verbatim (as written, JSON-escaped)
+            return (obj, fixes) if _strings_verbatim(obj, text) else None
         except json.JSONDecodeError as e:
             pos = e.pos
         cands = []
@@ -89,6 +91,9 @@ def _bracket_repair(text, max_fixes=3):
         early = _premature_close(doc)
         if early is not None:          # A/B E08: one closer too many ended the root object early ("Extra data")
             cands.append((f"remove {doc[early]} at {early}", doc[:early] + doc[early + 1:]))
+        inner = _closer_before(doc, pos)
+        if inner is not None:          # recheck 10-16 D09: one '}' too many closed an INNER object early, the same reply twice
+            cands.append((f"remove {doc[inner]} at {inner}", doc[:inner] + doc[inner + 1:]))
         for ch in "}],":
             cands.append((f"insert {ch} at {pos}", doc[:pos] + ch + doc[pos:]))
         scored = [(progress(d), what, d) for what, d in cands]
@@ -98,6 +103,39 @@ def _bracket_repair(text, max_fixes=3):
         doc = best[2]
         fixes.append(best[1])
     return None
+
+
+def _strings_verbatim(obj, text):
+    """True when every key and string value of `obj` occurs in `text` exactly as JSON writes it (a repair may only move
+    brackets; it can never alter a formula, a quote or any other string)."""
+    def strings(o):
+        if isinstance(o, str):
+            yield o
+        elif isinstance(o, dict):
+            for k, v in o.items():
+                yield k
+                yield from strings(v)
+        elif isinstance(o, list):
+            for v in o:
+                yield from strings(v)
+    for s in strings(obj):
+        if json.dumps(s, ensure_ascii=False)[1:-1] not in text and json.dumps(s)[1:-1] not in text:
+            return False
+    return True
+
+
+def _closer_before(doc, pos):
+    """Position of the last closing bracket outside any string before `pos` (a candidate surplus closer), or None."""
+    last, in_str, esc = None, False, False
+    for i, ch in enumerate(doc[:pos]):
+        if in_str:
+            esc, in_str = (False, True) if esc else (ch == "\\", ch != '"')
+            continue
+        if ch == '"':
+            in_str = True
+        elif ch in "}]":
+            last = i
+    return last
 
 
 def _premature_close(doc):
@@ -296,7 +334,7 @@ def ask_json(client, ledger, *, purpose, system, user, schema, max_tokens=4000, 
             if fixed and not _validate(fixed[0], schema):
                 obj, errors = fixed[0], []
                 ledger.event("JSON_BRACKETS_REPAIRED", {"purpose": purpose, "record": rid, "inserted_at": fixed[1],
-                                                        "note": "structure only: missing closing bracket(s) inserted; no text changed"})
+                                                        "note": "structure only: closing bracket(s) inserted or one surplus closer removed; no text changed"})
         ledger.event("MODEL_CALL", {"purpose": purpose, "record": rid, "attempt": attempt, "tokens": out["usage"].get("total_tokens"),
                                     "schema_errors": errors[:5], "seconds": round(seconds, 3)})
         if not errors:

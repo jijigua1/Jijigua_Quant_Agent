@@ -58,7 +58,7 @@ def append_test_report(artifacts, original, receipt, approval_key):
     a=p['partitions']['valid']['rank_ic_mean']
     if t['rank_ic_mean'] is None or t['rank_ic_n_dates']<60:p['verdict']['status']='NEEDS_MORE_EVIDENCE'
     elif a is not None and a*t['rank_ic_mean']<=0:p['verdict']['status']='UNSTABLE'
-    archive_id,run=artifacts.create(m['task_id'],'report_revision_'+str(p['report_revision']))
+    archive_id,run=artifacts.create_revision(original,p['report_revision'])
     # Copy only bounded statistical inputs. PKL/data matrices remain immutable in the original study.
     for name in entries:
         if name.startswith('data/') and name.endswith('.csv') and name not in ('data/factor_values.csv','data/input_slice.csv'):
@@ -89,7 +89,7 @@ def append_test_report(artifacts, original, receipt, approval_key):
     return versions[-1]
 
 
-ROLLING_REASONS = {'NOT_AUTHORIZED': '生产环境尚未授权滚动2026评价通道；未读取或计算任何2026数据。',
+ROLLING_REASONS = {'NOT_AUTHORIZED': '本环境（例如预发布环境）未获授权使用2026滚动评价通道；这不代表正式生产环境没有部署滚动Test。未读取或计算任何2026数据。',
     'EVALUATOR_UNAVAILABLE': '本进程没有连接受控评价代理（例如离线/测试环境），未计算2026结果。',
     'NO_TEST_DATA': '尚无合格的2026行情快照。', 'NO_MATURE_LABELS': '2026行情存在，但H期未来标签尚未成熟。',
     'HISTORY_MISMATCH': '评价器在Validation重叠日重算的因子与研究存档不一致，结果未合并。',
@@ -174,7 +174,7 @@ def append_rolling_report(artifacts, original, outcome):
         a=p['partitions']['valid']['rank_ic_mean']
         if t['rank_ic_mean'] is None or t['rank_ic_n_dates']<60:p['verdict']['status']='NEEDS_MORE_EVIDENCE'
         elif a is not None and a*t['rank_ic_mean']<=0:p['verdict']['status']='UNSTABLE'
-    archive_id,run=artifacts.create(m['task_id'],'report_revision_'+str(p['report_revision']))
+    archive_id,run=artifacts.create_revision(original,p['report_revision'])
     for name in entries:
         if name.startswith('data/') and name.endswith('.csv') and name not in ('data/factor_values.csv','data/input_slice.csv'):
             if entries[name]['bytes']>16*1024*1024:raise Denied('REPORT_STATISTICS_BUDGET')
@@ -184,6 +184,8 @@ def append_rolling_report(artifacts, original, outcome):
     (run/'code/factor_definition.json').write_bytes(checked('code/factor_definition.json'))
     if 'code/economic_rationale.json' in entries:
         (run/'code/economic_rationale.json').write_bytes(checked('code/economic_rationale.json'))
+    if 'code/paper_definition.json' in entries:      # the paper-check section and the canonical definition SHA travel with every revision
+        (run/'code/paper_definition.json').write_bytes(checked('code/paper_definition.json'))
     if (original/'code/factor_formula.tex').exists() and 'code/factor_formula.tex' in entries:
         (run/'code/factor_formula.tex').write_bytes(checked('code/factor_formula.tex'))
     artifacts.write_json(run/'data/evaluation_summary.json',p)
@@ -305,8 +307,9 @@ def report_access_text(a):
     return '\n'.join(lines)
 
 
-def latest_report(artifacts, original, result):
-    """Read an authenticated revision index; historical no-index studies remain valid."""
+def latest_report(artifacts, original, result, rolling=None):
+    """Read an authenticated revision index; historical no-index studies remain valid. A 2026 rolling Test result is shown
+    only when its receipt equals the copy in the trusted registry of `rolling` (the process's RollingClient)."""
     index=original/'reports/report_versions.json'
     if not index.exists():return result
     manifest=json.loads((original/'manifest.json').read_text(encoding='utf-8'))
@@ -330,6 +333,8 @@ def latest_report(artifacts, original, result):
     updated=json.loads(analysis.read_text(encoding='utf-8'))
     test=updated['metrics']['professional']['test'];months=[]
     receipt_record=next((f for f in vm['files'] if f['path']=='data/test_receipt.json'),None)
+    if test['status']=='COMPLETED' and not receipt_record:
+        raise Denied('REPORT_RECEIPT_REQUIRED')
     if test['status']=='COMPLETED' and receipt_record:
         receipt_path=run/'data/test_receipt.json'
         if (receipt_path.is_symlink() or receipt_path.stat().st_nlink!=1 or receipt_path.stat().st_size>128*1024
@@ -337,23 +342,52 @@ def latest_report(artifacts, original, result):
             raise Denied('REPORT_RECEIPT_FINGERPRINT')
         receipt=json.loads(receipt_path.read_text(encoding='utf-8'))
         signed=receipt.get('result',receipt)
+        if test.get('evaluation_type')=='ROLLING_EXPOSED_TEST' and signed.get('evaluation_type')!='ROLLING_EXPOSED_TEST':
+            raise Denied('REPORT_RECEIPT_TYPE_MISMATCH')
         if signed.get('evaluation_type')=='ROLLING_EXPOSED_TEST':
-            # Rolling receipts must still equal the root-owned registry copy (if this process has one).
-            import os as _os
-            registry=_os.environ.get('QRA_ROLLING_RECEIPTS')
-            if signed['evaluation_id']!=v['evaluation_id'] or signed['study_id']!=result['study_id']:
+            # The study directory is written by the research process itself, so its receipt bytes, manifest and index
+            # prove only that they agree with each other. A rolling Test is authentic only when it equals the broker's
+            # registry copy, read through the process's trusted RollingClient (fixed directory, broker-owned single-link
+            # file). No registry configured, an id outside the broker's syntax, or any mismatch: not shown (fail closed;
+            # C6 skipped the check without QRA_ROLLING_RECEIPTS and built the path from an unchecked id -- C9 audit).
+            from .rolling_client import EVALUATION_ID
+            eid=signed.get('evaluation_id')
+            if not isinstance(eid,str) or not EVALUATION_ID.fullmatch(eid):raise Denied('REPORT_RECEIPT_ID')
+            if eid!=v['evaluation_id'] or signed['study_id']!=result['study_id']:
                 raise Denied('REPORT_RECEIPT_STUDY')
-            if registry:
-                from .rolling_client import registered_receipt
-                stored=json.loads(registered_receipt(registry,signed['evaluation_id']))
-                if stored!={k:receipt[k] for k in ('result','signature')}:raise Denied('REPORT_RECEIPT_NOT_REGISTERED')
+            if rolling is None or getattr(rolling,'receipt_dir',None) is None:raise Denied('REPORT_RECEIPT_UNVERIFIED')
+            try:
+                stored=rolling.load_receipt(Path(rolling.receipt_dir)/(eid+'.json'),result['study_id'])
+            except (OSError,ValueError,KeyError):
+                raise Denied('REPORT_RECEIPT_NOT_REGISTERED') from None
+            if {k:stored[k] for k in ('result','signature')}!={k:receipt.get(k) for k in ('result','signature')}:
+                raise Denied('REPORT_RECEIPT_NOT_REGISTERED')
+            # Local manifests are research-writable. Bind every exposed Test field,
+            # not just the receipt bytes, to the registry's authenticated result.
+            if not all(k in signed for k in ('test','maturity','snapshot')) or not all(k in signed['test'] for k in (
+                    'exposure','start','end','metrics','annual','monthly','daily','group_columns','group_definition')):
+                raise Denied('REPORT_RECEIPT_METRICS_MISMATCH')
+            t=signed['test']
+            expected=dict(status='COMPLETED',access='CONTROLLED_EVALUATOR',evaluation_type='ROLLING_EXPOSED_TEST',
+                exposure=t['exposure'],start=t['start'],end=t['end'],metrics=t['metrics'],annual=t['annual'],monthly=t['monthly'],
+                daily_rows=len(t['daily']),daily_source=TEST_DAILY_SOURCE,
+                group_columns=t['group_columns'],group_definition=t['group_definition'],maturity=signed['maturity'],
+                snapshot={k:signed['snapshot'][k] for k in ('version','certified_end','manifest_sha256','status')},
+                receipt_sha256=stored['registry_sha256'])
+            if 'daily' in test:
+                # Older authenticated revisions stored the same daily rows
+                # inline. Admit that representation without weakening any value
+                # comparison or requiring another historical evaluation.
+                for key in ('daily_rows','daily_source'):
+                    if key not in test:expected.pop(key)
+            if {k:v for k,v in test.items() if k!='daily'}!=expected or ('daily' in test and test['daily']!=t['daily']):
+                raise Denied('REPORT_RECEIPT_METRICS_MISMATCH')
             immature=list(signed['maturity']['immature_signal_dates'])
         else:
-            if signed['evaluation_id']!=v['evaluation_id'] or signed['research_study_id']!=result['study_id']:
-                raise Denied('REPORT_RECEIPT_STUDY')
-            tail=signed.get('label_tail_purged',0)
-            dates=[r['date'] for r in signed['test'].get('daily',[])]
-            immature=dates[-tail:] if tail else []
+            # A research-writable evaluation_type must never select a weaker
+            # verification path. Legacy files remain on disk, but an unverifiable
+            # one-shot receipt is not certified 2026 evidence (no automatic rerun).
+            raise Denied('REPORT_LEGACY_TEST_UNVERIFIED')
         for row in test.get('monthly',[]):
             n=row['observed_dates'];missing=sum(d.startswith(str(row['period'])) for d in immature)
             months.append(dict(period=row['period'],observed_dates=n,effective_dates=row['rank_ic_n_dates'],
@@ -365,7 +399,7 @@ def latest_report(artifacts, original, result):
         'test_monthly_label_status':months,'figure_paths':updated['figure_paths'],'metrics':updated['metrics']}
 
 
-def render_published_revision(artifacts, original):
+def render_published_revision(artifacts, original, rolling=None):
     """Operator-only render of authenticated public aggregates. Never updates the latest pointer."""
     from .research_report import render
     original=artifacts.checked_run(original)
@@ -395,9 +429,9 @@ def render_published_revision(artifacts, original):
             if hashlib.sha256(data).hexdigest()!=entry['sha256']:raise Denied('REPORT_SOURCE_FINGERPRINT')
             allowed[name]=data
     result=json.loads(allowed['data/analysis.json']);definition=json.loads(allowed['code/factor_definition.json'])
-    result['test_monthly_label_status']=latest_report(artifacts,original,result)['test_monthly_label_status']
+    result['test_monthly_label_status']=latest_report(artifacts,original,result,rolling)['test_monthly_label_status']
     result['metrics']['professional']['report_revision']=revision
-    archive_id,run=artifacts.create(m['task_id'],'report_revision_'+str(revision))
+    archive_id,run=artifacts.create_revision(original,revision)
     for name,data in allowed.items():
         if name not in ('data/analysis.json','data/evaluation_summary.json'):(run/name).write_bytes(data)
     presentation=render(run,result,None,{},root_manifest.get('goal','统一因子报告'),definition.get('hypothesis','冻结研究定义'),definition)
@@ -449,7 +483,7 @@ def append_invalidation_report(artifacts, original, record):
     result['invalidation']={k:record[k] for k in ('code','reason_cn','evidence','recorded_by','recorded_at')}
     p=result['metrics']['professional'];p['report_revision']=len(versions)+1
     p['verdict']['evidence'].insert(0,'研究定义无效：'+record['reason_cn']+'；统计仅作历史记录。')
-    archive_id,run=artifacts.create(m['task_id'],'report_revision_'+str(p['report_revision']))
+    archive_id,run=artifacts.create_revision(original,p['report_revision'])
     for name in entries:
         keep=(name.startswith('data/') and name.endswith('.csv') and name not in ('data/factor_values.csv','data/input_slice.csv')) or \
             (name.startswith('figures/') and not Path(name).name.startswith(('interactive_','rank_ic_monthly_','ic_monthly_'))) or \

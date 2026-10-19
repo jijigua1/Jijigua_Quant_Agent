@@ -1,0 +1,33 @@
+{
+  "synthetic": false,
+  "authorized": true,
+  "research_root": "/var/lib/jijigua-quant-agent/ver1.0/research_runs",
+  "agent_uid": 999,
+  "agent_group": "quantagent",
+  "snapshot_root": "/var/lib/jijigua-quant-agent/v1beta_rolling/snapshots",
+  "staging_root": "/var/lib/jijigua-quant-agent/v1beta_rolling/staging",
+  "request_dir": "/var/lib/jijigua-quant-agent/v1beta_rolling/requests",
+  "receipt_dir": "/var/lib/jijigua-quant-agent/v1beta_rolling/receipts",
+  "audit_path": "/var/lib/jijigua-quant-agent/v1beta_rolling/audit/broker.jsonl",
+  "key_path": "/var/lib/jijigua-quant-agent/v1beta_rolling/rolling.key",
+  "source_root": "/srv/quant-market/daily_update",
+  "baseline_manifest": "/var/lib/jijigua-quant-agent/data_releases/train/baseline_20261009_a864dc33/manifest.json",
+  "listing_candidate": true,
+  "approval_ref": "RESTORE_EXISTING_APPROVAL_REFERENCE",
+  "evaluator_config": "/var/lib/jijigua-quant-agent/v1beta_rolling/evaluator.json",
+  "evaluator": {
+    "user": "quanteval",
+    "python": "/opt/jijigua-quant-agent/ver1.0/.venv/bin/python",
+    "code_path": [
+      "/opt/jijigua-quant-agent/ver1.0/src",
+      "/opt/jijigua-quant-agent/ver1.0/src/rolling_test/vendor"
+    ],
+    "cwd": "/var/lib/jijigua-quant-agent/v1beta_rolling/eval",
+    "mpl_dir": "/var/lib/jijigua-quant-agent/v1beta_rolling/eval/mpl",
+    "outbox": "/var/lib/jijigua-quant-agent/v1beta_rolling/eval/outbox",
+    "timeout": 300
+  },
+  "legacy_research_roots": [
+    "/var/lib/jijigua-quant-agent/v1beta/research_runs"
+  ]
+}

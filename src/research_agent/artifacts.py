@@ -11,6 +11,9 @@ from .contracts import canonical, parse_json
 from .security import Denied, valid_task_id
 
 MAX_OUTPUT_BYTES = 20 * 1024 * 1024
+# program-written study JSON (analysis, manifest ...): a size guard, not a content check; the same order as the report
+# revision files (1-2 MiB). 64 KiB was too small: a real GH study's analysis was 52 KiB before its 2026 Test (C6R4-I2).
+STUDY_JSON_MAX_BYTES = 1024 * 1024
 
 def check_directory(path):
     path = Path(path)
@@ -24,8 +27,9 @@ def check_directory(path):
     return path
 
 class ResearchArtifacts:
-    def __init__(self, root):
+    def __init__(self, root, *, legacy_roots=()):
         self.root = check_directory(root)
+        self.legacy_roots=tuple(check_directory(p) for p in legacy_roots)
         check_directory(self.root / 'research_runs')
         if not os.access(self.root / 'research_runs', os.W_OK):
             raise Denied('ARTIFACT_DIRECTORY_NOT_WRITABLE')
@@ -48,12 +52,40 @@ class ResearchArtifacts:
             (run / name).mkdir(mode=0o700)
         return task_id + ':' + run_id, run
 
+    def _run_root(self,path):
+        return next((p/'research_runs' for p in (self.root,*self.legacy_roots) if Path(path).is_relative_to(p/'research_runs')),self.root/'research_runs')
+
     def checked_run(self, path):
         path=Path(path)
         check_directory(path)
-        if not path.is_relative_to(self.root/'research_runs') or len(path.relative_to(self.root/'research_runs').parts)!=2:
+        root=self._run_root(path)
+        if not path.is_relative_to(root):
+            raise Denied('ARTIFACT_PATH_DENIED')
+        parts=path.relative_to(root).parts
+        if len(parts)!=2 and not (len(parts)==5 and parts[2:4]==('.audit','r')
+                and re.fullmatch(r'r[0-9]{4}_[0-9a-f]{8}',parts[4])):
             raise Denied('ARTIFACT_PATH_DENIED')
         return path
+
+    def create_revision(self, original, revision):
+        """A report is an audit child of its study, never another top-level research."""
+        original=self.checked_run(original)
+        if len(original.relative_to(self._run_root(original)).parts)!=2 or type(revision) is not int or not 2<=revision<=9999:
+            raise Denied('REPORT_REVISION_PATH_DENIED')
+        m=parse_json((original/'manifest.json').read_text(encoding='utf-8'),max_bytes=STUDY_JSON_MAX_BYTES)
+        valid_task_id(m['task_id'])
+        parent=original
+        for name in ('.audit','r'):
+            check_directory(parent)
+            parent=parent/name
+            if not parent.exists():parent.mkdir(mode=0o700)
+            check_directory(parent)
+        run_id=uuid.uuid4().hex[:16]
+        run=parent/f'r{revision:04d}_{run_id[:8]}'
+        run.mkdir(mode=0o700)
+        for name in ('code','data','figures','reports','logs'):
+            (run/name).mkdir(mode=0o700)
+        return m['task_id']+':'+run_id,run
 
     def locate(self, study_id, context):
         import re
@@ -72,18 +104,18 @@ class ResearchArtifacts:
             if x['kind']=='ARTIFACT_CREATED' and x['payload'].get('study_id')==study_id]
         run=self.checked_run(evidence[0]['artifact_path'] if evidence else paths[0] if paths else
             self.root/'research_runs'/task_id/run_id)
-        m=parse_json((run/'manifest.json').read_text(encoding='utf-8'))
+        m=parse_json((run/'manifest.json').read_text(encoding='utf-8'),max_bytes=STUDY_JSON_MAX_BYTES)
         if m.get('task_id')!=task_id or m.get('run_id')!=run_id:raise Denied('ARTIFACT_ID_MISMATCH')
         if not evidence and task.status=='EXPORT_FAILED':
             if any(e['kind']=='ARTIFACT_CREATED' and e['payload'].get('study_id')==study_id for e in store.events(task_id)):
-                m=parse_json((run/'manifest.json').read_text(encoding='utf-8'))
+                m=parse_json((run/'manifest.json').read_text(encoding='utf-8'),max_bytes=STUDY_JSON_MAX_BYTES)
                 if m.get('task_id')==task_id and m.get('delivery_status')=='EXPORT_FAILED':
                     evidence=[{'analysis_sha256':m['analysis_sha256'],'artifact_path':str(run)}]
         if not evidence:raise Denied('STUDY_NOT_IN_LEDGER')
         return run, evidence[0]
 
     @staticmethod
-    def write_json(path, data, *, max_bytes=65536):
+    def write_json(path, data, *, max_bytes=STUDY_JSON_MAX_BYTES):
         # Exclusive creation keeps frozen configuration and evidence immutable.
         with Path(path).open('x', encoding='utf-8') as f:
             f.write(canonical(data,max_bytes=max_bytes) + '\n')
@@ -92,6 +124,7 @@ class ResearchArtifacts:
     def inventory(run):
         files = []
         total = 0
+        archive_bytes = archive_files = 0
         budget=MAX_OUTPUT_BYTES
         m=run/'manifest.json'
         if m.exists():
@@ -101,6 +134,16 @@ class ResearchArtifacts:
         for p in sorted(run.rglob('*')):
             if p.is_symlink() or getattr(p,'is_junction',lambda:False)():
                 raise Denied('ARTIFACT_LINK_DENIED')
+            if p.is_file() and p.stat().st_nlink != 1:
+                raise Denied('ARTIFACT_HARDLINK_DENIED')
+            # Each revision has its own bounded manifest, authenticated from the
+            # parent's report index. Do not recursively count it as current data.
+            if p.relative_to(run).parts[0]=='.audit':
+                if p.is_file():
+                    archive_bytes+=p.stat().st_size;archive_files+=1
+                    if archive_bytes>4*budget or archive_files>4096:
+                        raise Denied('ARTIFACT_ARCHIVE_BUDGET_EXHAUSTED')
+                continue
             if p.is_file() and p.name != 'manifest.json':
                 st = p.stat()
                 if st.st_nlink != 1:
@@ -115,12 +158,12 @@ class ResearchArtifacts:
     @staticmethod
     def read_analysis(run, evidence):
         path = run / 'data/analysis.json'
-        if path.is_symlink() or path.stat().st_nlink != 1 or path.stat().st_size > 65536:
+        if path.is_symlink() or path.stat().st_nlink != 1 or path.stat().st_size > STUDY_JSON_MAX_BYTES:
             raise Denied('ARTIFACT_FILE_DENIED')
         raw = path.read_bytes()
         if hashlib.sha256(raw).hexdigest() != evidence['analysis_sha256']:
             raise Denied('ARTIFACT_FINGERPRINT_MISMATCH')
-        return parse_json(raw.decode('utf-8'))
+        return parse_json(raw.decode('utf-8'),max_bytes=STUDY_JSON_MAX_BYTES)
 
     def finalize(self, task, events=()):
         import re
@@ -130,7 +173,7 @@ class ResearchArtifacts:
         paths.update({sid:e['result']['data']['artifact_path'] for sid,e in evidence.items() if sid})
         for sid,path in paths.items():
             run=self.checked_run(path)
-            m=parse_json((run/'manifest.json').read_text(encoding='utf-8'))
+            m=parse_json((run/'manifest.json').read_text(encoding='utf-8'),max_bytes=STUDY_JSON_MAX_BYTES)
             if m['task_id']!=task.id or task.id+':'+m['run_id']!=sid:raise Denied('ARTIFACT_ID_MISMATCH')
             e = evidence.get(sid)
             self.write_json(run/'logs/stages.json',[x for x in events if x['kind']=='RESEARCH_STAGE'])
@@ -147,7 +190,7 @@ class ResearchArtifacts:
         path = run / 'manifest.json'
         if path.is_symlink() or path.stat().st_nlink != 1:
             raise Denied('ARTIFACT_FILE_DENIED')
-        manifest = parse_json(path.read_text(encoding='utf-8'))
+        manifest = parse_json(path.read_text(encoding='utf-8'),max_bytes=STUDY_JSON_MAX_BYTES)
         manifest.update(changes)
         temp = run / ('manifest.' + uuid.uuid4().hex + '.tmp')
         self.write_json(temp, manifest)

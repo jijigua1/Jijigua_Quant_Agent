@@ -18,8 +18,9 @@ from research_agent.providers.mock import MockProvider
 from v1beta_fixtures import broker, build
 
 FIX = Path(__file__).parent / 'fixtures_v1beta'
-LIVE = json.loads((FIX / 'live_model_outputs.json').read_text(encoding='utf-8')) if (FIX / 'live_model_outputs.json').is_file() else {}
-pytestmark = pytest.mark.skipif(not LIVE, reason='Private paper/model replay omitted; original tests retained, not claimed passed')
+if not (FIX / 'live_model_outputs.json').is_file():
+    pytest.skip('Private paper/model replay omitted from public repository', allow_module_level=True)
+LIVE = json.loads((FIX / 'live_model_outputs.json').read_text(encoding='utf-8'))
 OPERATOR_ILLIQ = '''import numpy as np
 import pandas as pd
 
@@ -145,6 +146,8 @@ class PaperProvider(MockProvider):
                 return ModelResponse(tool_calls=(ToolCall('paper%d' % len(self.calls), 'qrtk_paper_research',
                                                           {'paper': '刚上传的', 'factor': self.factor}),))
             return ModelResponse(tool_calls=(ToolCall('list%d' % len(self.calls), 'paper_list', {}),))
+        if paper_call(request) and 'You update ONE quantitative factor definition' in request.messages[0].content:
+            return ModelResponse(canonical({'intent': 'none'}))   # the edit reader: this double's users never edit
         if schema == {'type': 'object'} or paper_call(request):
             system = request.messages[0].content
             text = request.messages[-2 if paper_call(request) else -1].content    # skip the trailing JSON rule
@@ -217,6 +220,7 @@ def model_code_route(monkeypatch):
     monkeypatch.setattr(planner, 'plan', forced)
 
 
+@pytest.mark.usefixtures("amihud_250_carrier")
 def test_upload_then_one_sentence_research_runs_on_the_trusted_executor(tmp_path, patched_rolling):
     """One definition gate; no model-written code exists or runs; the executor is checked against the reference evaluator."""
     goal = '研究我刚上传的论文，提取里面的因子并做完整研究'
@@ -246,6 +250,7 @@ def test_upload_then_one_sentence_research_runs_on_the_trusted_executor(tmp_path
     assert json.loads((Path(data['report_artifact_path']) / 'data/report_consistency.json').read_text())['status'] == 'PASSED'
 
 
+@pytest.mark.usefixtures("amihud_250_carrier")
 def test_upload_then_one_sentence_research_with_both_gates(tmp_path, patched_rolling, model_code_route):
     goal = '研究我刚上传的论文，提取里面的因子并做完整研究'
     decisions = [decision('skill', skill_id='paper_research', goal=goal), decision(consent='accept'), decision(consent='accept')]
@@ -283,6 +288,7 @@ def test_upload_then_one_sentence_research_with_both_gates(tmp_path, patched_rol
     assert len([c for c in provider.calls if paper_call(c) and 'careful quantitative-finance research reader' in c.messages[0].content]) == 4
 
 
+@pytest.mark.usefixtures("amihud_250_carrier")
 def test_rejection_unclear_ambiguity_and_expiry_never_execute(tmp_path, patched_rolling, model_code_route):
     fx = build(tmp_path)
     patched_rolling['client'], _ = broker(fx)
@@ -308,6 +314,7 @@ def test_rejection_unclear_ambiguity_and_expiry_never_execute(tmp_path, patched_
     assert not studies(fx) and not list((tmp_path / 'papers/approved_code/approvals').iterdir())
 
 
+@pytest.mark.usefixtures("amihud_250_carrier")
 def test_rejecting_the_code_records_a_block(tmp_path, patched_rolling, model_code_route):
     fx = build(tmp_path)
     patched_rolling['client'], _ = broker(fx)
@@ -446,6 +453,7 @@ def test_a_title_match_beats_a_body_text_match_and_ambiguity_lists_candidates(tm
     assert 'ferreira_silva_yen_2019_ma_rule.pdf' in text and '2206.12282 MACD strategies.pdf' in text and '请说出' in text
 
 
+@pytest.mark.usefixtures("amihud_250_carrier")
 def test_a_lost_review_request_is_reported_and_rebuilt_without_running_code(tmp_path, patched_rolling, model_code_route):
     """Live Q5: a cached candidate had no registry request (copied paper ledger); approval failed and was mislabelled as
     failed known-truth tests. Now the failure is named, and the next research turn rebuilds the request (fresh static review)."""
@@ -456,7 +464,8 @@ def test_a_lost_review_request_is_reported_and_rebuilt_without_running_code(tmp_
     lib.import_pdf(stage(lib, FIX / 'amihud2002.pdf'), 'Amihud_2002.pdf')
     goal = '研究我刚上传的论文'
     provider = PaperProvider([decision('skill', skill_id='paper_research', goal=goal), decision(consent='accept'),
-                              decision(consent='accept'), decision('skill', skill_id='paper_research', goal=goal), decision(consent='accept')])
+                              decision(consent='accept'), decision('skill', skill_id='paper_research', goal=goal), decision(consent='accept'),
+                              decision(consent='accept')])
     app = build_chat(tmp_path / 'state', provider=provider, profile='development', resources_manifest=fx['manifest'], research_config=fx['config'])
     app.turn('研究我刚上传的论文。')
     assert '回复“同意”即批准运行这一份代码' in app.turn('同意')
@@ -466,7 +475,9 @@ def test_a_lost_review_request_is_reported_and_rebuilt_without_running_code(tmp_
             p.unlink()
     lost = app.turn('同意')
     assert '审核登记表中没有这份代码的有效审核请求' in lost and '真值测试未通过' not in lost and not studies(fx)
-    again = app.turn('研究我刚上传的论文。')
+    again = app.turn('研究我刚上传的论文。')          # a later request in the session: the definition is shown first
+    assert '回复“同意”' in again and not studies(fx)
+    again = app.turn('同意')
     assert '回复“同意”即批准运行这一份代码' in again and len(list((reg / 'requests').iterdir())) == 1
     done = app.turn('同意')
     assert '经你批准的新算法' in done and studies(fx)

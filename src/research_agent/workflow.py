@@ -14,10 +14,10 @@ from .tools import code_fingerprint
 from .runtime import ModelRuntime
 from .evidence import summary as evidence_summary
 from .factor_export import ExportFailed
-from .definition_gate import DEFINITION_TOOLS, ValidationPassed, authorized as definition_authorized, held_call, proposal as definition_proposal
+from .definition_gate import DEFINITION_TOOLS, ValidationPassed, authorized as definition_authorized, held_call, proposal as definition_proposal, SELF_GATED_TOOLS
 from .definition_gate import CodeApprovalRequired, DefinitionDecisionRequired
 
-TERMINAL = {"COMPLETED", "EXPORT_FAILED", "MODEL_ERROR", "TOOL_ERROR", "AUTHORIZATION_DENIED", "INVALID_PARAMETERS", "AWAITING_CONFIRMATION", "AWAITING_CODE_APPROVAL", "BLOCKED_UNSUPPORTED", "BLOCKED_NO_PROGRESS", "BUDGET_EXHAUSTED", "INVALID_RESULT", "AUDIT_ERROR", "BLOCKED_CONFIG", "BLOCKED_RECOVERY", "BLOCKED_SECURITY"}
+TERMINAL = {"COMPLETED", "WAITING_TEST", "BLOCKED_TEST", "EXPORT_FAILED", "MODEL_ERROR", "TOOL_ERROR", "AUTHORIZATION_DENIED", "INVALID_PARAMETERS", "AWAITING_CONFIRMATION", "AWAITING_CODE_APPROVAL", "BLOCKED_UNSUPPORTED", "BLOCKED_NO_PROGRESS", "BUDGET_EXHAUSTED", "INVALID_RESULT", "AUDIT_ERROR", "BLOCKED_CONFIG", "BLOCKED_RECOVERY", "BLOCKED_SECURITY"}
 
 
 class Workflow(ModelRuntime):
@@ -59,7 +59,7 @@ class Workflow(ModelRuntime):
     def _finish(self, state, status, code=None, http_status=None):
         if getattr(self,'current_stage',None):
             event=dict(stage=self.current_stage,status='BLOCKED' if status.startswith(('BLOCKED','AUTHORIZATION','AWAITING')) else
-                'COMPLETED' if status=='COMPLETED' else 'FAILED',elapsed_seconds=round(time.monotonic()-self.stage_started,3))
+                'COMPLETED' if status=='COMPLETED' else 'BLOCKED' if status in ('WAITING_TEST','BLOCKED_TEST') else 'FAILED',elapsed_seconds=round(time.monotonic()-self.stage_started,3))
             self._save(state,'RESEARCH_STAGE',event)
             if getattr(self,'_notify',None):self._notify(event)
             self.current_stage=None
@@ -155,6 +155,7 @@ class Workflow(ModelRuntime):
             if kind == 'RESEARCH_STAGE' and notify is not None:
                 notify(payload)
         steps = 0
+        parameter_repairs = 0
         try:
             while True:
                 if time.monotonic() > deadline:
@@ -171,6 +172,7 @@ class Workflow(ModelRuntime):
                 state.messages.append(message_dict(Message(Role.ASSISTANT, response.content)))
                 self._save(state, "RESEARCH_PLAN", plan)
                 calculates = any(t in DEFINITION_TOOLS for t in self.skill.tools)
+                self_gated = calculates and {t for t in self.skill.tools if t in DEFINITION_TOOLS} <= SELF_GATED_TOOLS
                 # A Skill that cannot calculate cannot resolve a definition change; stop with its evidence instead of looping.
                 if plan["action"] == "complete" or str(plan.get("definition_change", "")).strip() and not calculates:
                     try:
@@ -187,7 +189,7 @@ class Workflow(ModelRuntime):
                 blocker = str(plan.get("definition_change", "")).strip()
                 state.stage = "selecting_tool"
                 emit('RESEARCH_STAGE',dict(stage='tool_selection',status='RUNNING',elapsed_seconds=0))
-                if blocker and calculates and not self.definition_authorization:
+                if blocker and calculates and not self.definition_authorization and not self_gated:
                     # Deterministic resolution: no more discovery; one checked alternative (awaiting confirmation) or blocked.
                     self._save(state, "DEFINITION_RESOLUTION_REQUIRED", {"reason": blocker})
                     selection = self._model(state, ModelRequest(tuple(message_from_dict(x) for x in state.messages) +
@@ -274,6 +276,18 @@ class Workflow(ModelRuntime):
                         state.pending = None
                         self._save(state, "TOOL_PARAMETERS_REJECTED", {"tool": call.name, "code": exc.code,
                             "call_id": call.id, "arguments": call.arguments, "violations": exc.violations})
+                        if call.name in DEFINITION_TOOLS and parameter_repairs < 2 and not self.definition_authorization:
+                            parameter_repairs += 1
+                            state.messages.append(message_dict(Message(Role.TOOL,canonical(dict(
+                                error=exc.code,violations=exc.violations,executed=False)),tool_call_id=call.id)))
+                            for skipped in selection.tool_calls[call_index+1:]:
+                                state.messages.append(message_dict(Message(Role.TOOL,canonical(dict(error='BATCH_CANCELLED',executed=False)),tool_call_id=skipped.id)))
+                            state.messages.append(message_dict(Message(Role.SYSTEM,
+                                "工具参数校验失败，计算未执行。根据具体字段纠正调用，保留原始数学定义、窗口与预测期。"
+                                "若表达式无法表示原定义，改用qrtk_algorithm_study构造算法；不要把改实现当成研究替代，不要要求重复确认。"
+                                "不得伪造缺失数据；仍需遵守数据权限。最多两次参数纠正，所有调用计入预算。")))
+                            self._save(state,'TOOL_PARAMETER_REPAIR',{'attempt':parameter_repairs,'tool':call.name,'violations':exc.violations})
+                            break
                         return self._finish(state, "INVALID_PARAMETERS", exc.code)
                     except Denied as exc:
                         state.pending = None
@@ -312,6 +326,18 @@ class Workflow(ModelRuntime):
                     remaining = [x.id for x in selection.tool_calls[call_index + 1:]]
                     state.pending = {"kind": "tool_batch", "remaining_call_ids": remaining} if remaining else None
                     self._save(state, "EXPERIMENT_RECORDED", experiment)
+                    data=result.get('data',{})
+                    if data.get('completion_policy')=='controlled_2026_test' and data.get('final_report_ready') is not True:
+                        # Keep the verified intermediate experiment in the ledger;
+                        # a model's completion plan cannot turn it into a full study.
+                        reason=data.get('completion_reason') or 'TEST_NOT_COMPLETED'
+                        status=data.get('research_status')
+                        if status not in ('WAITING_TEST','BLOCKED_TEST'):status='BLOCKED_TEST'
+                        state.pending=None
+                        state.result=dict(mode=data['mode'],summary='Train/Validation已保存；受控2026 Test尚未完成认证，完整研究未完成。',
+                            study_id=data['study_id'],artifact_path=data['artifact_path'],
+                            analysis_scope=data['analysis_scope'],completion_reason=reason)
+                        return self._finish(state,status,reason)
                 state.stage = "planning"
                 steps += 1
                 if max_steps is not None and steps >= max_steps:

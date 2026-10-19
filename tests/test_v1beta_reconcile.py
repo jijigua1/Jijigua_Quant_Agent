@@ -332,7 +332,10 @@ def test_a_calendar_count_declared_as_a_parameter_is_not_asked_from_the_user():
                [{"symbol": "D", "meaning": "number of days for which data are available for stock i in year y", "value": None,
                  "paper_values": [], "status": "unstated", "citations": []}])
     g = verify(reading(f), ev)["factors"][0]
-    assert "FREE_PARAMETER_UNBOUND" not in codes(g) and "FORMULA_UNPARSEABLE" in codes(g)     # -> formula repair (nominal length)
+    # C6R4 (records/TEST_CHANGES_CN.md): no longer FORMULA_UNPARSEABLE -> repair to a nominal length; a calendar window
+    # the trusted IR cannot express is blocked with its own reason
+    assert "FREE_PARAMETER_UNBOUND" not in codes(g) and "FORMULA_UNPARSEABLE" not in codes(g)
+    assert "CALENDAR_WINDOW_UNSUPPORTED" in codes(g)
 
 
 def test_an_asset_class_only_the_reader_claims_is_shown_not_silently_applied():

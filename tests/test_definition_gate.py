@@ -120,7 +120,7 @@ def test_scenario_b_confirmation_runs_exact_held_definition_with_full_delivery(r
         decision("skill", skill_id="factor_research", goal="按默认参数构造完整动量因子"),
         decision("skill", skill_id="factor_research", goal="执行已确认方案", consent="accept")])
     assert not study_events(app)
-    reply = app.turn("可以，先完成20日探索版本。")
+    reply = app.turn("同意")
     (index, experiment), = study_events(app)
     assert index == 2 and experiment["parameters"]["factor_name"] == "momentum_20d_skip5_exploratory"
     data = experiment["result"]["data"]
@@ -186,8 +186,8 @@ def test_model_claimed_consent_without_explicit_user_approval_does_not_run(resea
     assert app.store.session(app.session_id)["pending_definition"] is not None
 
 
-@pytest.mark.parametrize("text,expected", [("同意", "accept"), ("可以，先完成20日探索版本。", "accept"),
-    ("先完成能做的部分", "accept"), ("OK, go ahead", "accept"), ("不要替代，我要原来的标准方案。", "reject"),
+@pytest.mark.parametrize("text,expected", [("同意", "accept"), ("可以，先完成20日探索版本。", "unclear"),
+    ("先完成能做的部分", "unclear"), ("OK, go ahead", "accept"), ("不要替代，我要原来的标准方案。", "reject"),
     ("不可以", "reject"), ("no", "reject"), ("这个窗口是多少？", "unclear"), ("now what", "unclear")])
 def test_user_consent_reading(text, expected):
     assert user_consent(text) == expected
@@ -202,7 +202,7 @@ def test_declared_change_on_fixed_factor_is_also_held(research, tmp_path):
 
 
 def test_gate_does_not_mask_parameter_or_authorization_errors(research, tmp_path):
-    bad = engine(research, tmp_path, GateProvider([], call=momentum_call(horizon=20)))
+    bad = engine(research, tmp_path, GateProvider([], call=momentum_call(horizon=0)))
     task = bad.run(bad.create("动量").id)
     assert task.status == "INVALID_PARAMETERS" and task.error["code"] == "INVALID_PARAMETERS"
     other = engine(research, tmp_path, GateProvider([], call=momentum_call()))
@@ -230,7 +230,7 @@ def test_data_check_turn_ends_with_bound_proposal_then_confirmation_runs(researc
     turn = app.store.session_turns(app.session_id)[1]
     assert turn["status"] == "COMPLETED" and app.store.load(turn["research_task_id"]).skill_id == "data_research"
     assert "回复“同意”" in reply and "delay(returns(close,20),5)" in reply and not study_events(app)
-    app.turn("可以，先完成20日探索版本。")
+    app.turn("同意")
     (index, experiment), = study_events(app)
     assert index == 2 and experiment["result"]["data"]["delivery_status"] == "VERIFIED"
 
@@ -248,3 +248,15 @@ def test_data_skill_declaring_a_change_completes_instead_of_looping(research, tm
     app = engine(research, tmp_path, GateProvider([], plan_change=CHANGE), skill="data_research")
     task = app.run(app.create("核验数据").id)
     assert task.status == "COMPLETED" and task.counters["iterations"] <= 2
+
+
+@pytest.mark.parametrize("text,expected", [
+    ("计算上一完整日历年的均值，不用固定滚动窗口替代日历年。", "unclear"),
+    ("请研究年度因子，不要固定滚动窗口，先展示定义。", "unclear"),
+    ("不用了", "reject"), ("不要", "reject"),
+    ("同意，但不要运行这段代码", "reject"),
+    ("不用替代，我要原来的方案", "reject"),
+    ("不用执行，先解释", "reject"),
+])
+def test_implementation_exclusion_is_not_proposal_refusal(text, expected):
+    assert user_consent(text) == expected

@@ -3,6 +3,7 @@
 import argparse
 import getpass
 from dataclasses import asdict
+import re
 from pathlib import Path
 import sys
 
@@ -15,6 +16,48 @@ from .store import LedgerError, StateConflict, TaskStore
 DEMO_GOAL = "查询模拟量价数据，计算模拟因子指标，判断是否需要进一步实验，并生成模拟研究摘要。"
 
 
+def prompt_credential(visible=False):
+    if visible and not sys.stdin.isatty():
+        raise Denied('VISIBLE_KEY_REQUIRES_TERMINAL')
+    while True:
+        raw = input('DeepSeek Key (visible; paste key only): ') if visible else getpass.getpass('DeepSeek Key (not echoed): ')
+        key = raw.strip()
+        if visible:
+            input('请在本机核对上面的 Key，然后按 Enter 清屏并继续：')
+            # Clear both the screen and terminal scrollback before diagnostics.
+            print('\x1b[2J\x1b[3J\x1b[H', end='', flush=True)
+            try:
+                import readline
+                readline.clear_history()
+            except ImportError:
+                pass
+        if not re.fullmatch(r'sk-[A-Za-z0-9_-]{16,253}', key):
+            print('Key 格式检查失败：请仅输入 sk- 开头的完整 Key，不要带 Bearer、引号、内部空格或换行。')
+            continue
+        print(f'Key 已读取：{len(key)} 个字符；前缀、字符及空白检查通过。' +
+              (' 已去掉首尾空白。' if key != raw else ''), flush=True)
+        return key
+
+
+def check_connection(provider):
+    """One small request through the same adapter and cumulative budget."""
+    from dataclasses import replace
+    from .llm import Message, ModelRequest, Role
+    from .providers.deepseek import DeepSeekAdapter
+    diagnostic = DeepSeekAdapter(replace(provider.config, max_output_tokens=32),
+        provider.secrets, provider.transport, provider.redactor)
+    print('正在验证最小 DeepSeek 请求（同一凭证、接口及累计预算）…', flush=True)
+    try:
+        response = diagnostic.complete(ModelRequest((Message(Role.USER, 'Reply with the single word OK.'),)))
+    except ModelError as exc:
+        print(canonical({'connection_check': 'FAILED', 'code': exc.code,
+                         'http_status': exc.http_status, 'provider_detail': exc.provider_detail}), flush=True)
+        return False
+    print(canonical({'connection_check': 'PASSED', 'model': response.actual_model,
+                     'reply': provider.redactor.clean(response.content)[:100]}), flush=True)
+    return True
+
+
 def parser():
     p = argparse.ArgumentParser(prog="qra", description="Research Agent: offline Mock or trusted development profile")
     p.add_argument("--state-dir", type=Path, default=Path.cwd() / ".qra-state")
@@ -25,6 +68,8 @@ def parser():
     p.add_argument("--resources-manifest", type=Path)
     p.add_argument('--research-config',type=Path,help='Trusted operator configuration for reviewed quant tools and artifacts')
     p.add_argument("--prompt-key", action="store_true", help="Operator-only hidden prompt; never a Key command argument")
+    p.add_argument('--visible-key', action='store_true', help='Opt-in local terminal echo, then clear before continuing')
+    p.add_argument('--check-connection', action='store_true', help='One budgeted minimal API request before chat')
     commands = p.add_subparsers(dest="command", required=True)
     create = commands.add_parser("create")
     create.add_argument("goal")
@@ -56,6 +101,9 @@ def main(argv=None):
     args = parser().parse_args(argv)
     try:
         require_non_root()
+        if (args.visible_key or args.check_connection) and not (args.prompt_key and args.provider == 'deepseek'
+                and args.profile == 'development' and args.command == 'chat'):
+            raise Denied('KEY_DIAGNOSTICS_REQUIRE_PROMPTED_LIVE_CHAT')
         if args.command in {"paper-import", "paper-list"}:
             import base64
             from .contracts import parse_json
@@ -96,11 +144,13 @@ def main(argv=None):
             if args.prompt_key:
                 if args.provider != "deepseek" or args.profile != "development":
                     raise Denied("KEY_PROMPT_REQUIRES_LIVE_PROFILE")
-                secrets = MemorySecrets({"env:QRA_DEEPSEEK_API_KEY": getpass.getpass("DeepSeek Key (not echoed): ")})
+                secrets = MemorySecrets({"env:QRA_DEEPSEEK_API_KEY": prompt_credential(args.visible_key)})
             if args.command == "chat" and args.provider == "deepseek":
                 from .terminal import chat_loop
                 app = build_chat(args.state_dir, args.provider, profile=args.profile,
                                  resources_manifest=args.resources_manifest, secrets=secrets, session_id=args.resume,research_config=args.research_config)
+                if args.check_connection and not check_connection(app.provider):
+                    return 2
                 chat_loop(app)
                 return 0
             app = build(args.state_dir, args.provider, profile=args.profile, skill_id=args.skill,

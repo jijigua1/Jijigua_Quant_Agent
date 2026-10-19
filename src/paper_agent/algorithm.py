@@ -55,7 +55,7 @@ def design(task, client, ledger, *, max_revisions=None, out_dir=None):
               + f"\nFORMULA (Factor IR, rows of the daily panel): {render(contract['ir'])}\n"
               + "IR JSON: " + json.dumps(contract["ir"]) + "\n"
               + "WHY NOT THE 19-OPERATOR DSL: " + json.dumps(task["dsl"]["reasons"], ensure_ascii=False) + "\n"
-              + "DSL limits: fields open/high/low/close/volume only, rolling mean/std/rank/corr windows 1..60, history <= 120, no rolling max/min.\n"
+              + "DSL fields open/high/low/close/volume/amount; positive historical windows checked against actual published observations. Missing operators use the autonomous algorithm route without changing the definition.\n"
               + "Design the algorithm and write the module.")
     history, messages_extra = [], ""
     src = None

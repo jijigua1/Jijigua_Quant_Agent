@@ -46,7 +46,7 @@ def main():
     agent, agent_g = ids('quantagent')
     evaluator, evaluator_g = ids('quanteval')
     publisher, publisher_g = ids('quantpub')
-    base = Path('/srv/jijigua-quant-agent/v1beta_rolling/selftest') / stamp
+    base = Path('/var/lib/jijigua-quant-agent/v1beta_rolling/selftest') / stamp
     base.parent.mkdir(exist_ok=True)
     os.chmod(base.parent, 0o755)
     mkdir(base, 0, 0, 0o755)
@@ -80,7 +80,7 @@ def main():
     os.chown(base / 'evaluator.json', 0, evaluator_g)
     os.chmod(base / 'evaluator.json', 0o440)
     # 2. quantagent workspace with synthetic published Train/Validation releases.
-    ws = Path('/srv/jijigua-quant-agent/v1beta/selftest') / stamp
+    ws = Path('/var/lib/jijigua-quant-agent/v1beta/selftest') / stamp
     (ws.parent).mkdir(exist_ok=True)
     os.chown(ws.parent, agent, agent_g)
     os.chmod(ws.parent, 0o700)

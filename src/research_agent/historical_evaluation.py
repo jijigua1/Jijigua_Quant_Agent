@@ -66,12 +66,15 @@ for rid in c.records:
 p={k:pd.concat(v) for k,v in p.items()}
 d=json.loads((r/'code/factor_definition.json').read_text(encoding='utf-8'))
 params=json.loads((r/'manifest.json').read_text(encoding='utf-8'))['parameters']
-if d.get('kind') in ('approved_implementation','trusted_ir'):
+if d.get('kind') == 'isolated_python':
+ from paper_agent.algorithm_bundle import compute as isolated
+ f=isolated(d['bundle'],p)
+elif d.get('kind') in ('approved_implementation','trusted_ir'):
  from paper_agent.trusted_ir import evaluate
  f=evaluate(d['ir'],p,d['symbols'])
 else:
  f=compute(d['expression'],p,max_cells=8000000) if d.get('expression') is not None else build_factor(d['factor_id'],p['close'],p['volume'],d['lookback'],d['standardization'])
-if (d.get('expression') is not None or d.get('ir') is not None) and params['standardization']=='zscore':f=f.sub(f.mean(axis=1),axis=0).div(f.std(axis=1,ddof=1).replace(0,float('nan')),axis=0)
+if (d.get('expression') is not None or d.get('ir') is not None or d.get('kind') == 'isolated_python') and params['standardization']=='zscore':f=f.sub(f.mean(axis=1),axis=0).div(f.std(axis=1,ddof=1).replace(0,float('nan')),axis=0)
 expected=pd.read_csv(r/'data/factor_values.csv',index_col=0,parse_dates=True,float_precision='round_trip')
 pd.testing.assert_frame_equal(f,expected,check_names=False,check_freq=False,rtol=1e-12,atol=1e-12)
 print('Verified full-axis factor reproduction; no Holdout access or backtest approval.')

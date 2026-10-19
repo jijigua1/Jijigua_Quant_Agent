@@ -1,0 +1,51 @@
+{
+  "captured_on": "2026-10-20",
+  "production_snapshot": {
+    "files": 249,
+    "status": "PASS",
+    "declared_manifest_entries": 208,
+    "declared_manifest_status": "PASS"
+  },
+  "recovery_tests": {
+    "passed": 7,
+    "status": "PASS"
+  },
+  "clean_targeted_tests": {
+    "passed": 31,
+    "skipped": 1,
+    "status": "PASS",
+    "skip_reason": "Windows does not provide Unix fork/socketpair isolation"
+  },
+  "clean_environment_install": "PASS",
+  "wheel_build": "PASS",
+  "installed_offline_cli": "COMPLETED; synthetic Mock only; no API",
+  "public_source_audit": "PASS: no findings, no syntax failures, no broken links",
+  "private_exact_staging": "PASS: 249 original files verified before extraction",
+  "public_staging": "PASS: 255 release payload files",
+  "production_historical_tests": {
+    "count": 933,
+    "status": "developer deployment evidence; not rerun by this task"
+  },
+  "live_api_calls": 0,
+  "live_2026_evaluations": 0,
+  "server_modifications": "No production changes. A temporary download archive was created before the owner clarified read-only boundary; subsequent server operations were read-only. No remote cleanup.",
+  "full_public_regression": "Local coverage collected in groups; full CI pending push. Private fixtures and Linux-only operations explicitly skipped on Windows.",
+  "remaining_limitations": [
+    "Full target-server install/restore not executed: owner requires server read-only.",
+    "Private data/state/signing identity is outside GitHub and outside this code-only snapshot.",
+    "Exact deployed dependencies are recorded separately from previously security-reviewed public pins."
+  ],
+  "public_upload_tests": {
+    "passed": 41,
+    "skipped": 24,
+    "status": "PASS",
+    "note": "Historical client API absent in deployed tree explicitly excluded; formal client exercised"
+  },
+  "public_recovery_security_workflow_tests": {
+    "passed": 202,
+    "skipped": 76,
+    "status": "PASS"
+  },
+  "installed_factor_example": "PASS: installed package computed synthetic factor, verified PKL and produced HTML",
+  "pip_check": "PASS"
+}

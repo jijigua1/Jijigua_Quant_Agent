@@ -71,7 +71,10 @@ def select_rows(dates, close_counts, *, warmup=WARMUP_DAYS, today=None):
     test = [i for i in range(end) if dates[i] >= '20260101']
     if not test:
         raise SnapshotError('NO_2026_OBSERVATIONS')
-    before = [i for i in range(end) if '20240101' <= dates[i] < '20260101'][-warmup:]
+    if type(warmup) is not int or warmup < 1:
+        raise SnapshotError('WARMUP_BOUND')
+    history_start = '20200101' if warmup > WARMUP_DAYS else '20240101'
+    before = [i for i in range(end) if history_start <= dates[i] < '20260101'][-warmup:]
     if len(before) < warmup:
         raise SnapshotError('INSUFFICIENT_WARMUP_HISTORY')
     rows = before + test
@@ -138,9 +141,13 @@ def read_snapshot(target, *, expected_manifest_sha256, expected_uid=None, synthe
         raise SnapshotError('SYNTHETIC_REAL_MIXING_DENIED')
     dates = pd.to_datetime(m['dates'], format='%Y%m%d')
     codes = [c[:6] for c in m['codes']]
+    history = int((dates < pd.Timestamp('2026-01-01')).sum())
+    if type(m.get('warmup_rows')) is not int or m['warmup_rows'] != history or history < 1:
+        raise SnapshotError('HISTORY_SCOPE')
+    earliest = '2020-01-01' if history > WARMUP_DAYS else '2024-01-01'
     if (not dates.is_unique or not dates.is_monotonic_increasing or len(set(codes)) != len(codes)
             or len(dates) * len(codes) > 8_000_000 or str(dates.max().date()) != m['certified_end']
-            or dates.min() < pd.Timestamp('2024-01-01') or not (dates.year == 2026).any()):
+            or dates.min() < pd.Timestamp(earliest) or not (dates.year == 2026).any()):
         raise SnapshotError('AXES_OR_SCOPE')
     panels = {}
     for f in FIELDS:

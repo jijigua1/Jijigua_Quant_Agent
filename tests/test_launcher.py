@@ -6,11 +6,10 @@ from types import SimpleNamespace
 
 import pytest
 
-pytestmark = pytest.mark.skipif(os.name != 'posix', reason='POSIX privilege launcher requires grp/pwd')
-
 
 def load_launcher(monkeypatch):
     monkeypatch.setitem(sys.modules, "pwd", SimpleNamespace(getpwnam=lambda name: SimpleNamespace(pw_uid=1234, pw_gid=1234)))
+    monkeypatch.setitem(sys.modules, "grp", SimpleNamespace(getgrnam=lambda name: SimpleNamespace(gr_gid=1234)))
     path = Path(__file__).parents[1] / "deploy" / "launcher.py"
     spec = importlib.util.spec_from_file_location("tested_launcher", path)
     module = importlib.util.module_from_spec(spec)

@@ -16,8 +16,6 @@ from research_agent.llm import ModelResponse
 from test_v1beta_papers import FIX, LIVE, RATIONALE, PaperProvider, decision, paper_call, stage, studies
 from v1beta_fixtures import broker, build
 
-pytestmark = pytest.mark.skipif(not LIVE, reason='Original paper replay omitted from public archive; not claimed passed')
-
 COMPUTE = '''import numpy as np
 import pandas as pd
 
@@ -95,6 +93,15 @@ def patched_rolling(monkeypatch):
     from research_agent import rolling_client
     monkeypatch.setattr(rolling_client.RollingClient, 'from_environment', classmethod(lambda cls: holder.get('client') or cls()))
     return holder
+
+
+@pytest.fixture(autouse=True)
+def legacy_reviewed_pair_compatibility(monkeypatch):
+    # These I4 fixtures exercise the retained reviewed-pair fallback, including
+    # archived code approvals. I5 defaults to autonomous_python, covered by the
+    # calendar and path-dependent cases in test_autonomous_cli_pipeline.py.
+    from paper_agent import autonomous_route
+    monkeypatch.setattr(autonomous_route, 'eligible', lambda plan: False)
 
 
 def test_a_path_dependent_paper_factor_runs_as_a_reviewed_pair_and_is_honest_about_test(tmp_path, patched_rolling):

@@ -27,6 +27,8 @@ MAX_UPLOAD = 50 * 1024 ** 2
 
 
 def host_config():
+    if (HERE.parent/'.release_recovery_in_progress').exists():
+        raise SystemExit('Deployment transaction incomplete; restore it before starting another command')
     st = os.stat(HOST, follow_symlinks=False)
     if not stat.S_ISREG(st.st_mode) or st.st_uid != 0 or st.st_mode & 0o022:
         raise SystemExit('Launcher host configuration is not root-controlled')
@@ -56,6 +58,20 @@ def environment(h):
     if h.get('test_fault_injection') and '/v1beta/' not in h['root'] + '/':
         env['QRA_TEST_CORRUPT_JSON_ONCE'] = '1'          # pre-release staging only (root-owned host.json); never production
     return env
+
+
+def budget_environment(h):
+    """Only operator-pinned campaigns reach the CLI; chat never silently has no cumulative cap."""
+    budget=h.get('api_budget')
+    if not isinstance(budget,dict) or set(budget)!={'db','campaign'}:
+        raise SystemExit('API cumulative budget requires operator approval and host.json configuration')
+    db=Path(budget['db'])
+    campaign=budget['campaign']
+    if not db.is_absolute() or '..' in db.parts or not isinstance(campaign,str) or not re.fullmatch(r'[A-Za-z0-9._-]{1,80}',campaign):
+        raise SystemExit('Invalid operator API budget configuration')
+    # The dropped adapter checks the existing campaign and reserves atomically
+    # before HTTP. No campaign is created/reset by the launcher or Agent.
+    return {'QRA_API_BUDGET_DB':str(db),'QRA_API_BUDGET_CAMPAIGN':campaign}
 
 
 def paper_import(h, account, staged, name_b64, sha):
@@ -93,6 +109,31 @@ def main():
         raise SystemExit('Launcher identity denied')
     h = host_config()
     command = sys.argv[1:] or ['chat']
+    visible_key = command[0] == '--visible-key'
+    if visible_key:
+        command = command[1:] or ['chat']
+        if command[0] != 'chat':
+            raise SystemExit('--visible-key is available for chat only')
+    if command[0] == 'paper-transfer':
+        if os.geteuid() != 0:
+            raise SystemExit('paper-transfer requires the trusted operator account')
+        transfer = HERE / 'paper_transfer.py'
+        st = os.stat(transfer, follow_symlinks=False)
+        if not stat.S_ISREG(st.st_mode) or st.st_uid != 0 or st.st_mode & 0o022:
+            raise SystemExit('Transfer adapter is not root-controlled')
+        os.execve('/usr/bin/python3', ['/usr/bin/python3','-I','-B',str(transfer),*command[1:]],
+                  {'PATH':'/usr/bin:/bin','LANG':'C.UTF-8','TERM':os.environ.get('TERM','dumb')})
+    if command == ['paper-upload']:
+        if os.geteuid() != 0:
+            raise SystemExit('paper-upload requires the trusted operator account')
+        # Same directory, same host.json and same importer. No key prompt or
+        # evaluation broker is needed to receive a paper.
+        uploader=HERE/'terminal_paper_upload.py'
+        st=os.stat(uploader,follow_symlinks=False)
+        if not stat.S_ISREG(st.st_mode) or st.st_uid!=0 or st.st_mode&0o022:
+            raise SystemExit('Upload adapter is not root-controlled')
+        os.execve('/usr/bin/python3',['/usr/bin/python3','-I','-B',str(uploader),'upload'],
+                  {'PATH':'/usr/bin:/bin','LANG':'C.UTF-8','TERM':os.environ.get('TERM','dumb')})
     if command[0] == 'paper-import' and len(command) == 4:
         if os.geteuid() != 0:
             raise SystemExit('paper-import requires the trusted operator account')
@@ -108,21 +149,28 @@ def main():
         drop(account)
         args = agent_args(h, command)
         os.execve(args[0], args, env)
-    secret = os.environ.get('QRA_DEEPSEEK_API_KEY') or getpass.getpass('DeepSeek Key (not echoed): ')
-    if not secret:
+    env.update(budget_environment(h))
+    # Visible input is read by the CLI only after dropping identity. Its
+    # validation, clear-screen acknowledgement and budgeted diagnostic are shared
+    # with the acceptance client; no credential is copied into argv or env.
+    secret = None if visible_key else (os.environ.get('QRA_DEEPSEEK_API_KEY') or getpass.getpass('DeepSeek Key (not echoed): '))
+    if not visible_key and not secret:
         raise SystemExit('DeepSeek Key required')
+    if visible_key:
+        command = ['--prompt-key', '--visible-key', '--check-connection', *command]
     args = agent_args(h, command, chat=True)
+    agent_env = env if visible_key else env | {'QRA_DEEPSEEK_API_KEY': secret}
     rolling = h.get('rolling')
     if not rolling or os.geteuid() != 0:
         drop(account)
-        os.execve(args[0], args, env | {'QRA_DEEPSEEK_API_KEY': secret})
+        os.execve(args[0], args, agent_env)
     parent, child = socket.socketpair()
     pid = os.fork()
     if pid == 0:
         parent.close()
         os.set_inheritable(child.fileno(), True)
         drop(account)
-        os.execve(args[0], args, env | {'QRA_DEEPSEEK_API_KEY': secret, 'QRA_ROLLING_FD': str(child.fileno()),
+        os.execve(args[0], args, agent_env | {'QRA_ROLLING_FD': str(child.fileno()),
                                          'QRA_ROLLING_RECEIPTS': rolling['receipt_dir']})
     child.close()
     del secret

@@ -118,8 +118,6 @@ def run_study(backend, plan, *, ledger, implementation=None, factor_name, hypoth
     horizon = plan["choices"]["horizon"]["n"]
     t0 = time.time()
     if plan["route"] == "dsl":
-        if horizon > 10:
-            horizon = 10
         result = backend.expression_study(train, plan["dsl"]["expression"], hypothesis, reason, horizon, n_groups, "raw", ctx,
                                           factor_name=factor_name)
     else:

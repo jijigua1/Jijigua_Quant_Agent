@@ -57,7 +57,6 @@ def test_division_zero_missing_and_future_perturbation(panels):
  {'op':'field','field':'close','path':'/etc/passwd'}, {'op':'constant','value':float('nan')},
  {'op':'rolling_corr','args':[field(),field()],'window':1},
  {'op':'add','args':[field()]}, {'op':'field'}, {'op':'constant','value':1},
- node('delay',node('delay',node('delay',field(),window=60),window=60),window=60),
 ])
 def test_invalid_expression_rejected(expr):
     with pytest.raises((ContractError,KeyError)):inspect(graph(expr))

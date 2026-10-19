@@ -111,7 +111,7 @@ Python ≥ 3.11，加 PyMuPDF ≥ 1.23（PDF）、beautifulsoup4 ≥ 4.11（HTML
 不需要网络、GPU 或语言模型。在本机上，45 页的真实论文解析加抽取约 5–6 秒。
 
 ```powershell
-cd <LOCAL_RESEARCH_ROOT>\quant_toolkit
+cd /workspace/research\quant_toolkit
 python -X utf8 -m pytest tests/test_paper_research.py -v -W error::FutureWarning
 python -X utf8 examples/paper_example.py "D:\path\to\paper.pdf"     # 输出到 reports/paper_research/<name>/
 ```

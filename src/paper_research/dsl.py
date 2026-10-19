@@ -17,12 +17,12 @@ from .factor_ir import walk
 
 DSL_CATALOG = {
     "reference": "research_agent.factor_expression VERSION 1.0.0 (main Agent, 19 operators)",
-    "fields": ["open", "high", "low", "close", "volume"],
+    "fields": ["open", "high", "low", "close", "volume", "amount"],
     "leaf": ["field", "constant"],
     "unary": ["neg", "abs", "cs_rank", "cs_zscore"],
     "window": ["delay", "diff", "returns", "rolling_mean", "rolling_std", "rolling_rank"],
     "binary": ["add", "sub", "mul", "div", "min", "max", "rolling_corr"],
-    "limits": {"window_min": 1, "window_max": 60, "history_max": 120, "nodes_max": 40, "depth_max": 8,
+    "limits": {"window_min": 1, "window_max": None, "history_max": None, "nodes_max": 40, "depth_max": 8,
                "std_corr_window_min": 2},
     "semantics": {"rolling": "full window required (min_periods = window)", "cs_zscore": "ddof=1",
                   "rolling_std": "ddof=1", "div": "zero denominator -> NaN", "min/max": "element-wise, NOT rolling extrema",
@@ -91,10 +91,10 @@ def compile_ir(ir, field_map):
         op = node["op"]
         if op == "field":
             lag = node["lag"]["base"] + bind_shift
-            unit = (0, 1) if field_map[node["symbol"]] == "volume" else (1, 0)
+            unit = (0, 1) if field_map[node["symbol"]] == "volume" else (1, 1) if field_map[node["symbol"]] == "amount" else (1, 0)
             idx = b.add({"op": "field", "field": field_map[node["symbol"]]}, 1)
             if lag:
-                if lag > lim["window_max"]:
+                if lim["window_max"] is not None and lag > lim["window_max"]:
                     limit_reasons.append({"code": "WINDOW_ABOVE_LIMIT", "detail": f"lag {lag} > {lim['window_max']}"})
                 idx = b.add({"op": "delay", "args": [idx], "window": lag}, 2)
             return idx, lag, unit
@@ -107,7 +107,7 @@ def compile_ir(ir, field_map):
                 limit_reasons.append({"code": "WINDOW_BODY_NOT_UNIFORM", "detail": "every field in a window body must be indexed by the window variable"})
             w = node["end"] - node["start"] + 1
             inner, h, unit = emit(body, bind_shift + node["start"], 2)
-            if not lim["window_min"] <= w <= lim["window_max"]:
+            if w < lim["window_min"] or lim["window_max"] is not None and w > lim["window_max"]:
                 limit_reasons.append({"code": "WINDOW_ABOVE_LIMIT", "detail": f"window {w} outside {lim['window_min']}..{lim['window_max']}"})
             if op == "ts_std" and w < lim["std_corr_window_min"]:
                 limit_reasons.append({"code": "WINDOW_ABOVE_LIMIT", "detail": "std window must be >= 2"})
@@ -144,7 +144,7 @@ def compile_ir(ir, field_map):
     out, hist, _unit = emit(ir, 0, 1)
     # the DSL requires the output to be the last node and every node to be used: re-order by reachability
     nodes = _prune(b.nodes, out)
-    if hist > lim["history_max"]:
+    if lim["history_max"] is not None and hist > lim["history_max"]:
         limit_reasons.append({"code": "HISTORY_ABOVE_LIMIT", "detail": f"history {hist} > {lim['history_max']}"})
     if len(nodes) > lim["nodes_max"]:
         limit_reasons.append({"code": "TOO_MANY_NODES", "detail": f"{len(nodes)} > {lim['nodes_max']}"})

@@ -39,7 +39,8 @@ VERSION = "paper_agent.understanding/5"          # 2: time-index semantics, symb
 SEMANTIC_REPAIRABLE = {"LOOKBACK_READ_AS_LAG", "CUMULATIVE_READ_AS_SINGLE_PERIOD", "LAG_READ_AS_LOOKBACK", "LOOKBACK_WINDOW_MISMATCH",
                        "LOG_RETURN_READ_AS_SIMPLE", "EXPONENTIAL_READ_AS_MEAN", "EXPONENTIAL_SMOOTHING_MISSING",
                        "SKIP_PERIOD_MISSING", "CONSTANT_WITHOUT_SOURCE", "SYMBOL_NOT_IN_TABLE", "SYMBOL_DEFINITION_UNVERIFIED",
-                       "SYMBOL_UNDEFINED", "FIELD_MAPPING_UNSUPPORTED", "ALGORITHM_STEP_AMBIGUOUS"}
+                       "SYMBOL_UNDEFINED", "FIELD_MAPPING_UNSUPPORTED", "ALGORITHM_STEP_AMBIGUOUS",
+                       "WINDOW_LENGTH_CONTRADICTS_PAPER"}
 ALGO_VAGUE = re.compile(r"\boptional(?:ly)?\b|\bsome (?:sort|kind) of\b|\bor similar\b|\bapproximately\b|\bsuch as\b|\be\.g\.|"
                         r"\bfor example\b|\bsomehow\b|可选|大致|类似|例如|某种", re.I)
 FIELDS = ["open", "high", "low", "close", "volume", "amount", "returns", "market_cap", "other", "unknown"]
@@ -80,9 +81,10 @@ SYSTEM = """You are a careful quantitative-finance research reader. You read ONL
    "paper_tested" (several values, none singled out) | "unstated", "citations": [quotes that contain the numbers]}.
    NEVER invent or "standardise" a value (no "conventional 14 days", no "one year = 250"): if the passages do not give
    it, value null and status "unstated"; the program then asks the user. A program binds the value only if the number
-   is inside your quote. A count fixed by the calendar or data availability is NOT a parameter, even when the paper
-   gives it a symbol (e.g. D_{i,y} = "days with data in year y"): use its nominal length in the paper's period unit
-   and record that approximation in replication_notes.
+   is inside your quote. A count fixed by the calendar or data availability (e.g. D_{i,y} = "days with data in year y")
+   is NOT a fixed number: never replace it with a nominal length (no "250 days"). Keep its symbol in the formula and
+   list it in "parameters" with value null, status "unstated" and a meaning that states what it counts (e.g. "number
+   of days with data for stock i in year y"); the program decides how such a window can be computed.
    If a symbol is itself a windowed quantity defined in words (e.g. "highest price over the past 12 months") you may
    keep it as a symbol in the formula and describe it in "symbols" with kind "window_aggregate".
    formula_status: "stated_in_paper" (the paper prints it), "restated_from_prose" (you translated the paper's words),
@@ -195,10 +197,9 @@ def understand(evidence, client, ledger, *, focus="", budget_chars=24000, max_to
             "- an average over a window is written \\operatorname{mean}_{k=0}^{M}(X_{i,t-k}) (do not write 1/M times a sum);\n"
             "- a count the paper itself names with a symbol (N, \\tau, X, lead) STAYS that symbol: the program binds it from the "
             "parameters you cited, or asks the user. Never replace it with a number the paper does not give;\n"
-            "- a count fixed by the calendar or by data availability is NOT a parameter even if the paper gives it a symbol "
-            "(e.g. D_{i,y} = 'number of days with data for stock i in year y'): it becomes its nominal length in the "
-            "paper's period unit: one year of daily data = 250 trading days (M = 249), one month of daily data = 21 (M = 20), "
-            "one year of weekly data = 52 weeks (M = 51), one year of monthly data = 12 (M = 11);\n"
+            "- a count fixed by the calendar or by data availability (e.g. D_{i,y} = 'number of days with data for stock i in "
+            "year y') is NOT a fixed number: never replace it with a nominal length such as 250 trading days. Keep the symbol "
+            "and list it in parameters with value null, status \"unstated\" and a meaning that says what it counts;\n"
             "- write lags as X_{i,t-k}.\n"
             "State which unit M and every lag count: window_unit = \"paper_period\" if they count the paper's own periods "
             f"({freq} observations), or \"trading_day\" if they count trading days. Use one unit for the whole formula.\n"
@@ -233,6 +234,7 @@ def understand(evidence, client, ledger, *, focus="", budget_chars=24000, max_to
     verified["focus"] = focus or ""
     # the AI's first reading and its final one (re-verified later with values the user types, e.g. "N=20")
     verified["reading"] = {"initial": initial, "final": raw}
+    verified["user_parameters"] = dict(raw.get("_user_params") or {})   # the values this reading was verified with
     return verified
 
 
@@ -241,9 +243,10 @@ def reverify(understanding, evidence, user_params):
     raw = json.loads(json.dumps((understanding.get("reading") or {}).get("final") or {}))
     if not raw.get("factors"):
         return understanding
-    raw["_user_params"] = dict(raw.get("_user_params") or {}, **user_params)
+    raw["_user_params"] = dict(user_params)        # exactly the given values: a value typed in another session never carries over
     out = verify(raw, evidence, raw["_user_params"])
-    for k in ("formula_repairs", "investigations", "semantic_repairs", "model_record", "context_passages"):
+    for k in ("formula_repairs", "investigations", "semantic_repairs", "model_record", "context_passages", "focus",
+              "program_sha256"):
         if k in understanding:
             out[k] = understanding[k]
     out["reading"] = {"initial": (understanding.get("reading") or {}).get("initial"), "final": raw}
@@ -251,8 +254,27 @@ def reverify(understanding, evidence, user_params):
     return out
 
 
+from .printed import CONDITIONAL  # noqa: E402 -- C6 wrote the word-boundary escapes as backspace characters here, so if/else never matched
+
 SECOND_SCHEMA = {"type": "object", "required": ["formula_latex"], "properties": {
     "formula_latex": {"type": "string"}, "parameters": {"type": "array"}, "symbols": {"type": "array"}}}
+
+
+def second_ir(second, evidence, user_params):
+    """(IR, None) when the program can read the independent reading, else (None, reason)."""
+    from paper_research.factor_ir import IRError, parse_formula
+    from .reconcile import bind_parameters
+    if second.get("error"):
+        return None, second["error"]
+    latex, _, conf = bind_parameters(second.get("formula_latex") or "", second.get("parameters"),
+                                     lambda cits: _cites(evidence, cits)[0], user_params, (), report_undeclared=False)
+    blocking = [c for c in conf if c["blocking"]]
+    if blocking:
+        return None, blocking[0]["code"] + ": " + str(blocking[0].get("detail") or "")[:160]
+    try:
+        return parse_formula(latex)["ir"], None
+    except IRError as e:
+        return None, f"{e.code}: {e.detail}"
 
 
 def _second_readings(raw, verified, evidence, client, ledger, focus):
@@ -289,6 +311,21 @@ def _second_readings(raw, verified, evidence, client, ledger, focus):
                                 max_tokens=1500, user=user)
             second = {"formula_latex": obj.get("formula_latex"), "parameters": obj.get("parameters") or [],
                       "symbols": [s for s in obj.get("symbols") or [] if isinstance(s, dict)], "record": rec["record"]}
+            _, err = second_ir(second, evidence, raw.get("_user_params"))
+            if err:
+                # the program cannot read this notation: ask the SAME independent reader once to re-express the same
+                # mathematics (it still never sees the first reading); the first answer is kept in the record
+                retry = (user + "\n\nYOUR PREVIOUS ANSWER (the program could not read it: " + err[:200] + "):\n"
+                         + json.dumps({k: second[k] for k in ("formula_latex", "parameters")}, ensure_ascii=False)[:1500]
+                         + "\n\nRewrite the SAME mathematics in the program's notation: every input indexed by its lag from the "
+                         "observation date t (x_{i,t-k}); windows written \\operatorname{mean}_{k=0}^{n-1}(...) or \\sum_{k=0}^{n-1}(...) "
+                         "with the window count as a named parameter or a number from your quotes; the most recent input at t "
+                         "(no future index such as t+k); no function notation y(i). Do not change the definition.")
+                obj2, rec2 = ask_json(client, ledger, purpose="independent_reading", system=SYSTEM, schema=SECOND_SCHEMA,
+                                      max_tokens=1500, user=retry)
+                second = {"formula_latex": obj2.get("formula_latex"), "parameters": obj2.get("parameters") or [],
+                          "symbols": [s for s in obj2.get("symbols") or [] if isinstance(s, dict)], "record": rec2["record"],
+                          "first_attempt": {"formula_latex": second["formula_latex"], "record": second["record"], "error": err}}
         except ModelFailure as e:
             second = {"error": e.code}
         raw.setdefault("_second_readings", {})[f["name"]] = second
@@ -547,6 +584,45 @@ def verify(raw, evidence, user_params=None):
             item["formula"]["status"] = "UNKNOWN"
         if (not latex and item["formula"]["status"] != "ALGORITHM") or item["formula"]["status"] in ("UNKNOWN", "UNVERIFIED"):
             conf.append({"code": "FORMULA_NOT_ESTABLISHED", "detail": "no verified formula for this factor", "blocking": True})
+        found = None
+        if ir is not None:
+            # the paper's OWN definition of this factor, read by the program (not the model's chosen quote): its printed
+            # expression and every text that may modify it (Codex F01 / C7-C11 counterexamples; recovery design A)
+            from .printed import check as printed_check
+            from .reconcile import field_map as _field_map
+            others = []
+            for x in (f.get("symbols") or []) + (f.get("parameters") or []):
+                others += _cites(evidence, x.get("citations") if isinstance(x, dict) else None)[0]
+            fname = item["name"] or ""
+            aliases = [fname, re.split(r"\s*[(（]", fname)[0]] + re.findall(r"[(（]\s*([A-Za-z][\w#+-]{1,12})\s*[)）]", fname)
+            pconf, found = printed_check(evidence, fname, fgood, item["verbal_definition"].get("citations") or [], others,
+                                         aliases, ir, _field_map(f.get("symbols")))
+            conf += pconf
+            if found:
+                raw.setdefault("_conditional", {})[fname] = found[:300]
+        if latex and item["formula"]["status"] != "ALGORITHM" and not any(c["code"] == "CALENDAR_WINDOW_UNSUPPORTED" for c in conf):
+            # a window counted in calendar days with data (Amihud's D_iy), read from the paper itself near the cited passages
+            # and from the reader's own words: no fixed number of days may stand in for it (C6R4)
+            from .reconcile import CALENDAR_COUNT, calendar_window_conflict
+            near = set()
+            for c in list(fgood) + list(item["verbal_definition"].get("citations") or []):
+                m = re.fullmatch(r"P(\d+)", str(c.get("passage") or ""))
+                if m:
+                    near.update(f"P{j:04d}" for j in range(int(m.group(1)), int(m.group(1)) + 3))
+            texts = [(evidence.by_id.get(p) or {}).get("text") or "" for p in sorted(near)]
+            texts += [str(x.get("meaning") or "") for x in (f.get("parameters") or []) + (f.get("symbols") or []) if isinstance(x, dict)]
+            texts += [json.dumps(n, ensure_ascii=False) for n in raw.get("replication_notes") or [] if isinstance(n, dict)]
+            hit = next((m.group(0) for m in (CALENDAR_COUNT.search(t) for t in texts) if m), None)
+            if hit:
+                conf.append(calendar_window_conflict(hit))
+        if ir is not None and (found or (raw.get("_conditional") or {}).get(item["name"] or "")):
+            # the paper prints a conditional (a ? b : c, if/else) and the trusted IR has no conditional operator: any
+            # rewrite (sign, max ...) is a different formula the program cannot prove equal (Round C E01 Alpha#23:
+            # "? -delta(high,2) : 0" became sign(high - mean)*(-delta), which is +delta where the paper has 0); once
+            # found, it stays for every later reading, retry or re-expression of the same factor
+            conf.append({"code": "CONDITIONAL_NOT_REPRESENTABLE", "blocking": True,
+                         "detail": "论文公式含有条件运算（如 a ? b : c），可信IR没有条件运算符；模型的改写无法证明与原文相同，"
+                                   "不执行。可改走新算法代码审批，或由用户给出不含条件的明确定义"})
         # compare with a formula the deterministic layer rebuilt itself (same symbols must match)
         if ir is not None:
             v03 = [x for x in spec["formulas"] if x["status"] == "extracted" and x.get("latex")]
@@ -646,22 +722,34 @@ def verify(raw, evidence, user_params=None):
                 conf.append({"code": "FORMULA_RECONSTRUCTION_UNVERIFIED", "blocking": True, "pages": pages,
                              "detail": f"原文第{pages}页的公式程序无法读取，本次公式由 AI 依据文字重建，尚未经过独立复核"})
             else:
-                s_ir, s_err = None, second.get("error")
-                if not s_err:
-                    s_latex, _, s_conf = bind_parameters(second.get("formula_latex") or "", second.get("parameters"),
-                                                         lambda cits: _cites(evidence, cits)[0], user_params, (),
-                                                         report_undeclared=False)
+                # both reconstructions are of the PAPER's formula: a value the user typed over one the paper states is
+                # applied after this check (offline probe 10-17: MACD N_fast=8 vs a second reading writing 12 inline)
+                from .reconcile import _canon
+                overridden = {_canon(q["symbol"]) for q in params if q.get("status") == "USER" and q.get("paper_values")}
+                cmp_user = {k: v for k, v in (user_params or {}).items() if _canon(k) not in overridden}
+                ir_cmp = ir
+                if overridden:
                     try:
-                        s_ir = parse_formula(s_latex)["ir"] if not any(c["blocking"] for c in s_conf) else None
-                    except IRError as e:
-                        s_err = f"{e.code}: {e.detail}"
-                cmp = formulas_agree(ir, field_map(syms), s_ir, field_map(second.get("symbols"))) if s_ir is not None else None
+                        ir_cmp = parse_formula(bind_parameters(written, f.get("parameters"), lambda cits: _cites(evidence, cits)[0],
+                                                               cmp_user, data_syms)[0])["ir"]
+                    except IRError:
+                        ir_cmp = None
+                s_ir, s_err = second_ir(second, evidence, cmp_user)
+                cmp = formulas_agree(ir_cmp, field_map(syms), s_ir, field_map(second.get("symbols")))                     if s_ir is not None and ir_cmp is not None else None
                 item["formula"]["independent_reading"] = {"latex": second.get("formula_latex"), "record": second.get("record"),
-                                                          "comparison": cmp, "error": s_err}
-                if not cmp or not cmp.get("agree"):
+                                                          "comparison": cmp, "error": s_err,
+                                                          "first_attempt": second.get("first_attempt"),
+                                                          "compared_with_paper_values_for": sorted(overridden)}
+                if cmp is None:
+                    # the second reading could not be compared (notation, evaluation): unverified, NOT a disagreement
+                    conf.append({"code": "FORMULA_RECONSTRUCTION_UNVERIFIED", "blocking": True, "pages": pages,
+                                 "detail": f"原文第{pages}页的公式程序无法读取；第二次独立重建程序也无法读取或计算"
+                                           f"（{(s_err or '无法计算')[:120]}），两次读数无法比较。本次公式由 AI 依据文字重建，"
+                                           "尚未经过独立复核，请对照原文公式页确认"})
+                elif not cmp.get("agree"):
                     conf.append({"code": "FORMULA_READINGS_DISAGREE", "blocking": True, "pages": pages,
                                  "detail": (f"原文第{pages}页的公式程序无法读取。两次独立重建结果"
-                                            + ("不一致" if cmp else "无法比较") + f"：①{latex} ②{second.get('formula_latex') or s_err}"
+                                            + "不一致" + f"：①{latex} ②{second.get('formula_latex') or s_err}"
                                             + (f"（合成数据上最大差 {cmp['max_abs_diff']:.3g}）" if cmp and cmp.get("max_abs_diff") is not None else "")
                                             + "。请对照原文公式页确认正确定义")})
         claims = {(c.get("issue"), c.get("symbol")): c for c in (raw.get("_claims") or {}).get(item["name"] or "", [])}

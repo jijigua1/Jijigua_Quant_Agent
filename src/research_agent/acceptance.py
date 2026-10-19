@@ -53,6 +53,9 @@ def _quant_research(plan, experiments, *, skill_id, goal=''):
     if any(x.get('mode') not in {'real_data','synthetic'} or not x.get('data_sha256') for x in evidence):
         raise ContractError('quant acceptance requires actual computation or readiness evidence')
     studies=[x for x in evidence if x.get('study_id')]
+    if any(x.get('completion_policy')=='controlled_2026_test' and
+           (x.get('final_report_ready') is not True or x.get('research_status')!='COMPLETED') for x in studies):
+        raise ContractError('FORMAL_RESEARCH_REQUIRES_VERIFIED_TEST')
     if any(x.get('delivery_status')!='VERIFIED' for x in studies if 'factor_export' in x or x.get('implementation_version') in ('0.3.0','0.4.0')):
         raise ContractError('new factor delivery requires verified PKL')
     if any(x.get('splits',{}).get('test')!='sealed' or x.get('formal_backtest_ready') is not False for x in studies):

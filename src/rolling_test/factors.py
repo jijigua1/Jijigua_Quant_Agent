@@ -7,7 +7,7 @@ model-written implementation is NOT executed here; its study already proved cell
 import hashlib
 import json
 
-KINDS = ('fixed', 'expression', 'ir')
+KINDS = ('fixed', 'expression', 'ir', 'isolated_python')
 
 
 def fingerprint(value):
@@ -24,9 +24,14 @@ def frozen_from_study(analysis, definition):
         raise ValueError('STUDY_MODE_UNKNOWN')
     common = dict(horizon=int(params['horizon']), n_groups=int(params['n_groups']),
                   standardization=params['standardization'], lag=1, direction=1)
-    if not 1 <= common['horizon'] <= 10 or not 2 <= common['n_groups'] <= 5 or common['standardization'] not in ('raw', 'zscore'):
+    if common['horizon'] < 1 or common['n_groups'] < 2 or common['standardization'] not in ('raw', 'zscore'):
         raise ValueError('STUDY_PARAMETERS_OUT_OF_CONTRACT')
-    if definition.get('kind') == 'approved_implementation':
+    if definition.get('kind') == 'isolated_python':
+        from paper_agent.algorithm_bundle import validate
+        contract = validate(definition['bundle'])
+        spec = dict(kind='isolated_python', bundle=definition['bundle'], warmup=contract['warmup'],
+                    implementation_sha256=definition['bundle']['source_sha256'])
+    elif definition.get('kind') == 'approved_implementation':
         if not isinstance(definition.get('ir'), dict) or not isinstance(definition.get('symbols'), dict):
             raise ValueError('APPROVED_DEFINITION_WITHOUT_TRUSTED_IR')
         spec = dict(kind='ir', ir=definition['ir'], symbols=definition['symbols'],
@@ -68,6 +73,9 @@ def compute(frozen, panels):
     if d['kind'] == 'expression':
         from research_agent.factor_expression import FIELDS, compute as dsl
         out = dsl(d['expression'], {k: v for k, v in panels.items() if k in FIELDS}, max_cells=8_000_000)
+    elif d['kind'] == 'isolated_python':
+        from paper_agent.algorithm_bundle import compute as isolated
+        out = isolated(d['bundle'], panels)
     elif d['kind'] == 'ir':
         from paper_agent.trusted_ir import evaluate
         from paper_research.factor_ir import IRError, semantics_of

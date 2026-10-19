@@ -23,6 +23,8 @@ from paper_research.factor_ir import IRError, fields_used, parse_formula, render
 from paper_research.formulas import build_formula
 from paper_research.task import FREQ_WORDS, PERIODS, interpret_definition
 
+INTRADAY = re.compile(r"intra-?day|daily (?:high|low)s?\b|(?:high|low) of (?:the|each) (?:day|trading day)|"
+                      r"日内最高|日内最低|日最高价|日最低价|盘中最高|盘中最低", re.I)
 DAYS_WORDS = r"\b(?:\d+|[A-Z])\s+(?:trading\s+)?days\b|\bdaily\b|日线|日频|交易日|每日|\d+\s*日"
 
 from .ledger import sha256_obj
@@ -72,6 +74,9 @@ def _augment_spec(spec, fac, evidence):
                     and det["base"] != field and field in words and re.search(words[field], quote, re.I) and sym.get("meaning"):
                 text = sym["meaning"]
             defined[sym["symbol"]] = {"definition": text, "block_id": sym["citations"][0]["block_id"], "quote": quote}
+        elif fac["formula"].get("status") == "USER":
+            # a user's formula names published fields directly: the user, not a paper quote, defines them
+            defined[sym["symbol"]] = {"definition": f"published field {sym.get('data_field')} (user formula)", "block_id": blk}
     out_sym = parse_formula(latex)["output"]
     if out_sym:
         defined.setdefault(out_sym, {"definition": "left-hand side (quantity defined by this formula)", "block_id": blk})
@@ -116,6 +121,10 @@ def _augment_spec(spec, fac, evidence):
     # verbatim and that itself names the frequency (live J1: RSI "X days" -> daily). The quote is the evidence; nothing
     # is admitted without it (A/B D03u was blocked on "data frequency" although the user had given X).
     freq = fac.get("frequency") or {}
+    if fac["formula"].get("status") == "USER":
+        # a user's formula counts trading-day rows; the paper's frequency describes the paper's formula, not this one
+        s["A_supported"]["frequency"] = [{"field": "frequency", "status": "supported", "confidence": "high", "evidence": [],
+                                          "value": "daily (the user's formula is written in trading-day rows)"}]
     if not s["A_supported"].get("frequency") and freq.get("status") == "PAPER":
         value = (freq.get("value") or "").lower()
         for c in freq.get("citations") or []:
@@ -269,7 +278,7 @@ def _algorithm_plan(spec, fac, data_profile, freq, hard, substitutions, notes, a
     if not inputs and not hard:
         hard.append({"code": "ALGORITHM_WITHOUT_INPUTS", "detail": "no published input field"})
     period_rows = ROWS_PER.get(freq)
-    h = min(horizon_days or (period_rows or 1), 10)
+    h = horizon_days or (period_rows or 1)
     choices = {"label_lag": 1, "splits": data_profile["splits"], "independent_test": None, "data_certification": data_profile["certification"],
                "horizon": {"n": h, "unit": "trading_day"}}
     substitutions += [
@@ -373,7 +382,9 @@ def plan(evidence, understanding, data_profile, *, factor=None, horizon_days=Non
                                       + "），按A股个股研究；若该因子实际针对上述资产，请回复“拒绝”"})
     for c in fac["conflicts"]:
         if c["code"] == "PARAMETER_CHOSEN_NOT_IN_PAPER":
-            user = [p for p in fac.get("parameters") or [] if p.get("status") == "USER"]
+            user = [p for p in fac.get("parameters") or [] if p.get("status") == "USER" and not p.get("paper_values")]
+            if not user and any(p.get("status") == "USER" for p in fac.get("parameters") or []):
+                continue                # only overrides of stated values: disclosed below with the paper's own values
             substitutions.append({"item": "参数选择", "kind": "parameter_choice",
                                   "paper": "原文没有给出该数值" + ("（论文把它留作自由参数）" if user else ""),
                                   "ours": ("用户指定：" + "、".join(f"{p['symbol']}={p['value']}" for p in user)) if user else c["detail"]})
@@ -385,9 +396,33 @@ def plan(evidence, understanding, data_profile, *, factor=None, horizon_days=Non
                                   "paper": "原文未给出收益的明确定义", "ours": c["detail"]})
     # every value the user typed is shown as the user's choice, wherever it is used (formula or a derived symbol)
     user = [p for p in fac.get("parameters") or [] if p.get("status") == "USER"]
+    from .reconcile import _canon
+    bound = {_canon(p["symbol"]) for p in user}
+    unmatched = {k: v for k, v in (understanding.get("user_parameters") or {}).items() if _canon(k) not in bound}
+    if unmatched:
+        # never ignored and never guessed onto another symbol (offline probe 10-17: MACD "N=8" ran 12/26 unchanged)
+        names = "、".join(p["symbol"] for p in fac.get("parameters") or [] if p.get("symbol")) or "无"
+        hard.append({"code": "USER_PARAMETER_NOT_IN_DEFINITION", "symbol": ",".join(unmatched),
+                     "detail": "你指定的 " + "、".join(f"{k}={v}" for k, v in unmatched.items()) + " 不对应该因子定义中的任何参数"
+                               f"（本因子的参数：{names}）；程序不会忽略它，也不会猜测对应关系。请用这些参数名重新指定。"})
     if user and not any(s["kind"] == "parameter_choice" and s["ours"].startswith("用户指定") for s in substitutions):
         substitutions.append({"item": "参数选择", "kind": "parameter_choice", "paper": "原文没有给出该数值（论文把它留作自由参数）",
-                              "ours": "用户指定：" + "、".join(f"{p['symbol']}={p['value']}" for p in user)})
+                              "ours": "用户指定：" + "、".join(f"{p['symbol']}={p['value']}" for p in user if not p.get("paper_values"))})
+    over = [p for p in user if p.get("paper_values")]
+    if over:
+        # the user replaced a value the paper states: a different definition, said as such (not "the paper gives none")
+        substitutions = [s for s in substitutions if not (s["kind"] == "parameter_choice" and s["ours"] == "用户指定：")]
+        substitutions.append({"item": "参数取值（用户改动论文取值）", "kind": "parameter_choice",
+                              "paper": "原文取值：" + "、".join(f"{p['symbol']}={'/'.join(map(str, p['paper_values']))}" for p in over),
+                              "ours": "用户指定：" + "、".join(f"{p['symbol']}={p['value']}" for p in over)
+                                      + "（与论文定义不同，不是论文复现）"})
+    uv = fac.get("user_version")
+    if uv:
+        horizon_days = uv.get("horizon_days") or horizon_days
+        substitutions.append({"item": f"用户定制定义 v{uv['n']}（不是论文复现）", "kind": "user_definition",
+                              "paper": "论文定义：" + (uv.get("paper_formula") or "（论文未给出可执行公式）"),
+                              "ours": "用户修改：" + (uv.get("changes_cn") or "")
+                                      + (f"；预测期 {uv['horizon_days']} 个交易日" if uv.get("horizon_days") else "")})
     freq = _freq(fac, spec)
     # ---------------- choose the formula source: the layout-rebuilt v0.3 formula if it matches, else the model's
     spec_used, factor_name = spec, None
@@ -465,18 +500,31 @@ def plan(evidence, understanding, data_profile, *, factor=None, horizon_days=Non
             except (IRError, ValueError) as exc:
                 hard.append({"code": "DERIVATION_UNPARSEABLE", "symbol": name, "detail": f"{s['derivation_latex']}: {exc}"})
                 continue
-            missing = [x for x in inner if (syms.get(x) or {}).get("data_field") not in published]
+            # an inner name that IS a published field (close_{i,t-k}, volume_{i,t}) and is not redeclared as a symbol maps
+            # to itself, as in a top-level formula (live J3 Huatai: "A needs ['close'] ... not mapped to published fields")
+            field_of = lambda x: (syms[x].get("data_field") if x in syms else (x if x in published else None))
+            missing = [x for x in inner if field_of(x) not in published]
             if missing:
                 hard.append({"code": "SYMBOL_UNDEFINED", "symbol": name,
                              "detail": f"{name} = {s['derivation_latex']} 需要 {missing}，它们没有映射到已发布字段"})
                 continue
             symbol_map[name] = {"derive": _rhs(s["derivation_latex"])}
             for x in inner:
-                extra[x] = syms[x]["data_field"]
+                extra[x] = field_of(x)
+            continue
+        if kind == "derived":
+            # no definition: the quantity cannot be stood in for by its data_field (live A/B 2026-10-17 D03u: RS -> close)
+            hard.append({"code": "SYMBOL_UNDEFINED", "symbol": name,
+                         "detail": f"{name}（{(s.get('meaning') or '')[:100]}）是论文定义的派生量，但没有可计算的定义式，不能直接映射为 {field}"})
             continue
         if kind == "window_aggregate":
             base = price_symbol or "P"
-            if field in ("high", "low"):                      # maximum of daily highs / minimum of daily lows
+            # intraday highs/lows only when the paper says so in this symbol's own verified quotes; "the highest price
+            # during the 12-month period" with no basis uses the formula's own price series (live recheck D09: the series
+            # followed the model's word choice, intraday highs in 2 of 3 runs)
+            quoted = " ".join(c.get("quote") or "" for c in s.get("citations") or [])
+            intraday = field in ("high", "low") and INTRADAY.search(quoted)
+            if intraday:                                      # maximum of daily highs / minimum of daily lows
                 base = {"high": "H", "low": "L"}[field]
                 extra[base] = field
             derive, why = _derive_window(s, base, freq)
@@ -487,9 +535,11 @@ def plan(evidence, understanding, data_profile, *, factor=None, horizon_days=Non
             if base not in syms and base not in symbol_map and base not in extra:
                 extra[base] = "close"
             basis = (s.get("price_basis") or "unstated")
-            substitutions.append({"item": f"{name}: price basis of the {s.get('aggregate')}", "paper": basis,
-                                  "ours": {"high": "daily intraday high prices inside the window",
-                                           "low": "daily intraday low prices inside the window"}.get(field, "daily closing prices inside the window"),
+            ours = ({"high": "daily intraday high prices inside the window (stated in the paper)",
+                     "low": "daily intraday low prices inside the window (stated in the paper)"}[field] if intraday else
+                    "daily closing prices inside the window -- the same series as the formula's price"
+                    + ("; the paper does not say intraday, so daily highs/lows are not used" if field in ("high", "low") else ""))
+            substitutions.append({"item": f"{name}: price basis of the {s.get('aggregate')}", "paper": basis, "ours": ours,
                                   "kind": "price_basis"})
         elif field == "returns" and "returns" not in published:
             symbol_map[name] = {"derive": r"\frac{C_{i,t}}{C_{i,t-1}} - 1"}
@@ -558,10 +608,9 @@ def plan(evidence, understanding, data_profile, *, factor=None, horizon_days=Non
         substitutions.append({"item": "frequency", "paper": freq, "ours": f"daily rows ({rows} trading days per period), factor evaluated every day",
                               "kind": "frequency_conversion"})
     hold = fac["holding_period"]["value"] or ""
-    # the Agent's evaluation (research_metrics) accepts label horizons of 1..10 observation days; a non-daily paper keeps
-    # one paper period as the label (weekly -> 5, monthly and longer -> capped at 10)
+    # Preserve the requested label horizon; feasibility comes from the actual published sample.
     period_rows = ROWS_PER.get(freq)
-    h = min(horizon_days or (period_rows or 1), 10)
+    h = horizon_days or (period_rows or 1)
     choices["horizon"] = {"n": h, "unit": "trading_day"}
     notes.append(f"evaluation label: next-open to open return over {h} trading days (paper holding period: {hold or 'unstated'})")
     m = re.match(r"\s*(\d+|one)\s*(trading\s*)?days?\b", hold, re.I)
@@ -569,7 +618,7 @@ def plan(evidence, understanding, data_profile, *, factor=None, horizon_days=Non
     # stated and different -> confirmable substitution; unstated -> host choice kept in notes (shown at decisions)
     if period_rows or (hold and not hold.lower().startswith("unstated") and not same):
         substitutions.append({"item": "evaluation horizon", "paper": hold or "unstated",
-                              "ours": f"{h}-trading-day forward open-to-open return (the Agent's evaluator supports 1-10 days)",
+                              "ours": f"{h}-trading-day forward open-to-open return",
                               "kind": "evaluation_method"})
     if fac["portfolio_rules"]["value"] and not str(fac["portfolio_rules"]["value"]).lower().startswith("unstated"):
         substitutions.append({"item": "portfolio rules", "paper": fac["portfolio_rules"]["value"],
@@ -672,7 +721,8 @@ def decision_question(plan):
     h = ((plan.get("choices") or {}).get("horizon") or {}).get("n")
     if h:
         parts.append(f"{h}日预测期")
-    return f"该论文需要使用{'、'.join(parts) or '以下替代口径'}进行探索性研究，是否继续？"
+    who = "用户定制定义" if "user_definition" in kinds else "该论文"     # a user's version is not the paper's requirement
+    return f"{who}需要使用{'、'.join(parts) or '以下替代口径'}进行探索性研究，是否继续？"
 
 
 def decision_text(plan):

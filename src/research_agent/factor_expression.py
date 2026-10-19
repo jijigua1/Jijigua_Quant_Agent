@@ -4,14 +4,14 @@ import math
 from .contracts import ContractError, fingerprint, object_schema, validate
 
 VERSION = '1.0.0'
-FIELDS = ('open', 'high', 'low', 'close', 'volume')
+FIELDS = ('open', 'high', 'low', 'close', 'volume', 'amount')
 UNARY = {'neg', 'abs', 'cs_rank', 'cs_zscore'}
 WINDOW = {'delay', 'diff', 'returns', 'rolling_mean', 'rolling_std', 'rolling_rank'}
 BINARY = {'add', 'sub', 'mul', 'div', 'min', 'max', 'rolling_corr'}
 OPS = ('field', 'constant', *sorted(UNARY | WINDOW | BINARY))
 NODE = object_schema({'op': {'enum': list(OPS)}, 'field': {'enum': list(FIELDS)},
     'value': {'type': 'number', 'minimum': -1e6, 'maximum': 1e6},
-    'window': {'type': 'integer', 'minimum': 1, 'maximum': 60},
+    'window': {'type': 'integer', 'minimum': 1},
     'args': {'type': 'array', 'maxItems': 2, 'items': {'type':'integer','minimum':0,'maximum':39}}}, required=['op'])
 SCHEMA = object_schema({'nodes':{'type':'array','minItems':1,'maxItems':40,'items':NODE},
     'output':{'type':'integer','minimum':0,'maximum':39}})
@@ -37,7 +37,7 @@ def inspect(expression):
                 keys.add('window')
         if set(node) != keys or len(node.get('args', [])) != arity:
             raise ContractError('expression operator arguments invalid')
-        if 'window' in keys and (type(node.get('window')) is not int or not 1 <= node['window'] <= 60):
+        if 'window' in keys and (type(node.get('window')) is not int or node['window'] < 1):
             raise ContractError('window must be a positive historical offset')
         if op in {'rolling_std', 'rolling_corr'} and node['window'] < 2:
             raise ContractError('dispersion requires window >= 2')
@@ -48,9 +48,7 @@ def inspect(expression):
         if depth>8:raise ContractError('expression depth budget exceeded')
         history = max((histories[x] for x in args), default=0)
         history += node.get('window', 0) - (1 if op.startswith('rolling_') else 0)
-        if history > 120:
-            raise ContractError('expression history budget exceeded')
-        if op=='field':unit=(0,1) if node['field']=='volume' else (1,0)
+        if op=='field':unit=(0,1) if node['field']=='volume' else (1,1) if node['field']=='amount' else (1,0)
         elif op=='constant':unit=(0,0)
         elif op in {'returns','cs_rank','cs_zscore','rolling_rank','rolling_corr'}:unit=(0,0)
         elif op in {'mul','div'}:

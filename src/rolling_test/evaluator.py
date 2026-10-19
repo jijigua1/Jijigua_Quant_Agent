@@ -47,9 +47,9 @@ def _check(request):
     f = request['frozen']
     if f.get('kind') not in KINDS or fingerprint(f) != request['definition_sha256']:
         raise EvaluationDenied('FROZEN_DEFINITION_MISMATCH')
-    if f['lag'] != 1 or f['direction'] != 1 or not 1 <= f['horizon'] <= 10 or not 2 <= f['n_groups'] <= 5:
+    if f['lag'] != 1 or f['direction'] != 1 or type(f['horizon']) is not int or f['horizon'] < 1 or type(f['n_groups']) is not int or f['n_groups'] < 2:
         raise EvaluationDenied('FROZEN_PARAMETERS_OUT_OF_CONTRACT')
-    if not 1 <= int(f['warmup']) <= MAX_WARMUP:
+    if type(f.get('warmup')) is not int or f['warmup'] < 1:
         raise EvaluationDenied('WARMUP_EXCEEDS_SNAPSHOT_HISTORY')
     if not re.fullmatch(r'[0-9a-f]{32}:[0-9a-f]{16}', request['study_id']):
         raise EvaluationDenied('STUDY_ID')
@@ -137,6 +137,10 @@ def evaluate(request, *, snapshot_root, ledger_path, key, expected_uid=None, syn
                                                expected_manifest_sha256=snap['manifest_sha256'],
                                                expected_uid=expected_uid, synthetic=synthetic)
     frozen = request['frozen']
+    if manifest['warmup_rows'] < frozen['warmup'] + len(request['overlap_dates']):
+        raise EvaluationDenied('ALGORITHM_SNAPSHOT_HISTORY_INSUFFICIENT')
+    if frozen['n_groups'] > len(panels['close'].columns):
+        raise EvaluationDenied('INSUFFICIENT_GROUP_UNIVERSE')
     factor = compute(frozen, panels)
     h, groups_n = frozen['horizon'], frozen['n_groups']
     values = qrtk.evaluate_factor(factor, panels['open'], direction=1, horizon=h, lag=1, n_groups=groups_n,

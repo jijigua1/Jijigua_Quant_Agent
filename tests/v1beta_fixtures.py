@@ -44,7 +44,7 @@ def market(seed=11, n_codes=40, end='2026-03-31', shock_2025=False):
     return days, codes, dict(open=open_, high=high, low=low, close=close, volume=volume, amount=amount)
 
 
-def build(tmp_path, *, shock_2025=False, paper_root=True, snapshot_end=None):
+def build(tmp_path, *, shock_2025=False, paper_root=True, snapshot_end=None, snapshot_warmup=330):
     from research_agent.published_release import Panel, publish
     days, codes, fields = market()
     releases = tmp_path / 'releases'
@@ -81,10 +81,10 @@ def build(tmp_path, *, shock_2025=False, paper_root=True, snapshot_end=None):
         ldays, _, longer = market(end=snapshot_end)
         sfields = {k: np.concatenate([a, longer[k][len(sdays):]]) for k, a in sfields.items()}
         sdays = ldays
-    keep = sdays >= '2024-01-01'
+    keep = sdays >= ('2020-01-01' if snapshot_warmup > 330 else '2024-01-01')
     d = [x.strftime('%Y%m%d') for x in sdays[keep]]
     f = {k: a[keep].copy() for k, a in sfields.items()}
-    rows, end, quality = select_rows(d, np.isfinite(f['close']).sum(axis=1))
+    rows, end, quality = select_rows(d, np.isfinite(f['close']).sum(axis=1),warmup=snapshot_warmup)
     src = {k: dict(bytes=int(a.nbytes), sha256=hashlib.sha256(a.tobytes()).hexdigest()) for k, a in sfields.items()}
     snaps = tmp_path / 'rolling_private'
     snaps.mkdir()

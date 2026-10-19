@@ -16,10 +16,10 @@ import time
 
 
 FIELDS = ("open", "high", "low", "close", "volume", "amount")
-SOURCE_ROOT = Path("/hy-tmp/data/daily_update")
-RELEASE_ROOT = Path("/srv/jijigua-quant-agent/data_releases")
+SOURCE_ROOT = Path("/srv/quant-market/daily_update")
+RELEASE_ROOT = Path("/var/lib/jijigua-quant-agent/data_releases")
 WALL_SECONDS = 120
-LISTING_CANDIDATE = Path("/srv/auxiliary-data/listing_metadata.csv")
+LISTING_CANDIDATE = Path("/hy-tmp/autodl-tmp/TRD_Co.csv")
 LISTING_CANDIDATE_SHA256 = "f6f5d072d6502561a3ca3495f9132b84753584ddbef6d7ce459b4a0dfa10e209"
 IDENTITY_EXCLUSIONS = ("001914.SZ", "302132.SZ")
 

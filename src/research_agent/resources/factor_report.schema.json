@@ -167,32 +167,10 @@
                   "number",
                   "null"
                 ]
-              },
-              "G0": {
-                "type": [
-                  "number",
-                  "null"
-                ]
-              },
-              "G1": {
-                "type": [
-                  "number",
-                  "null"
-                ]
-              },
-              "G2": {
-                "type": [
-                  "number",
-                  "null"
-                ]
-              },
-              "G3": {
-                "type": [
-                  "number",
-                  "null"
-                ]
-              },
-              "G4": {
+              }
+            },
+            "patternProperties": {
+              "^G[0-9]+$": {
                 "type": [
                   "number",
                   "null"
@@ -225,10 +203,9 @@
         },
         "group_columns": {
           "type": "array",
-          "maxItems": 5,
           "items": {
             "type": "string",
-            "pattern": "^G[0-4]$"
+            "pattern": "^G[0-9]+$"
           }
         },
         "group_definition": {

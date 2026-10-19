@@ -47,6 +47,15 @@ def formula(definition, standardization='raw'):
     return 'f_{t,i}='+latex
 
 def render(definition,standardization='raw'):
+    if definition.get('kind') == 'isolated_python':
+        import html
+        from paper_agent.algorithm_bundle import validate
+        contract=validate(definition['bundle'])
+        text=contract['formula']
+        return dict(latex=text,definition_sha256=fingerprint(definition),renderer='Escaped confirmed algorithm contract',
+            renderer_version='1',formula_version=VERSION,
+            html='<pre class="algorithm-formula">'+html.escape(text)+'</pre><p>冻结 Python 算法 · SHA '+
+                 html.escape(definition['bundle']['source_sha256'])+'</p>')
     from matplotlib.mathtext import math_to_image
     latex=formula(definition,standardization)
     b=io.BytesIO();math_to_image('$'+latex+'$',b,format='svg',dpi=144,color='#243342')

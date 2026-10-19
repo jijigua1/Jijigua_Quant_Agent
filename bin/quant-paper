@@ -1,0 +1,16 @@
+#!/bin/sh
+# One sibling launcher owns host.json, staging and paper registration for all modes.
+set -eu
+case "${1:-help}" in
+    list)
+        shift
+        [ "$#" -eq 0 ] || { printf '%s\n' '用法：quant-paper list' >&2; exit 2; }
+        exec "${0%/*}/quant-agent" paper-list ;;
+    upload)
+        shift
+        if [ "$#" -eq 2 ] && [ "$1" = '--mode' ] && [ "$2" = 'zmodem' ]; then
+            exec "${0%/*}/quant-agent" paper-upload
+        fi
+        exec "${0%/*}/quant-agent" paper-transfer upload "$@" ;;
+    *) exec "${0%/*}/quant-agent" paper-transfer "$@" ;;
+esac

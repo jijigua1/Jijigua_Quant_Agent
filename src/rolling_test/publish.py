@@ -68,21 +68,23 @@ def _write_index(private_root, rows, group_id):
     os.replace(temp, path)
 
 
-def current(private_root, source):
+def current(private_root, source, warmup=330):
     """The existing snapshot built from exactly these sources, if any."""
     want = fingerprint(source)
-    return next((r for r in load_index(private_root) if r['source_fingerprint'] == want), None)
+    return next((r for r in load_index(private_root) if r['source_fingerprint'] == want and r['warmup_rows'] == warmup), None)
 
 
 def publish(*, source_root, private_root, staging_root, expected_codes, approval_ref, implementation,
             publisher_user='quantpub', evaluator_group='quanteval', today, source, listing=None, wall_seconds=240,
-            synthetic=False):
+            synthetic=False, warmup=330):
     """Publish one snapshot for the pinned `source`; returns the index row. Caller is root."""
     import grp
     import pwd
     if os.geteuid() != 0:
         raise PermissionError('ROOT_BROKER_REQUIRED')
-    existing = current(private_root, source)
+    if type(warmup) is not int or warmup < 330:
+        raise SnapshotError('WARMUP_BOUND')
+    existing = current(private_root, source, warmup)
     if existing:
         return dict(existing, reused=True)
     import sys
@@ -130,20 +132,21 @@ def publish(*, source_root, private_root, staging_root, expected_codes, approval
                 duplicate = os.dup(fds[name])
                 os.lseek(duplicate, 0, os.SEEK_SET)
                 return duplicate
+            history_start = '20200101' if warmup > 330 else '20240101'
             manifest = {'datasets': {'daily_update_core': {'root': str(source_root),
                         'fields': {f: {'file': f + '.pkl', **source[f]} for f in FIELDS},
-                        'certification': {'level': 'PROFILED', 'start': '20240101', 'end': today, 'fields': list(FIELDS)}}}}
+                        'certification': {'level': 'PROFILED', 'start': history_start, 'end': today, 'fields': list(FIELDS)}}}}
             reader = ControlledReader(manifest, allowed_roots=[str(source_root)], opener=opener,
                                       budget=Budget(max_cells=60_000_000, max_file_bytes=256 * 1024 ** 2,
                                                     max_result_bytes=512 * 1024 ** 2))
-            data = reader.read('daily_update_core', FIELDS, '20240101', today, purpose='profile')
+            data = reader.read('daily_update_core', FIELDS, history_start, today, purpose='profile')
             codes = tuple(data.codes)
             if set(expected_codes) - set(codes):
                 raise SnapshotError('BASELINE_CODES_MISSING_IN_SOURCE')
             columns = [codes.index(c) for c in expected_codes]
             fields = {f: np.ascontiguousarray(a[:, columns], dtype=np.float64) for f, a in data.fields.items()}
             counts = np.isfinite(fields['close']).sum(axis=1)
-            rows, certified_end, quality = select_rows(list(data.dates), counts, today=today)
+            rows, certified_end, quality = select_rows(list(data.dates), counts, today=today, warmup=warmup)
             panel = Panel(tuple(data.dates[i] for i in rows), tuple(expected_codes), {f: a[rows] for f, a in fields.items()})
             listing_dates = listing(panel.codes) if listing else None
             masked_cells = 0
@@ -195,7 +198,7 @@ def publish(*, source_root, private_root, staging_root, expected_codes, approval
         p = staging / name
         if p.is_symlink() or digest(p) != sha:
             raise SnapshotError('STAGED_FINGERPRINT')
-    version = version_id(m['certified_end'], source)
+    version = version_id(m['certified_end'], source if warmup == 330 else dict(source=source, warmup=warmup))
     final = Path(private_root) / version
     if final.exists():
         raise SnapshotError('SNAPSHOT_VERSION_EXISTS')

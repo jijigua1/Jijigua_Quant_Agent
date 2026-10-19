@@ -24,10 +24,10 @@ current=$(sha256sum "$LAUNCHER" | cut -d' ' -f1)
 if [ "$current" != "$LAUNCHER_V082_SHA" ] && ! grep -q "launcher_v1.py" "$LAUNCHER"; then
     echo "quant-agent is neither v0.8.2 nor v1: stop"; exit 3; fi
 for u in quantagent quantpub quanteval; do id "$u" >/dev/null; done
-[ "$(stat -c '%U:%G %a' /srv/jijigua-quant-agent/v1beta_rolling/rolling.key)" = "root:quanteval 440" ]
-[ "$(stat -c '%U:%G %a' /srv/jijigua-quant-agent/v1beta_rolling/snapshots)" = "root:quanteval 750" ]
-[ "$(stat -c '%U:%G %a' /srv/jijigua-quant-agent/v1beta_rolling/receipts)" = "root:quantagent 750" ]
-test -d /srv/jijigua-quant-agent/test_evaluator/phase3c_v1        # Codex one-time evaluation: present and never touched below
+[ "$(stat -c '%U:%G %a' /var/lib/jijigua-quant-agent/v1beta_rolling/rolling.key)" = "root:quanteval 440" ]
+[ "$(stat -c '%U:%G %a' /var/lib/jijigua-quant-agent/v1beta_rolling/snapshots)" = "root:quanteval 750" ]
+[ "$(stat -c '%U:%G %a' /var/lib/jijigua-quant-agent/v1beta_rolling/receipts)" = "root:quantagent 750" ]
+test -d /var/lib/jijigua-quant-agent/test_evaluator/phase3c_v1        # Codex one-time evaluation: present and never touched below
 
 step "1 daily market data: run cron under supervisord (restarts with the container); real_time_product untouched"
 if [ ! -f "$CRON_CONF" ]; then
@@ -53,7 +53,7 @@ done
 # the product's own interpreter (numpy 2 pickles); the last day must cover >= 90% of the prior-20-day median, as the publisher requires
 /usr/local/bin/python -I -c "
 import pandas as pd
-c = pd.read_pickle('/hy-tmp/data/daily_update/close.pkl'); n = c.notna().sum(axis=1); ratio = n.iloc[-1] / n.iloc[-21:-1].median()
+c = pd.read_pickle('/srv/quant-market/daily_update/close.pkl'); n = c.notna().sum(axis=1); ratio = n.iloc[-1] / n.iloc[-21:-1].median()
 print('daily_update close last date:', c.index.max(), 'codes', int(n.iloc[-1]), 'coverage vs prior-20 median', round(float(ratio), 4))
 assert ratio >= 0.9, 'last day incomplete'"
 
@@ -68,7 +68,7 @@ step "4 2026 rolling Test: authorize the reviewed broker (ROLLING_EXPOSED_TEST; 
 import json, os, sys
 path, ref = sys.argv[1], sys.argv[2]
 c = json.load(open(path))
-assert c['synthetic'] is False and c['source_root'] == '/hy-tmp/data/daily_update'
+assert c['synthetic'] is False and c['source_root'] == '/srv/quant-market/daily_update'
 c.update(authorized=True, approval_ref=ref)
 tmp = path + '.new'
 with open(os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), 'w') as f:

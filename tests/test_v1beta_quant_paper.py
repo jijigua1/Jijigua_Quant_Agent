@@ -10,6 +10,8 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools' / 'quant_paper'))
 import quant_paper as qp  # noqa: E402
 
+pytestmark = pytest.mark.skipif(not hasattr(qp, 'expand'), reason='Historical client protocol is absent from deployed ver1.0; formal client tested in test_portable_paper_upload.py')
+
 FIX = Path(__file__).parent / 'fixtures_v1beta'
 
 
@@ -27,7 +29,7 @@ def configured(tmp_path, monkeypatch):
             return subprocess.CompletedProcess(args, 0, '', '')
         return subprocess.CompletedProcess(args, 0, '', '')
     monkeypatch.setattr(qp.subprocess, 'run', run)
-    qp.main(['setup', '--host', 'example.test', '--port', '2222', '--user', 'root', '--identity', str(key)])
+    qp.main(['setup', '--host', 'example.test', '--port', '27182', '--user', 'root', '--identity', str(key)])
     calls.clear()
     return calls, monkeypatch, tmp_path
 

@@ -167,6 +167,8 @@ class Parser:
         if self.peek()[1] == "^":
             self.take()
             exp = self.group()
+            if exp == {"op": "const", "value": 1.0} or exp == {"op": "const", "value": 1}:
+                return base                     # x^1 = x (Round B C06: the same Alpha#33 got two routes and two SHAs)
             return {"op": "pow", "args": [base, exp]}
         return base
 
@@ -294,6 +296,9 @@ class Parser:
         self.take("_")
         sub = self.raw_group().replace(" ", "")
         parts = sub.split(",")
+        init = "first"
+        if name != "sma" and len(parts) == 2 and parts[1] in ("sma", "first"):
+            init, parts = parts[1], parts[:1]           # ema_{12,sma}(x): seeded with the mean of the first N values
         if not all(re.fullmatch(r"\d+", p) for p in parts) or len(parts) > 2:
             raise IRError("UNSUPPORTED_RECURSION_PARAMETERS", f"{name}_{{{sub}}}")
         n = int(parts[0])
@@ -306,7 +311,7 @@ class Parser:
             raise IRError("UNSUPPORTED_RECURSION_PARAMETERS", f"{name}_{{{sub}}}: only sma takes two parameters (N,M)")
         m = int(parts[1]) if len(parts) == 2 else None
         x = self.paren_arg()
-        return make_ema(RECURSIVE[name], n, x, m=m)
+        return make_ema(RECURSIVE[name], n, x, m=m, init=init)
 
     def _var_body(self, n):
         """sma_{N}(X_{i,t}) -> mean_{k=0}^{N-1} X_{i,t-k}: the argument's lags are shifted by the window variable."""

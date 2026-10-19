@@ -113,11 +113,15 @@ def _gen(node, field_of, names):
             }[op]()
 
 
-def contract_from_task(task):
+def contract_from_task(task, *, trusted_ir=False):
+    """The contract of a task's frozen IR. A model-code candidate needs the candidate permission; the reviewed Factor-IR
+    executor (trusted_ir=True, no model code) needs only an understood definition: no blocking formula or semantics item."""
     ir = task["factor"].get("ir_execution") or task["factor"]["ir"]
     syms = [s for s in task["factor"]["symbols"] if not s.get("derived")]   # derived symbols live inside the IR
     adm = task.get("admission")
-    if adm is not None and not adm["permissions"]["may_generate_candidate"]:
+    understood = adm is not None and ir is not None and not (adm["gates"]["formula"]["blocking_items"] or
+                                                              adm["gates"]["semantics"]["blocking_items"])
+    if adm is not None and not (understood if trusted_ir else adm["permissions"]["may_generate_candidate"]):
         raise PaperError("SCHEMA_INVALID", f"admission {adm['state']} does not allow a candidate: "
                          f"{adm['gates']['formula']['blocking_items'] + adm['gates']['semantics']['blocking_items']}")
     if ir is None or any(s["field"] is None for s in syms):

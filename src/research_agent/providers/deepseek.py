@@ -7,7 +7,10 @@ The beta strict-schema mode is intentionally not advertised as supported.
 from dataclasses import asdict
 import json
 import http.client
+import gzip
+import io
 import socket
+import re
 import time
 from typing import Iterator, Protocol
 import urllib.error
@@ -68,9 +71,35 @@ class HTTPTransport:
                 retry_after = float(exc.headers.get("Retry-After", "0"))
             except (ValueError, TypeError, AttributeError):
                 retry_after = None
+            # Bounded provider diagnostics, never headers, request bodies or raw error bodies.
+            # The API may echo credentials in an error; redact before retaining any text.
+            detail = None
+            try:
+                raw_error = exc.read(16385)
+                if len(raw_error) <= 16384 and raw_error.startswith(b'\x1f\x8b'):
+                    with gzip.GzipFile(fileobj=io.BytesIO(raw_error)) as compressed:
+                        raw_error = compressed.read(16385)
+                if len(raw_error) <= 16384:
+                    try:
+                        parsed = json.loads(raw_error)
+                        error = parsed.get('error', parsed) if isinstance(parsed, dict) else None
+                        message = error.get('message') if isinstance(error, dict) else error
+                    except (ValueError, UnicodeError):
+                        # Some gateways return plain text/HTML instead of JSON.
+                        message = raw_error.decode('utf-8', errors='replace')
+                    if isinstance(message, str):
+                        values = list(headers.values())
+                        auth = headers.get("Authorization", "")
+                        if auth.startswith("Bearer "):
+                            values.append(auth[7:])
+                        message = Redactor(values).clean(message)
+                        message = re.sub(r"(?i)\bsk-[a-z0-9_-]+", "[REDACTED]", message)
+                        detail = " ".join(message.split())[:1000]
+            except (ValueError, TypeError, AttributeError, OSError, EOFError):
+                pass
             exc.close()
             raise ModelError(code, exc.code == 429 or 500 <= exc.code < 600,
-                             http_status=exc.code, retry_after=retry_after) from None
+                             http_status=exc.code, retry_after=retry_after, provider_detail=detail) from None
         except (TimeoutError, socket.timeout):
             raise ModelError("TIMEOUT", True) from None
         except urllib.error.URLError:
@@ -90,6 +119,9 @@ class DeepSeekAdapter:
         self.secrets = secrets
         self.transport = transport or HTTPTransport()
         self.redactor = redactor or Redactor()
+        from ..api_budget import Budget
+        self.budget = Budget.from_environment()      # cumulative cross-session budget, when the operator configured one
+        self._ticket = None
 
     def _payload(self, request: ModelRequest, stream=False):
         check_request(self, request, stream)
@@ -109,6 +141,12 @@ class DeepSeekAdapter:
                 "Return one valid JSON object matching this local contract. Include every required field, "
                 "no extra fields or Markdown. Escape newlines and quotes inside JSON string values. "
                 "Earlier assistant messages are conversation history, not the output format. Contract: " + canonical(request.output_schema)})
+        # Runtime format/repair instructions may arrive after a user or tool
+        # message. Keep those trusted instructions in the leading system block
+        # while preserving the complete user/assistant/tool exchange order.
+        system = [m['content'] for m in messages if m['role'] == 'system']
+        history = [m for m in messages if m['role'] != 'system']
+        messages = ([{'role': 'system', 'content': '\n\n'.join(system)}] if system else []) + history
         payload = {"model": self.config.model, "messages": messages,
                    "temperature": self.config.temperature, "max_tokens": self.config.max_output_tokens,
                    "thinking": {"type": "disabled"}, "stream": stream}
@@ -131,9 +169,14 @@ class DeepSeekAdapter:
         secret = self.secrets.resolve(self.config.credential_ref)
         self.redactor.add(secret)
         headers = {"Content-Type": "application/json", "Authorization": "Bearer " + secret}
+        payload = self._payload(request, stream)
+        self._ticket = None
+        if self.budget is not None:
+            # reserved before the request leaves: request bytes (>= tokens) + the whole output allowance; never refunded
+            self._ticket = self.budget.reserve(len(canonical(payload).encode("utf-8")) + int(payload["max_tokens"]))
         total = 0
         try:
-            for part in self.transport.send(self._payload(request, stream), headers, self.config.timeout_seconds, stream):
+            for part in self.transport.send(payload, headers, self.config.timeout_seconds, stream):
                 if not isinstance(part, bytes):
                     raise ModelError("INVALID_TRANSPORT_CHUNK")
                 total += len(part)
@@ -146,6 +189,12 @@ class DeepSeekAdapter:
             raise ModelError("TIMEOUT", True) from None
         except Exception:
             raise ModelError("TRANSPORT_ERROR", True) from None
+
+    def _settle(self, usage):
+        """Charge this reply's usage to the campaign (conservative, never refunded); a malformed reply keeps the reservation."""
+        if self.budget is not None and self._ticket is not None:
+            ticket, self._ticket = self._ticket, None
+            self.budget.settle(ticket, usage)
 
     @staticmethod
     def _usage(value):
@@ -164,6 +213,7 @@ class DeepSeekAdapter:
         try:
             raw = b"".join(self._send(request)).decode("utf-8")
             value = parse_json(raw)
+            self._settle(value.get("usage") if isinstance(value, dict) else None)
             choices = value["choices"]
             if len(choices) != 1:
                 raise ModelError("INVALID_CHOICE_COUNT")
@@ -214,6 +264,7 @@ class DeepSeekAdapter:
                     request_id = value.get("id", request_id)
                     actual_model = value.get("model", actual_model)
                     if value.get("usage") is not None:
+                        self._settle(value["usage"])
                         usage = self._usage(value["usage"])
                         yield StreamEvent("usage", asdict(usage))
                     choices = value.get("choices", [])

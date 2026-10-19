@@ -18,8 +18,8 @@ from .security import Denied
 VERSION='independent-evaluator/1.0.0'
 DEFINITION_SCHEMA=object_schema({
     'expression':SCHEMA,'standardization':{'enum':['raw','zscore']},
-    'horizon':{'type':'integer','minimum':1,'maximum':10},
-    'n_groups':{'type':'integer','minimum':2,'maximum':5},
+    'horizon':{'type':'integer','minimum':1},
+    'n_groups':{'type':'integer','minimum':2},
     'direction':{'const':1},'lag':{'const':1},
     'code_sha256':{'type':'string','pattern':'^[0-9a-f]{64}$'},
     'research_study_id':{'type':'string','pattern':'^[0-9a-f]{32}:[0-9a-f]{16}$'},

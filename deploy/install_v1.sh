@@ -3,8 +3,9 @@
 set -euo pipefail
 umask 022
 test -f /root/v1beta_bundle.tgz
-if [ -d /opt/jijigua-quant-agent/v1beta ]; then
-  mv /opt/jijigua-quant-agent/v1beta "/opt/jijigua-quant-agent/v1beta.prev_$(date +%Y%m%d_%H%M%S)"
+if [ -e /opt/jijigua-quant-agent/v1beta ]; then
+  printf '%s\n' 'Existing deployment: use the reviewed release_tool transaction; bootstrap made no change.' >&2
+  exit 3
 fi
 mkdir /opt/jijigua-quant-agent/v1beta
 tar xzf /root/v1beta_bundle.tgz -C /opt/jijigua-quant-agent/v1beta --no-same-owner --no-same-permissions

@@ -11,7 +11,7 @@ def hac_mean(values, horizon):
     """Bartlett/Newey-West mean SE; conservative admission, no significance stars."""
     x=np.asarray(values,dtype=float)
     n_valid=int(np.isfinite(x).sum())
-    if horizon<1 or horizon>10:raise ValueError('invalid horizon')
+    if type(horizon) is not int or horizon<1:raise ValueError('invalid horizon')
     lags=max(horizon-1,int(4*(len(x)/100)**(2/9)))
     if len(x)<max(60,10*(lags+1)) or not np.isfinite(x).all():
         return dict(status='insufficient',n=len(x),n_valid=n_valid,lags=lags,se=None,ci_low=None,ci_high=None,

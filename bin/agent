@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /usr/bin/python3 -I -B /opt/jijigua-quant-agent/ver1.0/deploy/easy_agent.py "$@"

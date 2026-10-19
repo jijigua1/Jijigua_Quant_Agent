@@ -19,9 +19,9 @@ risk_level = "L0"
 requires_approval = false
 
 [budget]
-max_iterations = 3
-max_model_calls = 14
-max_tool_calls = 3
+max_iterations = 6
+max_model_calls = 24
+max_tool_calls = 8
 max_jobs = 0
 cpu_cores = 1
 memory_mib = 4096

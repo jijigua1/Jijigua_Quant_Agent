@@ -71,8 +71,22 @@ def test_json_object_mode_is_locally_validated():
     assert json.loads(result.content) == plan
     assert transport.requests[0][0]["response_format"] == {"type": "json_object"}
     assert provider.capabilities.strict_schema is False
-    assert "local contract" in transport.requests[0][0]["messages"][-1]["content"]
-    assert "Earlier assistant messages" in transport.requests[0][0]["messages"][-1]["content"]
+    assert "local contract" in transport.requests[0][0]["messages"][0]["content"]
+    assert "Earlier assistant messages" in transport.requests[0][0]["messages"][0]["content"]
+    assert transport.requests[0][0]["messages"][-1] == {"role": "user", "content": "plan"}
+
+
+def test_late_system_feedback_preserves_tool_exchange_order():
+    provider, _ = adapter([])
+    call = ToolCall('call_1', 'query_mock_data', {'resource_id': 'mock:ohlcv-v1'})
+    request = ModelRequest((Message(Role.SYSTEM, 'policy'), Message(Role.USER, 'query'),
+        Message(Role.ASSISTANT, tool_calls=(call,)),
+        Message(Role.TOOL, '{"status":"ok"}', tool_call_id='call_1'),
+        Message(Role.SYSTEM, 'Return JSON; repair the format.')))
+    messages = provider._payload(request)['messages']
+    assert [m['role'] for m in messages] == ['system', 'user', 'assistant', 'tool']
+    assert messages[0]['content'] == 'policy\n\nReturn JSON; repair the format.'
+    assert messages[2]['tool_calls'][0]['id'] == messages[3]['tool_call_id'] == 'call_1'
 
 
 @pytest.mark.parametrize("message,finish", [

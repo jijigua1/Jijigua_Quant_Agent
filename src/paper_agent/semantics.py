@@ -276,7 +276,48 @@ def check_factor(item, *, replication_notes=(), repairs=(), freq=None):
         # the paper does not state these numbers: they are the model's replication choice and go to the user as a decision
         conf.append({"code": "PARAMETER_CHOSEN_NOT_IN_PAPER", "blocking": False, "values": chosen,
                      "detail": f"窗口/参数 {chosen} 不是原文给出的数值，而是复现时的选择（{'；'.join(x[:120] for x in choices if x.strip())[:240]}）"})
+    conf += window_length_conflicts(item, ir, factor_quotes, freq)
     return conf
+
+
+FREQ_ROWS = {"daily": 1, "weekly": 5, "monthly": 21, "quarterly": 63, "annual": 252}
+SPAN = re.compile(rf"(?P<n>{N})\s*[- ]?\s*(?P<u>{UNIT})", re.I)
+
+
+def window_length_conflicts(item, ir, factor_quotes, freq):
+    """A window's length (end - start + 1 observations at the paper's frequency) must be a period the factor's verified
+    quotes state ("the 12-month period", "52-week high", "past 20 days"), converted to that frequency; one fewer is the
+    skip form. Nothing is checked when the quotes state no period or the frequency is unknown (live recheck D09 run 1:
+    "12-month period" written as max_{0<=k<=12}, 13 months, from the appendix wording "months t-j-12 to t-j")."""
+    rows = FREQ_ROWS.get((freq or "").lower())
+    if not rows:
+        return []
+    texts = list(factor_quotes) + [_sym_text(s) for s in item.get("symbols") or []]
+    spans, where = set(), {}
+    for t in texts:
+        for m in SPAN.finditer(t or ""):
+            n, u = _num(m.group("n")), _unit(m.group("u"))
+            if n and u in PERIOD_ROWS:
+                v = n * PERIOD_ROWS[u] / rows
+                spans.add(v)
+                where.setdefault(v, m.group(0))
+    if not spans:
+        return []
+    out = []
+    for node in walk(ir):
+        if node["op"] not in TS_OPS or not node.get("var"):
+            continue
+        length = node["end"] - node["start"] + 1
+        if length <= 1:
+            continue
+        if any(abs(length - v) <= max(0.5, 0.03 * v) or abs(length - (v - 1)) <= max(0.5, 0.03 * v) for v in spans):
+            continue
+        stated = "、".join(dict.fromkeys(where[v] for v in sorted(spans)))
+        out.append({"code": "WINDOW_LENGTH_CONTRADICTS_PAPER", "blocking": True, "symbol": None,
+                    "detail": f"公式窗口 {node['op']}_{{{node['var']}={node['start']}..{node['end']}}} 共 {length} 期（{freq}），"
+                              f"但原文引文给出的期间是：{stated}",
+                    "evidence": [where[v] for v in sorted(spans)][:4]})
+    return out
 
 
 def check_symbols(item, evidence=None, used=None):
@@ -310,7 +351,10 @@ def check_symbols(item, evidence=None, used=None):
             continue
         field, kind = s.get("data_field"), s.get("kind")
         text = _sym_text(s)
-        if kind in ("derived",) and field in (None, "other", "unknown") and not s.get("derivation_latex"):
+        # a derived quantity with no definition is never a market field, whatever data_field it carries (live A/B
+        # 2026-10-17 D03u: RS "average rises / average drops" with data_field close became RSI = 100 - 100/(1 + close));
+        # returns are the exception: the program derives them from prices under its own return checks (AQR r)
+        if kind in ("derived",) and not s.get("derivation_latex") and field != "returns":
             conf.append({"code": "SYMBOL_UNDEFINED", "symbol": name, "blocking": True,
                          "detail": f"符号 {name} 的含义为“{(s.get('meaning') or '')[:100]}”，但没有可计算的定义式；"
                                    f"不能把它映射为任何行情字段。原文检索：{where}", "candidates": found[:3]})

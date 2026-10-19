@@ -26,8 +26,17 @@ from .semantics import _numbers_in, plain
 VERSION = "paper_agent.reconcile/1.0"
 
 SOURCES = ("ai_misreading", "extraction_error", "unsupported_notation", "paper_ambiguity", "data_mismatch", "free_parameter")
-SOURCE_CN = {"ai_misreading": "AI 理解错误", "extraction_error": "PDF/公式提取错误", "unsupported_notation": "程序暂不支持的记法（程序解析未完成）",
-             "paper_ambiguity": "论文本身存在歧义或未写明", "data_mismatch": "研究对象与现有数据不匹配", "free_parameter": "需要用户选择的自由参数"}
+SOURCE_CN = {"ai_misreading": "模型理解错误（读数与原文矛盾）", "extraction_error": "原文无法解析（PDF 文字层或公式无法读取）",
+             "unsupported_notation": "算子不支持（原文写法超出程序可信公式的表达范围，不是读错）",
+             "paper_ambiguity": "数学语义不确定（原文未写明、有歧义或两次读数不一致）", "data_mismatch": "研究对象与现有数据不匹配",
+             "free_parameter": "需要用户选择的自由参数"}
+# what each source means for the user, shown once under the blocked reasons
+SOURCE_HINT = {"extraction_error": "论文 PDF 中这部分文字或公式无法被程序读出，程序没法核对模型的读数；可以对照原文页给出公式，或提供可机读的版本。",
+               "unsupported_notation": "原文的数学写法（例如条件分支、按日历期间计数的窗口、行业中性化）超出程序能安全计算的算子集合，"
+                                       "这不是模型读错；可改走新算法代码审批路线，或给出可信公式能表达的定义。",
+               "paper_ambiguity": "原文没有写明，或存在多种合理理解（包括两次独立读数不一致），需要你明确定义后再研究。",
+               "ai_misreading": "模型的读数与原文矛盾，已拒绝；可以让我重新读取。",
+               "data_mismatch": "论文研究对象或所需数据不在已发布数据中。", "free_parameter": "论文没有给出该参数的取值，需要你指定。"}
 CODE_SOURCE = {
     "FORMULA_UNPARSEABLE": "unsupported_notation", "DERIVATION_UNPARSEABLE": "unsupported_notation",
     "FREE_PARAMETER_UNBOUND": "free_parameter", "PARAMETER_SELECTED_FROM_PAPER_VALUES": "free_parameter",
@@ -36,6 +45,8 @@ CODE_SOURCE = {
     "ALGORITHM_STEP_AMBIGUOUS": "paper_ambiguity", "SYMBOL_UNDEFINED": "paper_ambiguity",
     "FIELD_NOT_IN_PANEL": "data_mismatch", "ASSET_CLASS_NOT_AVAILABLE": "data_mismatch",
     "FORMULA_DEGENERATE_TERMS": "extraction_error",
+    "CALENDAR_WINDOW_UNSUPPORTED": "unsupported_notation", "CONDITIONAL_NOT_REPRESENTABLE": "unsupported_notation",
+    "FORMULA_READINGS_DISAGREE": "paper_ambiguity",
 }
 GREEK = ("alpha|beta|gamma|delta|epsilon|zeta|eta|theta|kappa|lambda|mu|nu|xi|rho|sigma|tau|phi|chi|psi|omega|"
          "Gamma|Delta|Theta|Lambda|Sigma|Phi|Psi|Omega")
@@ -43,7 +54,8 @@ GREEK_UNI = {"α": "\\alpha", "β": "\\beta", "γ": "\\gamma", "δ": "\\delta", 
              "μ": "\\mu", "ν": "\\nu", "ρ": "\\rho", "σ": "\\sigma", "τ": "\\tau", "φ": "\\phi", "ω": "\\omega"}
 INDEX_LETTERS = {"i", "t", "k", "j", "s", "l", "m", "d"}
 CALENDAR_COUNT = re.compile(r"\b(?:number|count) of (?:trading |valid |observed )?days\b[^.;]{0,60}\b(?:data|available|availability|in (?:the )?(?:year|month|week|quarter))"
-                            r"|\bdata availability\b|\bdays? with (?:available )?data\b|有数据的(?:交易)?日|当(?:年|月)(?:的)?(?:有效)?交易日(?:数|天数)", re.I)
+                            r"|\bdata availability\b|\bdays? with (?:available )?data\b|有数据的(?:交易)?日|当(?:年|月|季|周)(?:的)?(?:实际|有效)?(?:有数据的)?交易日(?:数|天数)"
+                            r"|(?:年|月|季|周)内(?:的)?(?:实际|有效)(?:交易)?(?:日数|天数)", re.I)
 _BOUND = re.compile(r"(?:\^|_)\{((?:[^{}]|\{[^{}]*\})*)\}")
 _TOKEN = re.compile(rf"\\(?:{GREEK})(?![A-Za-z])(?:_\{{?[A-Za-z0-9]+\}}?)?|(?<![\\A-Za-z])[A-Za-z][A-Za-z]*(?:_\{{?(?:\\text\{{)?[A-Za-z0-9]+\}}?\}}?)?")
 
@@ -112,6 +124,18 @@ def symbolic_counts(latex, data_symbols=()):
     return found
 
 
+def calendar_window_conflict(text, symbol=None):
+    """A window whose length is the number of days with data in a calendar period (Amihud 2002: ILLIQ_iy is the average of
+    |R|/VOLD over the D_iy days with data of stock i in year y). The trusted IR has only fixed-length row windows that need
+    every row present: no calendar grouping, no 'days with data' average. A fixed number of days (e.g. 250) would change
+    the definition (period alignment, missing-day handling), so the factor is not run as trusted IR."""
+    return {"code": "CALENDAR_WINDOW_UNSUPPORTED", "symbol": symbol, "blocking": True, "evidence": str(text)[:200],
+            "detail": "原文按日历期间计算：窗口长度是该股票在当年（或当月）实际有数据的交易日数（依据：“" + str(text)[:120] + "”），"
+                      "随股票和期间变化。可信公式只支持固定行数、窗口内每天都有数据的滚动窗口，没有“按日历期间、只计有数据交易日”"
+                      "的算子；用固定天数（如250天）代替会改变定义（期间对齐和缺失日处理都不同），因此不作为可信公式执行。"
+                      "如需研究，可改走新算法代码审批路线（按日历期间分组的实现须经你审核和已知真值测试，且不进入2026评价）。"}
+
+
 def bind_parameters(latex, params, evidence_quotes, user_params=None, data_symbols=(), report_undeclared=True):
     """Bind the formula's symbolic counts. Returns (bound latex, parameter records, conflicts).
 
@@ -126,14 +150,15 @@ def bind_parameters(latex, params, evidence_quotes, user_params=None, data_symbo
         if isinstance(p, dict) and p.get("symbol") and not re.fullmatch(r"[\d.]+", _canon(p["symbol"])):
             declared[_canon(p["symbol"])] = p
     # a count fixed by data availability or the calendar (Amihud's D_{i,y} = days with data for stock i in year y) is not a
-    # free parameter: it goes to the formula repair, which uses the window's nominal length and records the approximation
-    for s in [s for s, p in declared.items() if CALENDAR_COUNT.search(f"{p.get('meaning') or ''} {p.get('status') or ''}")]:
-        declared.pop(s)
+    # free parameter, and no fixed number of days may stand in for it (C6R4): the window is not computable as trusted IR
+    calendar = [s for s, p in declared.items() if CALENDAR_COUNT.search(f"{p.get('meaning') or ''} {p.get('status') or ''}")]
+    for s in calendar:
+        conf.append(calendar_window_conflict(declared.pop(s).get("meaning") or s, symbol=s))
     in_formula = [s for s in declared if _pattern(s) and _pattern(s).search(latex or "")]
     counts = symbolic_counts(latex, data_symbols)
     # a symbolic count the reader did not declare (e.g. Amihud's D = days with data in year y, a calendar window) is not
-    # a free parameter by itself: the formula repair asks the reader to declare it or use the nominal length
-    undeclared = [c for c in counts if c not in declared and c not in user]
+    # a free parameter by itself: the formula repair asks the reader to declare it (never a nominal length, C6R4)
+    undeclared = [c for c in counts if c not in declared and c not in user and c not in calendar]
     if undeclared and report_undeclared:
         conf.append({"code": "FORMULA_UNPARSEABLE", "blocking": True, "symbols": undeclared,
                      "detail": f"UNDECLARED_SYMBOLIC_COUNT: {', '.join(undeclared)}（公式中的计数符号没有在参数表中声明）"})
@@ -218,6 +243,64 @@ def _panels(rows=320, cols=12, seed=11):
             "returns": close.pct_change()}
 
 
+def numerical_matches(a, b):
+    """Check levels AND observable signals, without a constant-offset tolerance.
+
+    Keep the independent evaluators' relative rounding allowance. In addition,
+    compare changes from the first finite observation along each panel axis,
+    relative to that axis's variation, and require identical order/ties. A
+    small signal on a large constant must not be erased, reversed or rescaled.
+    Unresolved floating-point variation is not evidence of equivalence. This
+    remains a bounded numerical check, not a symbolic proof of arbitrary code.
+    """
+    import numpy as np
+    if a.shape!=b.shape or not np.array_equal(np.isfinite(a),np.isfinite(b)):
+        return None
+    both=np.isfinite(a)&np.isfinite(b)
+    left,right=a[both],b[both]
+    scale=np.maximum(np.abs(left),np.abs(right))
+    # Independent rolling Pearson implementations differ by about 2e-10
+    # relatively on the recorded baseline. 1e-9 allows that numerical error;
+    # exact zero/nonzero and sign agreement are mandatory at every scale.
+    matches=(np.abs(left-right)<=1e-9*scale)&((left==0)==(right==0))&((left>0)==(right>0))
+    if not np.all(matches) or not left.size:
+        return matches
+    # Subnormals have already lost relative precision; equality after rounding
+    # cannot certify the mathematical signal (nor can an overflowing change).
+    tiny=np.finfo(float).tiny
+    if np.any((scale!=0)&(scale<tiny)):
+        return None
+    for axis in range(a.ndim):
+        first=np.expand_dims(np.argmax(both,axis=axis),axis)
+        with np.errstate(over='ignore',invalid='ignore',under='ignore'):
+            da=a-np.take_along_axis(a,first,axis=axis)
+            db=b-np.take_along_axis(b,first,axis=axis)
+            span=np.maximum(np.max(np.where(both,np.abs(da),0),axis=axis,keepdims=True),
+                            np.max(np.where(both,np.abs(db),0),axis=axis,keepdims=True))
+            resolution=np.max(np.where(both,np.maximum(np.abs(np.spacing(a)),np.abs(np.spacing(b))),0),
+                              axis=axis,keepdims=True)
+            # A varying slice spanning only a few representable values cannot
+            # establish a reliable signal, even if both evaluators round alike.
+            unresolved=(span>0)&(span<=8*resolution)
+            signal_ok=np.isfinite(da)&np.isfinite(db)&(np.abs(da-db)<=1e-9*span)
+        if np.any((both&~signal_ok)|(both&unresolved)):
+            return np.zeros_like(matches)
+        # Adjacent sorted pairs suffice to compare all orders and ties. Check
+        # raw values, so centring/rescaling cannot hide a one-ULP rank change.
+        order=np.argsort(np.where(both,a,np.inf),axis=axis,kind='stable')
+        sa=np.take_along_axis(a,order,axis=axis)
+        sb=np.take_along_axis(b,order,axis=axis)
+        valid=np.isfinite(sa)
+        lo=[slice(None)]*a.ndim;hi=lo.copy()
+        lo[axis]=slice(None,-1);hi[axis]=slice(1,None)
+        lo,hi=tuple(lo),tuple(hi)
+        pairs=valid[lo]&valid[hi]
+        if np.any(pairs&(((sa[lo]==sa[hi])!=(sb[lo]==sb[hi]))|
+                         ((sa[lo]<sa[hi])!=(sb[lo]<sb[hi])))):
+            return np.zeros_like(matches)
+    return matches
+
+
 def formulas_agree(ir_a, map_a, ir_b, map_b):
     """Do two readings compute the same numbers? Both are evaluated by the reference evaluator on one synthetic panel
     (symbols mapped to their market fields); cells where both are finite are compared. None when not comparable."""
@@ -239,8 +322,8 @@ def formulas_agree(ir_a, map_a, ir_b, map_b):
     if both.sum() < 0.3 * a.size:
         return {"agree": False, "compared": int(both.sum()), "max_abs_diff": None, "note": "warm-up or NaN pattern differs"}
     diff = np.abs(a[both] - b[both])
-    scale = np.maximum(1.0, np.abs(a[both]))
-    return {"agree": bool(np.all(diff <= 1e-6 * scale)), "compared": int(both.sum()), "max_abs_diff": float(diff.max())}
+    matches=numerical_matches(a,b)
+    return {"agree": matches is not None and bool(np.all(matches)), "compared": int(both.sum()), "max_abs_diff": float(diff.max())}
 
 
 def classify(conflict, item=None, evidence=None):
@@ -253,6 +336,15 @@ def classify(conflict, item=None, evidence=None):
         return src
     if code in ("SYMBOL_DEFINITION_UNVERIFIED", "SYMBOL_NOT_IN_TABLE"):
         return "extraction_error" if any(c.get("kind") == "formula" for c in conflict.get("candidates") or []) else "ai_misreading"
+    detail = str(conflict.get("detail") or "")
+    if code == "FORMULA_RECONSTRUCTION_UNVERIFIED":
+        # the page cannot be read; a second reading the program cannot compute means the notation, not the reader
+        return "unsupported_notation" if "UNSUPPORTED_" in detail else "extraction_error"
+    if code == "PRINTED_FORMULA_NOT_CHECKED":
+        return "unsupported_notation" if re.search(r"function |data '|exactly comparable|conditional|constant", detail) else "extraction_error"
+    if code == "DEFINITION_SCOPE_UNCERTAIN":
+        return "extraction_error" if conflict.get("reason") in ("PRINTED_EXPRESSION_UNBALANCED", "QUOTE_POSITION_UNRESOLVED") \
+            else "paper_ambiguity"
     if code == "MODEL_FORMULA_CONTRADICTS_PAPER" and item is not None and evidence is not None:
         pages = {(item.get("formula") or {}).get("v03_formula", {}).get("page")}
         if any(p["page"] in pages and ({"glyph_substitution"} & set(p.get("flags") or []) or "[FORMULA_UNRESOLVED]" in p["text"])

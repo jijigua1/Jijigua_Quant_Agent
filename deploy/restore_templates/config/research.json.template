@@ -1,0 +1,44 @@
+{
+  "version": "1",
+  "workspace": "/var/lib/jijigua-quant-agent/ver1.0",
+  "resources": {
+    "gpushare:train2020_2023": {
+      "adjustment": "none",
+      "volume_unit": "lots",
+      "calendar": "observed_union",
+      "available_time": "historical availability unverified; T-close research assumption",
+      "corporate_actions": "not_modelled",
+      "universe": "published fixed 5427 code axis; candidate listing mask unverified, two ambiguous identities all NaN",
+      "limits": [
+        "PROFILED_EXPLORATORY_ONLY; not backtest approved",
+        "raw prices may distort returns across corporate actions",
+        "listing dates and historical universe PIT unverified",
+        "observed calendar, trade status and delisting valuations uncertified"
+      ],
+      "research_use": "exploratory_raw_price"
+    },
+    "gpushare:validation2024_2025": {
+      "adjustment": "none",
+      "volume_unit": "lots",
+      "calendar": "observed_union",
+      "available_time": "historical availability unverified; T-close research assumption",
+      "corporate_actions": "not_modelled",
+      "universe": "published fixed 5427 code axis; candidate listing mask unverified, two ambiguous identities all NaN",
+      "limits": [
+        "PROFILED_EXPLORATORY_ONLY; not backtest approved",
+        "raw prices may distort returns across corporate actions",
+        "listing dates and historical universe PIT unverified",
+        "observed calendar, trade status and delisting valuations uncertified"
+      ],
+      "research_use": "exploratory_raw_price"
+    }
+  },
+  "validation_pairs": {
+    "gpushare:train2020_2023": "gpushare:validation2024_2025"
+  },
+  "paper_root": "/var/lib/jijigua-quant-agent/v1beta/papers",
+  "require_rolling_test": true,
+  "legacy_workspaces": [
+    "/var/lib/jijigua-quant-agent/v1beta"
+  ]
+}

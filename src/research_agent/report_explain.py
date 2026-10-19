@@ -48,7 +48,9 @@ def group_stats(run, result):
                         rank_ic=result['splits'][key]['predictive']['rank_ic']['mean'],
                         rank_ci=(part.get('rank_ic_ci_low'), part.get('rank_ic_ci_high')))
     test = p.get('test') or {}
-    if test.get('status') == 'COMPLETED':
+    if test.get('status') == 'COMPLETED' and test.get('group_columns'):
+        # receipts signed before group returns were returned (independent-evaluator/1.0.x, production 10-13) have no
+        # group columns: no Test row here; the Test IC/RankIC still come from the receipt (candidate6 rehearsal: KeyError)
         rows = pd.DataFrame(test_daily(run, test))
         cols = test['group_columns']
         for c in cols + ['long_short_gross']:
