@@ -1,3 +1,22 @@
+# ver1.0 生产源码公开归档验收 · 2026-10-20
+
+以下为当前归档结果；后面的 2026-10-15 内容仅为历史记录。
+
+| 平台 / 批次 | 通过 | 跳过 | 结果 |
+|---|---:|---:|---|
+| Ubuntu 全套 | 793 | 184 | PASS |
+| macOS 全套 | 773 | 204 | PASS |
+| Windows core | 661 | 144 | PASS |
+| Windows reports | 108 | 64 | PASS |
+
+Linux/macOS：[实际 CI 记录](https://github.com/jijigua1/Jijigua_Quant_Agent/actions/runs/39291308037)中的对应平台 job 成功；该 run 的旧 Windows 单任务在 40 分钟时限中止。随后 [Windows 完整分批运行](https://github.com/jijigua1/Jijigua_Quant_Agent/actions/runs/39297499584) 全部成功，68 个模块无遗漏、无重叠。模块级跳过可能跨批次重复，跳过不计为通过。最后提交只更新说明和校验记录；运行时源码指纹保持不变。
+
+原始 249 文件、生产声明 208 条均验真；公开 251 文件恢复包校验及全新目录暂存通过。干净环境依赖、wheel 安装、安装后离线 CLI 和合成 PKL/HTML 通过。真实模型请求与真实 2026 评价均为 **0**。macOS CI 不等同于 macOS 终端上传实机验收。
+
+本次没有在生产服务器重装；代码归档不包含私有论文、业务状态、行情和签名密钥。完整恢复依赖这些独立备份，见[恢复说明](../deployment/VER1_0_RECOVERY_CN.md)及 `provenance/VER1_0_PACKAGING_CHECKS.json`。
+
+---
+
 # 公开候选验收结果 · 2026-10-15
 
 > 2026-10-15最终更新：所有者已批准公开范围、自有代码权利及AGPL-3.0-only（版权jijigua1）。下方保留审阅时的过程记录；当前决定以`provenance/OWNER_APPROVAL.json`、根LICENSE和最终manifest为准。远端CI结果需另行实际核验。

@@ -29,7 +29,7 @@
   "live_api_calls": 0,
   "live_2026_evaluations": 0,
   "server_modifications": "No production changes. A temporary download archive was created before the owner clarified read-only boundary; subsequent server operations were read-only. No remote cleanup.",
-  "full_public_regression": "Local coverage collected in groups; full CI pending push. Private fixtures and Linux-only operations explicitly skipped on Windows.",
+  "full_public_regression": "PASS: all applicable public test modules covered; private fixture and platform skips remain explicit; no live API or market evaluation",
   "remaining_limitations": [
     "Full target-server install/restore not executed: owner requires server read-only.",
     "Private data/state/signing identity is outside GitHub and outside this code-only snapshot.",
@@ -48,7 +48,7 @@
   },
   "installed_factor_example": "PASS: installed package computed synthetic factor, verified PKL and produced HTML",
   "pip_check": "PASS",
-  "clean_clone_check": "Detected and fixed generated egg-info in deployment inventory; rechecking final remote commit",
+  "clean_clone_check": "PASS: final remote payload verified; generated egg-info excluded",
   "ci": {
     "validated_source_commit": "8d98626627bb64241bc4324916d4225ef0e4b1cd",
     "run": 39291308037,
@@ -62,11 +62,27 @@
       "passed": 773,
       "skipped": 204
     },
-    "windows": {
+    "windows_previous_attempt": {
       "status": "CANCELLED_AT_40_MIN_JOB_TIMEOUT",
       "assertion_failures_before_timeout": 0,
       "progress_at_last_complete_block": "81%",
       "next": "same complete suite split into two non-overlapping jobs; no Agent source change"
-    }
+    },
+    "windows": {
+      "status": "PASS",
+      "run": 39297499584,
+      "source_commit": "c804a1020ebf4ac51f0fd055146f373a452c6938",
+      "core": {
+        "passed": 661,
+        "skipped": 144
+      },
+      "reports": {
+        "passed": 108,
+        "skipped": 64
+      },
+      "partition": "68 modules: core 47 + reports 21; no omission or overlap; module skips may repeat across jobs"
+    },
+    "runtime_source_fingerprint": "4bce85890a546e8722b5a9c03edef2feee1d639e20a647c0003eb42bbfce2427",
+    "final_metadata_only_note": "Final documentation/hash commit preserves the tested runtime bytes. CI macOS is not manual macOS SSH upload verification."
   }
 }

@@ -71,6 +71,20 @@ python3.11 -m venv /absolute/new-code-root/.venv
 
 先在新目录完成依赖导入、来源指纹、Skill 哈希、quant_source 哈希及合成回归；使用独立数据目录，不能以生产库作安装测试。核对三个入口 agent / quant-agent / quant-paper 都使用同一新代码根。
 
+历史 `deploy/selftest_rolling.py`、`regression_v1.py` 也带有旧布局常量，不能直接当 ver1.0 新机验收入口。当前源码的公开离线测试可用 `python tools/run_public_tests.py --shard all`，需非 root 身份和独立临时目录；这些测试不包含私有论文重放。
+
+安装依赖后，先用真实 CLI 做不连接模型、也不读取行情的健康检查。下面的检查目录必须预先确认不存在；用新目录运行，不能填写生产 state：
+
+```bash
+install -d -o quantagent -g quantagent -m 0700 /var/tmp/quant-agent-recovery-check
+runuser -u quantagent -- /absolute/new-code-root/.venv/bin/python -I \
+  /absolute/new-code-root/deploy/run_v1.py \
+  --state-dir /var/tmp/quant-agent-recovery-check/state \
+  --provider mock --profile offline demo
+```
+
+预期状态是 `COMPLETED`、`execution_mode=offline_mock`。它只验证安装、Skill 哈希和离线工作流，不代表真实模型、行情或 2026 评价通过。论文 registry、数据 manifest、签名身份与现有报告必须另行只读核对；确认这些数据已恢复，才执行 `quant-paper list`，防止错误指向不存在的论文库。
+
 切换前正常结束空闲会话；正在研究的进程先等待完成。保存旧入口内容、配置、代码清单和业务备份。只有检查通过，才由操作者原子更新入口到新目录；不要运行历史 `deploy/install_v1.sh`、`configure_v1.py` 或 `release_tool.py apply --production`，这些脚本绑定旧布局。
 
 启动检查无需调用模型：`quant-paper list`、`agent where`，只读打开已完成报告并核对三阶段及回执。真实 API 与真实 Test 是独立操作，不能作为恢复脚本隐式步骤。
